@@ -1,0 +1,31 @@
+{
+  "tasks": {
+    "start": "deno run --allow-read=.env --allow-env --allow-net ./src/http/server.ts",
+    "dev": "deno run --watch --allow-read=.env --allow-env --allow-net ./src/http/server.ts",
+    "check": "deno check mod.ts src/http/server.ts src/http/admin/index.ts src/db/index.ts src/http/api/index.ts src/cli/admin/create.ts",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:reset": "docker compose down -v && docker compose up -d",
+    "db:logs": "docker compose logs -f db",
+    "admin:create": "deno run --allow-read=.env --allow-env --allow-net ./src/cli/admin/create.ts"
+  },
+  "nodeModulesDir": "auto",
+  "imports": {
+    "@/": "./src/",
+    "@curio/sdk": "__CURIO_SDK_IMPORT__",
+    "@curio/sdk/admin": "__CURIO_SDK_ADMIN_IMPORT__",
+    "@curio/sdk/admin/modules/rbac": "__CURIO_SDK_ADMIN_MODULES_RBAC_IMPORT__",
+    "@curio/sdk/auth": "__CURIO_SDK_AUTH_IMPORT__",
+    "@curio/sdk/drizzle": "__CURIO_SDK_DRIZZLE_IMPORT__",
+    "@curio/sdk/http/oak": "__CURIO_SDK_HTTP_OAK_IMPORT__",
+    "@drizzle-orm": "npm:drizzle-orm@^0.44.5",
+    "@drizzle-orm/postgres-js": "npm:drizzle-orm@^0.44.5/postgres-js",
+    "@oak/oak": "jsr:@oak/oak@^17.2.0",
+    "@postgres": "npm:postgres@^3.4.7",
+    "@valibot/valibot": "jsr:@valibot/valibot@^1.3.0"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  }
+}

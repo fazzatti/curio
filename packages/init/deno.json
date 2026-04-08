@@ -1,0 +1,37 @@
+{
+  "name": "@curio/init",
+  "version": "0.1.0",
+  "exports": "./mod.ts",
+  "license": "MIT",
+  "tasks": {
+    "init": "deno run -A mod.ts",
+    "check": "deno check mod.ts src/mod.ts src/init.ts src/init_test.ts",
+    "test": "deno test -A --clean src",
+    "test:coverage": "deno test -A --clean --coverage=../../.coverage/init/unit src",
+    "coverage": "deno task test:coverage && deno task coverage:report",
+    "coverage:report": "deno coverage ../../.coverage/init/unit",
+    "coverage:detailed": "deno coverage ../../.coverage/init/unit --detailed",
+    "coverage:lcov": "deno coverage ../../.coverage/init/unit --lcov --output=../../.coverage/init/lcov.info",
+    "coverage:html": "deno coverage ../../.coverage/init/unit --html --output=../../.coverage/init/html"
+  },
+  "publish": {
+    "include": [
+      "./mod.ts",
+      "./src/**/*.ts",
+      "./template/**/*",
+      "./README.md",
+      "./LICENSE",
+      "./deno.json"
+    ]
+  },
+  "imports": {
+    "@curio/sdk": "jsr:@curio/sdk@^0.1.0",
+    "@curio/sdk/admin": "jsr:@curio/sdk/admin@^0.1.0",
+    "@curio/sdk/admin/modules/rbac": "jsr:@curio/sdk/admin/modules/rbac@^0.1.0",
+    "@curio/sdk/auth": "jsr:@curio/sdk/auth@^0.1.0",
+    "@curio/sdk/drizzle": "jsr:@curio/sdk/drizzle@^0.1.0",
+    "@curio/sdk/http/oak": "jsr:@curio/sdk/http/oak@^0.1.0",
+    "@std/assert": "jsr:@std/assert@^1.0.19",
+    "@std/path": "jsr:@std/path@^1.1.2"
+  }
+}
