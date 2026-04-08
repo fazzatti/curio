@@ -207,6 +207,7 @@ Deno.test("runInit reports parse and non-interactive scaffold errors", async () 
 
   const scaffoldErrors: string[] = [];
   const scaffoldExitCode = await runInit([], {
+    isInteractive: () => false,
     stderr: (message) => scaffoldErrors.push(message),
   });
 
@@ -261,20 +262,14 @@ Deno.test({
     const workspaceDir = join(tempRoot, "workspace");
     const stdout: string[] = [];
     const stderr: string[] = [];
-    const originalIsTerminal = Deno.stdin.isTerminal;
-    const originalPrompt = globalThis.prompt;
 
     await Deno.mkdir(workspaceDir);
-
-    Object.defineProperty(Deno.stdin, "isTerminal", {
-      configurable: true,
-      value: () => true,
-    });
-    globalThis.prompt = () => " prompted-app ";
 
     try {
       const exitCode = await runInit([], {
         cwd: workspaceDir,
+        isInteractive: () => true,
+        prompt: () => " prompted-app ",
         stdout: (message) => stdout.push(message),
         stderr: (message) => stderr.push(message),
       });
@@ -285,11 +280,6 @@ Deno.test({
       assertStringIncludes(stdout[0] ?? "", "cd prompted-app");
       assert(await Deno.stat(join(workspaceDir, "prompted-app", "README.md")));
     } finally {
-      Object.defineProperty(Deno.stdin, "isTerminal", {
-        configurable: true,
-        value: originalIsTerminal,
-      });
-      globalThis.prompt = originalPrompt;
       await Deno.remove(tempRoot, { recursive: true });
     }
   },
@@ -297,58 +287,30 @@ Deno.test({
 
 Deno.test("runInit reports interactive prompt cancellation", async () => {
   const stderr: string[] = [];
-  const originalIsTerminal = Deno.stdin.isTerminal;
-  const originalPrompt = globalThis.prompt;
 
-  Object.defineProperty(Deno.stdin, "isTerminal", {
-    configurable: true,
-    value: () => true,
+  const exitCode = await runInit([], {
+    isInteractive: () => true,
+    prompt: () => null,
+    stderr: (message) => stderr.push(message),
   });
-  globalThis.prompt = () => null;
 
-  try {
-    const exitCode = await runInit([], {
-      stderr: (message) => stderr.push(message),
-    });
-
-    assertEquals(exitCode, 1);
-    assertEquals(stderr, ["Project initialization cancelled."]);
-  } finally {
-    Object.defineProperty(Deno.stdin, "isTerminal", {
-      configurable: true,
-      value: originalIsTerminal,
-    });
-    globalThis.prompt = originalPrompt;
-  }
+  assertEquals(exitCode, 1);
+  assertEquals(stderr, ["Project initialization cancelled."]);
 });
 
 Deno.test("runInit stringifies non-Error failures", async () => {
   const stderr: string[] = [];
-  const originalIsTerminal = Deno.stdin.isTerminal;
-  const originalPrompt = globalThis.prompt;
 
-  Object.defineProperty(Deno.stdin, "isTerminal", {
-    configurable: true,
-    value: () => true,
+  const exitCode = await runInit([], {
+    isInteractive: () => true,
+    prompt: () => {
+      throw "prompt failed";
+    },
+    stderr: (message) => stderr.push(message),
   });
-  globalThis.prompt = () => {
-    throw "prompt failed";
-  };
 
-  try {
-    const exitCode = await runInit([], {
-      stderr: (message) => stderr.push(message),
-    });
-
-    assertEquals(exitCode, 1);
-    assertEquals(stderr, ["prompt failed"]);
-  } finally {
-    Object.defineProperty(Deno.stdin, "isTerminal", {
-      configurable: true,
-      value: originalIsTerminal,
-    });
-    globalThis.prompt = originalPrompt;
-  }
+  assertEquals(exitCode, 1);
+  assertEquals(stderr, ["prompt failed"]);
 });
 
 Deno.test({

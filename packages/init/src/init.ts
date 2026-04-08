@@ -28,6 +28,8 @@ export type ScaffoldProjectResult = {
 
 export type RunInitOptions = {
   cwd?: string;
+  isInteractive?: () => boolean;
+  prompt?: (message?: string, defaultValue?: string) => string | null;
   stderr?: (message: string) => void;
   stdout?: (message: string) => void;
 };
@@ -234,11 +236,13 @@ const resolveTemplatePath = (template: TemplateName): string => {
 const resolveScaffoldInput = (
   parsedArgs: ParsedInitArgs,
   cwd: string,
+  isInteractive: () => boolean,
+  prompt: (message?: string, defaultValue?: string) => string | null,
 ): ScaffoldProjectOptions => {
   let directory = parsedArgs.directory?.trim();
 
-  if (!directory && Deno.stdin.isTerminal()) {
-    const promptedDirectory = globalThis.prompt(
+  if (!directory && isInteractive()) {
+    const promptedDirectory = prompt(
       "Project directory:",
       DEFAULT_PROJECT_DIRECTORY,
     );
@@ -375,6 +379,8 @@ export const runInit = async (
   const stdout = options.stdout ?? console.log;
   const stderr = options.stderr ?? console.error;
   const cwd = options.cwd ?? Deno.cwd();
+  const isInteractive = options.isInteractive ?? (() => Deno.stdin.isTerminal());
+  const prompt = options.prompt ?? globalThis.prompt;
 
   try {
     const parsedArgs = parseInitArgs(args);
@@ -384,7 +390,12 @@ export const runInit = async (
       return 0;
     }
 
-    const scaffoldInput = resolveScaffoldInput(parsedArgs, cwd);
+    const scaffoldInput = resolveScaffoldInput(
+      parsedArgs,
+      cwd,
+      isInteractive,
+      prompt,
+    );
     const result = await scaffoldProject(scaffoldInput);
     const relativeProjectPath = relative(cwd, result.projectDir) || ".";
 
