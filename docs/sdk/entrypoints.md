@@ -9,6 +9,8 @@ intend to use.
 | --- | --- |
 | `@curio/sdk` | Adapter-agnostic HTTP primitives, schema adapters, DB primitives |
 | `@curio/sdk/http/oak` | Oak-first route authoring and API assembly |
+| `@curio/sdk/testing` | Deterministic, model-aware fixture builders |
+| `@curio/sdk/value-object` | Valibot-backed, class-based value object base |
 | `@curio/sdk/admin` | Server-rendered admin runtime, config types, built-in admin models |
 | `@curio/sdk/admin/modules/rbac` | Built-in admin roles, permissions, grants, and permission seeding |
 | `@curio/sdk/admin/modules/sessions` | Built-in admin session and auth helpers |
@@ -25,6 +27,8 @@ everything Curio exposes.
 That keeps the package easier to reason about:
 
 - Oak-specific behavior stays under `http/oak`
+- testing helpers stay under `testing`
+- value-object helpers stay under `value-object`
 - admin opinionated modules stay under `admin/modules/*`
 - Drizzle stays off the root path
 - OpenAPI stays an advanced surface, not part of the default runtime story
@@ -34,6 +38,8 @@ That keeps the package easier to reason about:
 Start from the most specific entrypoint that matches your use case.
 
 - building routes on Oak: `@curio/sdk/http/oak`
+- building deterministic fixtures: `@curio/sdk/testing`
+- defining domain primitives: `@curio/sdk/value-object`
 - mounting the admin: `@curio/sdk/admin`
 - seeding admin roles and permissions: `@curio/sdk/admin/modules/rbac`
 - generating a spec document: `@curio/sdk/openapi`

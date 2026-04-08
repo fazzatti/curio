@@ -8,6 +8,8 @@
   - [Entrypoints](sdk/entrypoints.md)
   - [HTTP](sdk/http.md)
   - [Database](sdk/database.md)
+  - [Testing](sdk/testing.md)
+  - [Value Objects](sdk/value-objects.md)
   - [Admin](sdk/admin.md)
   - [Admin Modules](sdk/admin-modules.md)
   - [Auth](sdk/auth.md)

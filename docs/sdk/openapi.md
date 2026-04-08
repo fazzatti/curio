@@ -4,7 +4,7 @@
 document from the same Curio route tree used to assemble the HTTP runtime.
 
 It does not depend on the Oak router instance. It works from the route
-definitions themselves.
+definitions and the same normalized build pass Curio uses for runtime assembly.
 
 ## Why It Is Separate
 

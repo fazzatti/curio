@@ -7,6 +7,8 @@
  */
 export { API } from "@/api/api.ts";
 export {
+  type ApiBuildResult,
+  type ApiBuildRoute,
   DuplicateMiddlewareDataKeyError,
   DuplicateRegisteredRouteError,
   DuplicateRouteSegmentError,
@@ -23,9 +25,7 @@ export {
   PUT,
 } from "@/api/endpoint-operations.ts";
 export { createRouteFactory, Route } from "@/api/route.ts";
-export {
-  withSchemas,
-} from "@/api/with-schemas.ts";
+export { withSchemas } from "@/api/with-schemas.ts";
 export type {
   Endpoint,
   EndpointMethod,

@@ -34,6 +34,8 @@
     "jsr:@curio/sdk/drizzle": "./packages/sdk/src/drizzle.ts",
     "jsr:@curio/sdk/http/oak": "./packages/sdk/src/http/oak-api.ts",
     "jsr:@curio/sdk/openapi": "./packages/sdk/src/openapi.ts",
+    "jsr:@curio/sdk/testing": "./packages/sdk/src/testing.ts",
+    "jsr:@curio/sdk/value-object": "./packages/sdk/src/value-object.ts",
     "@convee": "jsr:@fifo/convee@^1.0.0",
     "@drizzle-orm": "npm:drizzle-orm@^0.44.5",
     "@drizzle-orm/postgres-js": "npm:drizzle-orm@^0.44.5/postgres-js",

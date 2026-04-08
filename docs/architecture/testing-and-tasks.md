@@ -34,6 +34,7 @@ The SDK package has:
 - unit tests
 - optional integration test task
 - combined coverage reporting
+- deterministic fixtures under `@curio/sdk/testing`
 
 ### Init
 
@@ -64,3 +65,11 @@ As the SDK becomes published on JSR, the next testing step is to keep both:
 
 - a local workspace compatibility check
 - a published-package compatibility check
+
+## Fixture Strategy
+
+Curio's testing helpers live under `@curio/sdk/testing`, not the root SDK
+barrel.
+
+That keeps deterministic fixtures available for tests without turning them into
+runtime framework surface by default.

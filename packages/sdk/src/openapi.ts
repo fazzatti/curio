@@ -1,10 +1,10 @@
 import { INTERNALS } from "@/api/api.ts";
-import { getHandlerSchemas } from "@/api/with-schemas.ts";
 import type {
   EndpointMethod,
   RouteMethodDocs,
   RouteSegment,
 } from "@/api/types.ts";
+import type { CurioHttpContext } from "@/http/types.ts";
 import type { ValibotSchema } from "@/schema/valibot.ts";
 import { formatUnknownError } from "@/support/errors.ts";
 import { toJsonSchema } from "@valibot/to-json-schema";
@@ -260,27 +260,22 @@ const toOpenApiOperation = (
  * automatically, while custom handlers can opt in through `withSchemas(...)`.
  */
 export const OpenAPI = {
-  from<TContext>(
+  from<TContext extends CurioHttpContext>(
     routes: RouteSegment<TContext>[],
     options: OpenApiOptions = {},
   ): OpenApiDocument {
     const pathItems: Record<string, OpenApiPathItem> = {};
-    const registeredRoutes = INTERNALS.flattenRoutes(routes);
-
-    INTERNALS.validateRegisteredRoutes(registeredRoutes);
+    const registeredRoutes = INTERNALS.buildRegisteredRoutes(routes);
 
     for (const route of registeredRoutes) {
       const openApiPath = normalizeOpenApiPath(route.path);
       const pathItem = pathItems[openApiPath] ?? {};
       const methodKey = route.method.toLowerCase() as Lowercase<EndpointMethod>;
-      const handlerSchemas = getHandlerSchemas(route.handler) as
-        | OpenApiHandlerSchemas
-        | undefined;
 
       pathItem[methodKey] = toOpenApiOperation(
         route.method,
         route.path,
-        handlerSchemas,
+        route.schemas as OpenApiHandlerSchemas | undefined,
         route.docs,
         options,
       );

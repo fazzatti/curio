@@ -80,4 +80,23 @@ describe("Oak HTTP surface", () => {
       method: "GET",
     });
   });
+
+  it("exposes route build artifacts through the Oak API namespace", () => {
+    const result = API.build([
+      Route("health", {
+        GET: GET({
+          handler: () => ({
+            payload: {
+              ok: true,
+            },
+          }),
+        }),
+      }),
+    ]);
+
+    assertEquals(typeof result.router.routes, "function");
+    assertEquals(result.routes.map(({ method, path }) => ({ method, path })), [
+      { method: "GET", path: "/health" },
+    ]);
+  });
 });

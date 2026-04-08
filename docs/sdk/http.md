@@ -12,6 +12,7 @@ For normal applications, import from `@curio/sdk/http/oak`.
 That gives you:
 
 - `API.from(routes)`
+- `API.build(routes)`
 - `Route(pathSegment, config)`
 - `middleware(...)`
 - `GET`, `POST`, `PUT`, `PATCH`, `DELETE`
@@ -28,11 +29,49 @@ Use it when you want to bind route trees to a custom runtime:
 ```ts
 import { API } from "@curio/sdk";
 
-const api = API.withHttp(customAdapter);
-const router = api.from(routes);
+const runtime = API.withHttp(customAdapter).build(routes);
+const router = runtime.router;
 ```
 
 This is the escape hatch for advanced transport integrations.
+
+## Build Artifacts
+
+`API.from(routes)` is still the normal happy path.
+
+When you need advanced tooling from the same route tree, use `API.build(routes)`
+instead:
+
+```ts
+import { API, GET, Route } from "@curio/sdk/http/oak";
+
+const runtime = API.build([
+  Route("health", {
+    GET: GET({
+      docs: {
+        operationId: "getHealth",
+      },
+      handler: () => ({
+        payload: { ok: true },
+      }),
+    }),
+  }),
+]);
+
+runtime.router;
+runtime.routes[0]?.path;
+runtime.routes[0]?.docs?.operationId;
+runtime.routes[0]?.schemas?.response;
+```
+
+The build artifact gives you:
+
+- the assembled runtime router
+- normalized registered routes
+- the composed runtime handler Curio will register
+- attached request and response schema metadata when it exists
+
+This is the shared foundation for advanced tooling such as OpenAPI generation.
 
 ## Route Model
 

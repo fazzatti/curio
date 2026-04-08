@@ -23,6 +23,22 @@ const healthRoute = Route("health", {
 export const api = API.from([healthRoute]);
 ```
 
+## Reuse The Build Artifact When You Need Tooling
+
+Most apps should stay on `API.from(routes)`.
+
+When you need the router plus Curio's normalized route registrations, use
+`API.build(routes)`:
+
+```ts
+const runtime = API.build([healthRoute]);
+
+runtime.router;
+runtime.routes;
+```
+
+That is the intended advanced path for tooling built from the same route tree.
+
 ## Built-In Operations
 
 The built-in `GET`, `POST`, `PUT`, `PATCH`, and `DELETE` helpers do the common
@@ -88,6 +104,7 @@ Use the root `@curio/sdk` entrypoint when you need adapter-agnostic HTTP
 building blocks:
 
 - `API.withHttp(adapter)`
+- `API.withHttp(adapter).build(routes)`
 - `createRouteFactory()`
 - `createMiddlewareFactory()`
 - `createEndpointOperations()`

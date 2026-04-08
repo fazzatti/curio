@@ -15,10 +15,15 @@ the pieces they need.
 - `@curio/sdk`
   - framework-agnostic HTTP helpers
   - bind route trees to a runtime with `API.withHttp(adapter)`
+  - inspect normalized route builds with `API.build(routes)`
   - schema adapters
   - DB primitives
 - `@curio/sdk/http/oak`
   - Oak-bound route helpers and API factory
+- `@curio/sdk/testing`
+  - deterministic, model-aware fixture builders
+- `@curio/sdk/value-object`
+  - Valibot-backed, class-based value object base
 - `@curio/sdk/admin`
   - server-rendered admin runtime
   - built-in RBAC/session/audit models
@@ -55,6 +60,18 @@ const healthRoute = Route("health", {
 });
 
 const api = API.from([healthRoute]);
+```
+
+## Build Artifacts
+
+Use `API.build(routes)` when you need both the runtime router and Curio's
+normalized route registrations from the same route tree:
+
+```ts
+const runtime = API.build([healthRoute]);
+
+runtime.router;
+runtime.routes;
 ```
 
 ## HTTP Authoring Model
@@ -246,6 +263,40 @@ Built-in Curio helpers run against a Curio-owned HTTP context:
 
 Parsed request values are intentionally not attached to `ctx`; they live in the
 built-in request pipeline input passed to the operation handler.
+
+## Testing Utilities
+
+Curio's testing helpers live under `@curio/sdk/testing`.
+
+```ts
+import { createFixtureBuilder } from "@curio/sdk/testing";
+
+const users = createFixtureBuilder(UserModel, {
+  seed: "users",
+});
+
+const user = users.build();
+```
+
+Fixture builders are deterministic and model-aware. They can also hydrate bound
+entities and create records through repositories.
+
+## Value Objects
+
+Curio's value-object base lives under `@curio/sdk/value-object`.
+
+```ts
+import * as v from "@valibot/valibot";
+import { ValueObject } from "@curio/sdk/value-object";
+
+class Email extends ValueObject.define({
+  name: "Email",
+  schema: v.pipe(v.string(), v.trim(), v.toLowerCase(), v.email()),
+}) {}
+```
+
+This is the intended place for schema-backed domain primitives that need
+runtime behavior without expanding the root SDK happy path.
 
 ## DB Layer
 

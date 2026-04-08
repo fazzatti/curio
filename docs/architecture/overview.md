@@ -18,9 +18,12 @@ The SDK is the framework and reusable toolkit.
 It owns:
 
 - API authoring
+- API build artifacts for advanced tooling
 - middleware
 - schema integration
 - DB abstractions
+- testing utilities
+- value-object primitives
 - admin runtime
 - focused admin modules
 - auth helpers

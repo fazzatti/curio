@@ -7,12 +7,28 @@ import type {
   PassThroughRouteMiddlewareHandler,
   RegisteredRoute,
   RouteHandler,
-  RouteMiddleware,
   RouteMethodEntry,
   RouteMethodOperation,
+  RouteMiddleware,
   RouteSegment,
 } from "@/api/types.ts";
+import { getHandlerSchemas } from "@/api/with-schemas.ts";
+import type { HandlerSchemas } from "@/api/with-schemas/types.ts";
 // deno-coverage-ignore-stop
+
+export type ApiBuildRoute<TContext = unknown> = RegisteredRoute<TContext> & {
+  /** Runtime handler after Curio composes route middleware around the handler. */
+  runtimeHandler: RouteHandler<TContext>;
+  /** Optional request/response schema metadata attached through Curio helpers. */
+  schemas?: HandlerSchemas;
+};
+
+export type ApiBuildResult<TRouter, TContext = unknown> = {
+  /** Runtime router assembled through the selected HTTP adapter. */
+  router: TRouter;
+  /** Normalized route registrations used during router assembly. */
+  routes: ApiBuildRoute<TContext>[];
+};
 
 /** Internal list of supported method keys during route flattening. */
 const ENDPOINT_METHODS: EndpointMethod[] = [
@@ -167,7 +183,10 @@ const isRouteMethodOperation = <M extends EndpointMethod, TContext>(
 /** Type guard for explicit method config objects. */
 const isRouteMethodConfig = <M extends EndpointMethod, TContext>(
   entry: RouteMethodEntry<M, TContext>,
-): entry is Extract<RouteMethodEntry<M, TContext>, { handler: RouteHandler<TContext> }> => {
+): entry is Extract<
+  RouteMethodEntry<M, TContext>,
+  { handler: RouteHandler<TContext> }
+> => {
   return (
     typeof entry === "object" &&
     entry !== null &&
@@ -391,6 +410,23 @@ const validateRegisteredRoutes = <TContext>(
   }
 };
 
+const buildRegisteredRoutes = <TContext extends CurioHttpContext>(
+  routes: RouteSegment<TContext>[],
+): ApiBuildRoute<TContext>[] => {
+  const registeredRoutes = flattenRoutes(routes);
+  validateRegisteredRoutes(registeredRoutes);
+
+  return registeredRoutes.map((route) => {
+    validateMiddlewareDataKeys(route.middlewares, route.method, route.path);
+
+    return {
+      ...route,
+      schemas: getHandlerSchemas(route.handler),
+      runtimeHandler: composeRouteHandler(route.handler, route.middlewares),
+    };
+  });
+};
+
 /**
  * Creates an API factory bound to a specific HTTP adapter.
  *
@@ -404,32 +440,39 @@ const createApiFactory = <TRouter, TRawContext>(
   adapter: HttpAdapter<TRouter, TRawContext>,
 ) => {
   return {
-    from<TContext extends CurioHttpContext>(routes: RouteSegment<TContext>[]) {
+    build<TContext extends CurioHttpContext>(
+      routes: RouteSegment<TContext>[],
+    ): ApiBuildResult<TRouter, TContext> {
       const router = adapter.createRouter();
-      const registeredRoutes = flattenRoutes(routes);
-      validateRegisteredRoutes(registeredRoutes);
+      const builtRoutes = buildRegisteredRoutes(routes);
 
-      for (const route of registeredRoutes) {
-        validateMiddlewareDataKeys(route.middlewares, route.method, route.path);
-
+      for (const route of builtRoutes) {
         adapter.registerRoute(
           router,
           route.method,
           route.path,
-          composeRouteHandler(
-            route.handler as RouteHandler<CurioHttpContext>,
-            route.middlewares,
-          ),
+          route.runtimeHandler as RouteHandler<CurioHttpContext>,
         );
       }
 
-      return router;
+      return {
+        router,
+        routes: builtRoutes,
+      };
+    },
+    from<TContext extends CurioHttpContext>(routes: RouteSegment<TContext>[]) {
+      return this.build(routes).router;
     },
   };
 };
 
 type ApiFactory<TRouter> = {
-  from<TContext extends CurioHttpContext>(routes: RouteSegment<TContext>[]): TRouter;
+  build<TContext extends CurioHttpContext>(
+    routes: RouteSegment<TContext>[],
+  ): ApiBuildResult<TRouter, TContext>;
+  from<TContext extends CurioHttpContext>(
+    routes: RouteSegment<TContext>[],
+  ): TRouter;
 };
 
 type ApiNamespace = {
@@ -477,6 +520,7 @@ export const API: ApiNamespace = {
  * Internal helpers exposed for targeted testing and low-level inspection.
  */
 export const INTERNALS = {
+  buildRegisteredRoutes,
   composeRouteHandler,
   flattenRoutes,
   normalizeRouteMethodEntry,

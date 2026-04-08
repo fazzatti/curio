@@ -7,6 +7,8 @@ It combines:
 - HTTP route authoring
 - schema-backed request and response handling
 - a relational-first DB layer
+- deterministic testing fixtures
+- class-based value objects
 - a server-rendered admin runtime
 - focused modules for admin RBAC, sessions, and audit
 - optional Drizzle/Postgres integration
@@ -28,6 +30,8 @@ adapter-agnostic and exposes lower-level contracts for advanced users.
 
 - use `@curio/sdk/http/oak` for normal API work
 - use `@curio/sdk` for framework-agnostic primitives and the DB layer
+- use `@curio/sdk/testing` for deterministic, model-aware fixtures
+- use `@curio/sdk/value-object` for class-based domain primitives
 - use `@curio/sdk/admin` for the admin runtime
 - use `@curio/sdk/admin/modules/*` for focused built-in admin modules
 - use `@curio/sdk/openapi` when you want a spec document from your route tree
@@ -37,6 +41,8 @@ adapter-agnostic and exposes lower-level contracts for advanced users.
 - [Entrypoints](entrypoints.md)
 - [HTTP](http.md)
 - [Database](database.md)
+- [Testing](testing.md)
+- [Value Objects](value-objects.md)
 - [Admin](admin.md)
 - [Admin Modules](admin-modules.md)
 - [Auth](auth.md)

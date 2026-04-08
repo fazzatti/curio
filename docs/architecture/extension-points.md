@@ -21,6 +21,10 @@ That is the primary transport extension point.
 The Oak helpers in `@curio/sdk/http/oak` are the built-in happy path layered on
 top of that contract.
 
+When advanced tooling needs the same normalized route registrations Curio uses
+at runtime, `API.build(routes)` is the intended extension point. It keeps the
+happy path on `API.from(routes)` while making the build artifact reusable.
+
 ## Middleware Composition
 
 Curio middleware is composable and typed:
@@ -49,6 +53,21 @@ the lower-level schema adapter boundary in the SDK and DB layers.
 The current built-in method helpers are optimized for Valibot-backed request and
 response handling. That is a deliberate v1 constraint, not a statement that
 alternative schema integrations are impossible forever.
+
+## Value Objects
+
+Curio's value-object support is intentionally separate from the root happy
+path.
+
+`@curio/sdk/value-object` is the place for domain primitives that need:
+
+- explicit runtime types
+- schema-backed construction
+- domain-specific methods
+- custom equality or serialization rules
+
+That keeps value objects available without forcing every SDK consumer into a
+DDD-heavy style.
 
 ## Admin Overrides
 

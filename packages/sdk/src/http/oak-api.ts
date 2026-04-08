@@ -1,4 +1,5 @@
 import type { RouterContext as OakRouterContext } from "@oak/oak";
+import type { ApiBuildResult } from "@/api/api.ts";
 import { API as CoreAPI } from "@/api/api.ts";
 import type { EndpointOperations } from "@/api/endpoint-operations.ts";
 import { createEndpointOperations } from "@/api/endpoint-operations.ts";
@@ -24,6 +25,9 @@ type OakRouteFactory = (
 ) => RouteSegment<OakHttpContext>;
 
 type OakApiNamespace = {
+  build<TContext extends OakHttpContext>(
+    routes: RouteSegment<TContext>[],
+  ): ApiBuildResult<ReturnType<typeof oakHttpAdapter.createRouter>, TContext>;
   from<TContext extends OakHttpContext>(
     routes: RouteSegment<TContext>[],
   ): ReturnType<typeof oakHttpAdapter.createRouter>;
@@ -82,6 +86,9 @@ export const DELETE: EndpointOperations<OakHttpContext>["DELETE"] =
  * need to call the lower-level `API.withHttp(oakHttpAdapter)` API manually.
  */
 export const API: OakApiNamespace = {
+  build<TContext extends OakHttpContext>(routes: RouteSegment<TContext>[]) {
+    return apiFactory.build(routes);
+  },
   from<TContext extends OakHttpContext>(routes: RouteSegment<TContext>[]) {
     return apiFactory.from(routes);
   },
