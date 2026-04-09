@@ -1,7 +1,7 @@
-import type { RouteSegment } from "@curio/sdk";
+import type { RouteSegment } from "@curio/core";
 import type { Router } from "@oak/oak";
-import { API } from "@curio/sdk/http/oak";
-import type { OakHttpContext } from "@curio/sdk/http/oak";
+import { API } from "@curio/core/http/oak";
+import type { OakHttpContext } from "@curio/core/http/oak";
 import { healthRoute } from "@/http/api/health/index.ts";
 import { usersRoute } from "@/http/api/users/index.ts";
 

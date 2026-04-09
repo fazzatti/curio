@@ -1,13 +1,13 @@
 # Build a First API
 
 Curio APIs are defined as a tree of single path segments. The Oak happy path
-lives under `@curio/sdk/http/oak`.
+lives under `@curio/core/http/oak`.
 
 ## Basic Route
 
 ```ts
 import * as v from "@valibot/valibot";
-import { API, GET, Route } from "@curio/sdk/http/oak";
+import { API, GET, Route } from "@curio/core/http/oak";
 
 const healthRoute = Route("health", {
   GET: GET({
@@ -54,7 +54,7 @@ Example:
 
 ```ts
 import * as v from "@valibot/valibot";
-import { POST, Route } from "@curio/sdk/http/oak";
+import { POST, Route } from "@curio/core/http/oak";
 
 const createUserRoute = Route("users", {
   POST: POST({
@@ -84,9 +84,9 @@ The default template keeps HTTP routes in `src/http/api/` and assembles them in
 `src/http/api/index.ts`:
 
 ```ts
-import type { RouteSegment } from "@curio/sdk";
-import { API } from "@curio/sdk/http/oak";
-import type { OakHttpContext } from "@curio/sdk/http/oak";
+import type { RouteSegment } from "@curio/core";
+import { API } from "@curio/core/http/oak";
+import type { OakHttpContext } from "@curio/core/http/oak";
 import { healthRoute } from "@/http/api/health/index.ts";
 import { usersRoute } from "@/http/api/users/index.ts";
 
@@ -100,7 +100,7 @@ export const httpApi = API.from(httpRoutes);
 
 ## When To Drop Down A Level
 
-Use the root `@curio/sdk` entrypoint when you need adapter-agnostic HTTP
+Use the root `@curio/core` entrypoint when you need adapter-agnostic HTTP
 building blocks:
 
 - `API.withHttp(adapter)`
@@ -113,6 +113,6 @@ If you are building a normal Curio app on Oak, stay on the Oak entrypoint.
 
 ## Related Docs
 
-- [HTTP](../sdk/http.md)
-- [OpenAPI](../sdk/openapi.md)
+- [HTTP](../core/http.md)
+- [OpenAPI](../core/openapi.md)
 - [Extension Points](../architecture/extension-points.md)

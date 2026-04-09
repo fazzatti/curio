@@ -5,28 +5,27 @@ import {
   assertStringIncludes,
   assertThrows,
 } from "@std/assert";
-import { fromFileUrl, join } from "@std/path";
+import { dirname, fromFileUrl, join, relative } from "@std/path";
 import { parseInitArgs, runInit, scaffoldProject } from "./init.ts";
 
-const localSdkImportMap = {
-  "@sdk/": "./.curio-sdk/src/",
-  "@curio/sdk": "./.curio-sdk/src/mod.ts",
-  "@curio/sdk/admin": "./.curio-sdk/src/admin.ts",
-  "@curio/sdk/admin/modules/rbac": "./.curio-sdk/src/admin/modules/rbac.ts",
-  "@curio/sdk/auth": "./.curio-sdk/src/auth.ts",
-  "@curio/sdk/drizzle": "./.curio-sdk/src/drizzle.ts",
-  "@curio/sdk/http/oak": "./.curio-sdk/src/http/oak-api.ts",
+const localCoreImportMap = {
+  "@curio/core": "./.curio-core/src/mod.ts",
+  "@curio/core/admin": "./.curio-core/src/admin.ts",
+  "@curio/core/admin/modules/rbac": "./.curio-core/src/admin/modules/rbac.ts",
+  "@curio/core/auth": "./.curio-core/src/auth.ts",
+  "@curio/core/drizzle": "./.curio-core/src/drizzle.ts",
+  "@curio/core/http/oak": "./.curio-core/src/http/oak-api.ts",
 } as const;
 
-const sdkSourceRoot = fromFileUrl(
-  new URL("../../../packages/sdk/src", import.meta.url),
+const coreSourceRoot = fromFileUrl(
+  new URL("../../../packages/core/src", import.meta.url),
 );
 const initPackageConfigPath = fromFileUrl(
   new URL("../deno.json", import.meta.url),
 );
 const initPackageConfigUrl = new URL("../deno.json", import.meta.url).href;
-const sdkPackageConfigPath = fromFileUrl(
-  new URL("../../../packages/sdk/deno.json", import.meta.url),
+const corePackageConfigPath = fromFileUrl(
+  new URL("../../../packages/core/deno.json", import.meta.url),
 );
 const defaultTemplateDir = fromFileUrl(
   new URL("../template/default", import.meta.url),
@@ -44,8 +43,8 @@ const canRunScaffoldTests = await (async (): Promise<boolean> => {
     write.state === "granted";
 })();
 
-const readSdkDependencyImports = (): Record<string, string> => {
-  const rawConfig = Deno.readTextFileSync(sdkPackageConfigPath);
+const readCoreDependencyImports = (): Record<string, string> => {
+  const rawConfig = Deno.readTextFileSync(corePackageConfigPath);
   const config = JSON.parse(rawConfig) as {
     imports?: Record<string, string>;
   };
@@ -74,12 +73,15 @@ const copyDirectory = async (
   }
 };
 
-const rewriteSdkAliases = async (directory: string): Promise<void> => {
+const rewriteCoreAliases = async (
+  directory: string,
+  sourceRoot = directory,
+): Promise<void> => {
   for await (const entry of Deno.readDir(directory)) {
     const entryPath = join(directory, entry.name);
 
     if (entry.isDirectory) {
-      await rewriteSdkAliases(entryPath);
+      await rewriteCoreAliases(entryPath, sourceRoot);
       continue;
     }
 
@@ -88,21 +90,35 @@ const rewriteSdkAliases = async (directory: string): Promise<void> => {
     }
 
     const source = await Deno.readTextFile(entryPath);
-    const rewritten = source.replaceAll('"@/', '"@sdk/')
-      .replaceAll("'@/", "'@sdk/");
+    const rewritten = source.replaceAll(
+      /(["'])@\/([^"']+)["']/g,
+      (_match, quote: string, specifierPath: string) => {
+        const resolvedTarget = join(sourceRoot, specifierPath);
+        let relativeSpecifier = relative(
+          dirname(entryPath),
+          resolvedTarget,
+        ).replaceAll("\\", "/");
+
+        if (!relativeSpecifier.startsWith(".")) {
+          relativeSpecifier = `./${relativeSpecifier}`;
+        }
+
+        return `${quote}${relativeSpecifier}${quote}`;
+      },
+    );
 
     await Deno.writeTextFile(entryPath, rewritten);
   }
 };
 
-const patchGeneratedProjectForWorkspaceSdk = async (
+const patchGeneratedProjectForWorkspaceCore = async (
   projectDir: string,
 ): Promise<void> => {
-  const localSdkDir = join(projectDir, ".curio-sdk", "src");
+  const localCoreDir = join(projectDir, ".curio-core", "src");
   const denoConfigPath = join(projectDir, "deno.json");
 
-  await copyDirectory(sdkSourceRoot, localSdkDir);
-  await rewriteSdkAliases(localSdkDir);
+  await copyDirectory(coreSourceRoot, localCoreDir);
+  await rewriteCoreAliases(localCoreDir);
 
   const rawConfig = await Deno.readTextFile(denoConfigPath);
   const config = JSON.parse(rawConfig) as {
@@ -111,8 +127,8 @@ const patchGeneratedProjectForWorkspaceSdk = async (
 
   config.imports = {
     ...(config.imports ?? {}),
-    ...readSdkDependencyImports(),
-    ...localSdkImportMap,
+    ...readCoreDependencyImports(),
+    ...localCoreImportMap,
   };
 
   await Deno.writeTextFile(
@@ -346,7 +362,7 @@ Deno.test({
       assertStringIncludes(adminConfig, 'name: "Hello Curio Admin"');
       assert(!denoConfig.includes("__CURIO_"));
 
-      await patchGeneratedProjectForWorkspaceSdk(projectDir);
+      await patchGeneratedProjectForWorkspaceCore(projectDir);
 
       const checkCommand = new Deno.Command(Deno.execPath(), {
         args: ["task", "--config", join(projectDir, "deno.json"), "check"],
@@ -462,7 +478,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "scaffoldProject rejects missing SDK import mappings",
+  name: "scaffoldProject rejects missing core import mappings",
   ignore: !canRunScaffoldTests,
   async fn() {
     const tempRoot = await Deno.makeTempDir({ prefix: "curio-init-" });
@@ -475,7 +491,7 @@ Deno.test({
       ) {
         return JSON.stringify({
           imports: {
-            "@curio/sdk": "",
+            "@curio/core": "",
           },
         });
       }
@@ -491,7 +507,7 @@ Deno.test({
           });
         },
         Error,
-        "Missing scaffold import mapping for @curio/sdk.",
+        "Missing scaffold import mapping for @curio/core.",
       );
     } finally {
       Deno.readTextFileSync = originalReadTextFileSync;
@@ -501,7 +517,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "scaffoldProject rejects missing SDK import sections",
+  name: "scaffoldProject rejects missing core import sections",
   ignore: !canRunScaffoldTests,
   async fn() {
     const tempRoot = await Deno.makeTempDir({ prefix: "curio-init-" });
@@ -526,7 +542,7 @@ Deno.test({
           });
         },
         Error,
-        "Missing scaffold import mapping for @curio/sdk.",
+        "Missing scaffold import mapping for @curio/core.",
       );
     } finally {
       Deno.readTextFileSync = originalReadTextFileSync;

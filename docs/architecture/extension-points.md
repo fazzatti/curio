@@ -10,7 +10,7 @@ framework without forcing the happy path to become complicated.
 The root `API` namespace is adapter-agnostic:
 
 ```ts
-import { API } from "@curio/sdk";
+import { API } from "@curio/core";
 
 const api = API.withHttp(customAdapter);
 const router = api.from(routes);
@@ -18,7 +18,7 @@ const router = api.from(routes);
 
 That is the primary transport extension point.
 
-The Oak helpers in `@curio/sdk/http/oak` are the built-in happy path layered on
+The Oak helpers in `@curio/core/http/oak` are the built-in happy path layered on
 top of that contract.
 
 When advanced tooling needs the same normalized route registrations Curio uses
@@ -48,7 +48,7 @@ That keeps the happy path simple while leaving room for expert composition.
 ## Schema Adapters
 
 Curio currently ships the Valibot happy path. Advanced users can still work at
-the lower-level schema adapter boundary in the SDK and DB layers.
+the lower-level schema adapter boundary in the core package and DB layers.
 
 The current built-in method helpers are optimized for Valibot-backed request and
 response handling. That is a deliberate v1 constraint, not a statement that
@@ -59,14 +59,14 @@ alternative schema integrations are impossible forever.
 Curio's value-object support is intentionally separate from the root happy
 path.
 
-`@curio/sdk/value-object` is the place for domain primitives that need:
+`@curio/core/value-object` is the place for domain primitives that need:
 
 - explicit runtime types
 - schema-backed construction
 - domain-specific methods
 - custom equality or serialization rules
 
-That keeps value objects available without forcing every SDK consumer into a
+That keeps value objects available without forcing every core-package consumer into a
 DDD-heavy style.
 
 ## Admin Overrides

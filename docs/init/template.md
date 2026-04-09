@@ -24,10 +24,10 @@ During scaffolding, init replaces placeholders such as:
 - project name
 - project slug
 - database identifier
-- SDK import specifiers
+- core package import specifiers
 
 The generated app should point at published JSR import paths by default. In the
-workspace, scaffold tests patch those imports to the local SDK source so the
+workspace, scaffold tests patch those imports to the local core source so the
 template can be validated before publish.
 
 ## Generated App Layout
@@ -61,5 +61,5 @@ The default template is intentionally opinionated:
 - Drizzle plus Postgres for persistence
 - Curio admin mounted directly in the backend
 
-These are the Curio happy-path defaults. They do not mean the SDK itself is
+These are the Curio happy-path defaults. They do not mean the core package itself is
 locked forever to those exact integrations.

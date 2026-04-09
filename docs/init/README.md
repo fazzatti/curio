@@ -15,7 +15,7 @@ not the framework itself.
 - replace Curio placeholders
 - print next steps
 
-It should not become a second SDK entrypoint or a runtime package that users
+It should not become a second core-package entrypoint or a runtime package that users
 import from inside their application code.
 
 ## CLI Usage
@@ -56,8 +56,8 @@ The init package is validated in two ways:
 - scaffold smoke tests that generate a project and run its checks
 
 Inside the workspace, scaffold smoke tests patch the generated app to use the
-local SDK implementation. That keeps `@curio/init` verifiable before the SDK is
-published to JSR.
+local core implementation. That keeps `@curio/init` verifiable before the core
+package is published to JSR.
 
 ## Related Docs
 

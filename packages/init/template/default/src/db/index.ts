@@ -1,6 +1,6 @@
-import { Database, valibotSchemaAdapter } from "@curio/sdk";
-import { seedDefaultAdminData } from "@curio/sdk/admin/modules/rbac";
-import { drizzleAdapter } from "@curio/sdk/drizzle";
+import { Database, valibotSchemaAdapter } from "@curio/core";
+import { seedDefaultAdminData } from "@curio/core/admin/modules/rbac";
+import { drizzleAdapter } from "@curio/core/drizzle";
 import postgres from "@postgres";
 import { CONFIG } from "@/config/index.ts";
 import { databaseTables } from "@/db/tables/index.ts";

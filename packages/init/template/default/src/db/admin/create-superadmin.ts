@@ -2,8 +2,8 @@ import {
   findExistingSuperadmin,
   DEFAULT_ROLE_KEYS,
   syncUserRoles,
-} from "@curio/sdk/admin/modules/rbac";
-import { hashPassword } from "@curio/sdk/auth";
+} from "@curio/core/admin/modules/rbac";
+import { hashPassword } from "@curio/core/auth";
 
 type UserRecord = {
   id: string;

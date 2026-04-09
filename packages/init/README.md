@@ -8,9 +8,9 @@ Run it like this:
 deno run -Ar jsr:@curio/init my-app
 ```
 
-The package is intentionally separate from `@curio/sdk`:
+The package is intentionally separate from `@curio/core`:
 
-- `@curio/sdk` is the reusable framework
+- `@curio/core` is the reusable framework
 - `@curio/init` assembles a new app from the default template
 
 ## Package Layout
@@ -49,7 +49,7 @@ The init package is validated by:
 
 - checking the CLI package itself
 - scaffolding a fresh project into a temp directory
-- patching the generated project's SDK imports to local workspace paths
+- patching the generated project's core imports to local workspace paths
 - running the generated project's `deno task check`
 
-That keeps the scaffold testable before `@curio/sdk` is published.
+That keeps the scaffold testable before `@curio/core` is published.

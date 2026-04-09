@@ -2,7 +2,7 @@
 
 Curio is a Deno-native backend toolkit organized around two products:
 
-- `@curio/sdk`: the reusable framework package
+- `@curio/core`: the reusable framework package
 - `@curio/init`: the scaffolding CLI that generates a Curio app
 
 This `docs/` tree is the canonical documentation source for the repository and
@@ -23,9 +23,9 @@ middleware, annotate custom handlers, and override admin rendering and config.
 
 ## Package Split
 
-### `@curio/sdk`
+### `@curio/core`
 
-The SDK contains:
+The core package contains:
 
 - framework-agnostic HTTP primitives
 - Oak-bound HTTP helpers
@@ -41,13 +41,13 @@ The SDK contains:
 The init package:
 
 - scaffolds a new Curio app from a template
-- stays conceptually separate from the SDK
+- stays conceptually separate from the core package
 - produces a user-owned project
 - should not become a second framework surface
 
 ## Start Here
 
 - [Getting Started](getting-started/README.md)
-- [SDK](sdk/README.md)
+- [Core](core/README.md)
 - [Init](init/README.md)
 - [Architecture](architecture/overview.md)

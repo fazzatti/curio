@@ -17,8 +17,8 @@ deno task init -- my-app
 
 Coverage data is written to the workspace-level `.coverage/` directory:
 
-- `.coverage/sdk/unit`
-- `.coverage/sdk/integration`
+- `.coverage/core/unit`
+- `.coverage/core/integration`
 - `.coverage/init/unit`
 
 That keeps generated artifacts out of individual packages and makes it possible
@@ -26,15 +26,15 @@ to report combined workspace coverage.
 
 ## Package Verification
 
-### SDK
+### Core
 
-The SDK package has:
+The core package has:
 
 - package-level `deno check`
 - unit tests
 - optional integration test task
 - combined coverage reporting
-- deterministic fixtures under `@curio/sdk/testing`
+- deterministic fixtures under `@curio/core/testing`
 
 ### Init
 
@@ -59,17 +59,18 @@ The repository favors:
 - fast local verification from the root
 - package-specific tasks when focused work is needed
 - scaffold smoke tests for init
-- strong unit coverage for the SDK
+- strong unit coverage for the core package
 
-As the SDK becomes published on JSR, the next testing step is to keep both:
+As the core package becomes published on JSR, the next testing step is to keep
+both:
 
 - a local workspace compatibility check
 - a published-package compatibility check
 
 ## Fixture Strategy
 
-Curio's testing helpers live under `@curio/sdk/testing`, not the root SDK
-barrel.
+Curio's testing helpers live under `@curio/core/testing`, not the root
+`@curio/core` barrel.
 
 That keeps deterministic fixtures available for tests without turning them into
 runtime framework surface by default.

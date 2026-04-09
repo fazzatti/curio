@@ -8,7 +8,7 @@ The intended top-level package structure is:
 
 ```txt
 packages/
-  sdk/
+  core/
   init/
 ```
 
@@ -18,9 +18,9 @@ The current project evolved from a prototype called `beck`. That prototype valid
 
 Curio contains two different products that should not be conflated.
 
-### SDK
+### Core
 
-The SDK is the framework/toolkit.
+The core package is the framework/toolkit.
 
 It is responsible for:
 
@@ -29,10 +29,11 @@ It is responsible for:
 - schema integration
 - DB abstractions
 - admin framework
-- optional starter-style admin auth/RBAC/session/audit helpers
+- optional admin auth/RBAC/session/audit modules
 - Drizzle integration
 
-The SDK should be publishable on JSR as a reusable package, likely `@curio/sdk`.
+The core package should be publishable on JSR as a reusable package under
+`@curio/core`.
 
 ### Init
 
@@ -41,11 +42,12 @@ The init package is the project bootstrap experience.
 Its job is to:
 
 - scaffold a new Curio app
-- depend on the published SDK
+- depend on the published core package
 - stay minimal
 - produce a user-owned codebase
 
-The init package is not the core framework and should not drive SDK design decisions.
+The init package is not the core framework and should not drive core package
+design decisions.
 
 ## Guiding Principles
 
@@ -97,7 +99,7 @@ But users should be able to customize:
 - model usage
 - rendering composition
 
-## SDK Subsystems
+## Core Subsystems
 
 ## HTTP
 
@@ -108,7 +110,7 @@ The HTTP layer is based on Oak and should provide:
 - response validation where configured
 - middleware composition
 
-This is one of the primary ergonomic layers of the SDK.
+This is one of the primary ergonomic layers of the core package.
 
 ## Database
 
@@ -122,7 +124,8 @@ The DB layer provides:
 
 It should feel typed and explicit, not magical.
 
-Drizzle support exists as an integration, not as the sole mental model of the SDK.
+Drizzle support exists as an integration, not as the sole mental model of the
+core package.
 
 ## Admin
 
@@ -148,7 +151,7 @@ admin/
   rendering/
   support/
   components/
-  starter/
+  modules/
 ```
 
 #### `admin/core`
@@ -195,16 +198,16 @@ Contains the built-in UI blocks and presentational building blocks.
 
 These are part of the happy path and may be overridden.
 
-#### `admin/starter`
+#### `admin/modules`
 
-Contains the more opinionated admin support layer:
+Contains the more opinionated admin support modules:
 
 - sessions
 - RBAC
 - audit
-- starter repositories/constants/types
 
-This is conceptually distinct from the admin core and should be treated that way in package design and docs.
+This is conceptually distinct from the admin core and should be treated that
+way in package design and docs.
 
 ## Admin Public API Strategy
 
@@ -263,7 +266,7 @@ Prefer:
 
 ## Documentation Requirements
 
-Before publishing the SDK:
+Before publishing the core package:
 
 - all public exports should have proper TSDoc
 - README should explain the product and the main authoring model
@@ -273,7 +276,7 @@ Internal code may be read by users, but internal documentation should be selecti
 
 ## Testing Requirements
 
-The SDK should remain heavily validated.
+The core package should remain heavily validated.
 
 At the time this architecture was carried forward from the prototype:
 
@@ -284,17 +287,17 @@ At the time this architecture was carried forward from the prototype:
 The init package should be lighter:
 
 - only ship tests that help adopters
-- keep heavy framework validation in the SDK
+- keep heavy framework validation in the core package
 
 ## Release Strategy
 
 Recommended order:
 
-1. harden and publish `packages/sdk`
-2. wire `packages/init` against the published SDK
+1. harden and publish `packages/core`
+2. wire `packages/init` against the published core package
 3. ship the init experience as the bootstrap path
 
-Do not let the init package contaminate the SDK’s API boundaries.
+Do not let the init package contaminate the core package's API boundaries.
 
 ## Recommended Package Identity
 
@@ -305,7 +308,7 @@ Use:
 
 Likely package names:
 
-- `@curio/sdk`
+- `@curio/core`
 - `@curio/init`
 
 If a styled brand appears in docs or design later, it can use `Curió`, but source/package naming should stay ASCII.

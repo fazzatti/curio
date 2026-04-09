@@ -25,12 +25,12 @@
     ]
   },
   "imports": {
-    "@curio/sdk": "jsr:@curio/sdk@^0.1.0",
-    "@curio/sdk/admin": "jsr:@curio/sdk/admin@^0.1.0",
-    "@curio/sdk/admin/modules/rbac": "jsr:@curio/sdk/admin/modules/rbac@^0.1.0",
-    "@curio/sdk/auth": "jsr:@curio/sdk/auth@^0.1.0",
-    "@curio/sdk/drizzle": "jsr:@curio/sdk/drizzle@^0.1.0",
-    "@curio/sdk/http/oak": "jsr:@curio/sdk/http/oak@^0.1.0",
+    "@curio/core": "jsr:@curio/core@^0.1.0",
+    "@curio/core/admin": "jsr:@curio/core/admin@^0.1.0",
+    "@curio/core/admin/modules/rbac": "jsr:@curio/core/admin/modules/rbac@^0.1.0",
+    "@curio/core/auth": "jsr:@curio/core/auth@^0.1.0",
+    "@curio/core/drizzle": "jsr:@curio/core/drizzle@^0.1.0",
+    "@curio/core/http/oak": "jsr:@curio/core/http/oak@^0.1.0",
     "@std/assert": "jsr:@std/assert@^1.0.19",
     "@std/path": "jsr:@std/path@^1.1.2"
   }

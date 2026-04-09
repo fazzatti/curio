@@ -19,7 +19,7 @@ export {
   UserRole,
   UserRoleEntity,
   UserRoleModel,
-} from "@curio/sdk/admin";
+} from "@curio/core/admin";
 
 import { User } from "@/db/tables/user.ts";
 import {
@@ -29,7 +29,7 @@ import {
   RolePermission,
   Session,
   UserRole,
-} from "@curio/sdk/admin";
+} from "@curio/core/admin";
 
 /** Full backend table registry consumed by `Database.create(...)`. */
 export const databaseTables = {

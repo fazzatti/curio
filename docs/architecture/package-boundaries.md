@@ -3,9 +3,9 @@
 Package boundaries matter in Curio because the framework and the scaffolder are
 deliberately not the same product.
 
-## `packages/sdk`
+## `packages/core`
 
-`packages/sdk` is the reusable framework package.
+`packages/core` is the reusable framework package.
 
 It is the place for:
 
@@ -46,10 +46,10 @@ When deciding where a file belongs, use this rule:
 
 ## Admin Boundary
 
-Inside the SDK, the admin is also intentionally split:
+Inside the core package, the admin is also intentionally split:
 
-- `@curio/sdk/admin`: runtime, config types, built-in admin models
-- `@curio/sdk/admin/modules/*`: focused Curio-shipped modules layered on top
+- `@curio/core/admin`: runtime, config types, built-in admin models
+- `@curio/core/admin/modules/*`: focused Curio-shipped modules layered on top
 
 That split prevents opinionated admin helpers from bloating the runtime
 entrypoint.

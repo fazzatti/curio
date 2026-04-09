@@ -1,4 +1,4 @@
-import { Admin } from "@curio/sdk/admin";
+import { Admin } from "@curio/core/admin";
 import { db } from "@/db/index.ts";
 
 /** Starter Curio admin mounted at `/admin`. */

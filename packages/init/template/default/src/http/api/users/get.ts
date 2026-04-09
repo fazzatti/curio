@@ -1,11 +1,11 @@
 import * as v from "@valibot/valibot";
-import type { RouteMethodOperation } from "@curio/sdk";
-import { GET } from "@curio/sdk/http/oak";
+import type { RouteMethodOperation } from "@curio/core";
+import { GET } from "@curio/core/http/oak";
 import {
   DEFAULT_ROLE_KEYS,
   loadUserRoles,
-} from "@curio/sdk/admin/modules/rbac";
-import type { OakHttpContext } from "@curio/sdk/http/oak";
+} from "@curio/core/admin/modules/rbac";
+import type { OakHttpContext } from "@curio/core/http/oak";
 import { db } from "@/db/index.ts";
 
 export const usersGet: RouteMethodOperation<"GET", OakHttpContext> = GET({

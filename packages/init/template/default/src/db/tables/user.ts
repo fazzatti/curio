@@ -6,7 +6,7 @@ import {
   relation,
   Timestamps,
   UuidPrimaryKey,
-} from "@curio/sdk";
+} from "@curio/core";
 
 const userCreateValidationSchema = v.object({
   id: v.optional(v.string()),

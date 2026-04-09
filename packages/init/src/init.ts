@@ -38,13 +38,13 @@ const DEFAULT_PROJECT_DIRECTORY = "curio-app";
 const INIT_PACKAGE_CONFIG_URL = new URL("../deno.json", import.meta.url);
 const TEMPLATE_ROOT_PATH = fromFileUrl(new URL("../template", import.meta.url));
 
-const SDK_IMPORT_KEYS = [
-  "@curio/sdk",
-  "@curio/sdk/admin",
-  "@curio/sdk/admin/modules/rbac",
-  "@curio/sdk/auth",
-  "@curio/sdk/drizzle",
-  "@curio/sdk/http/oak",
+const CORE_IMPORT_KEYS = [
+  "@curio/core",
+  "@curio/core/admin",
+  "@curio/core/admin/modules/rbac",
+  "@curio/core/auth",
+  "@curio/core/drizzle",
+  "@curio/core/http/oak",
 ] as const;
 
 const TEMPLATE_PLACEHOLDERS = {
@@ -53,25 +53,25 @@ const TEMPLATE_PLACEHOLDERS = {
   "__CURIO_PROJECT_SLUG__": (context: TemplateContext) => context.projectSlug,
   "__CURIO_PROJECT_DB_IDENTIFIER__": (context: TemplateContext) =>
     context.projectDatabaseIdentifier,
-  "__CURIO_SDK_IMPORT__": (context: TemplateContext) =>
-    context.sdkImports["@curio/sdk"],
-  "__CURIO_SDK_ADMIN_IMPORT__": (context: TemplateContext) =>
-    context.sdkImports["@curio/sdk/admin"],
-  "__CURIO_SDK_ADMIN_MODULES_RBAC_IMPORT__": (context: TemplateContext) =>
-    context.sdkImports["@curio/sdk/admin/modules/rbac"],
-  "__CURIO_SDK_AUTH_IMPORT__": (context: TemplateContext) =>
-    context.sdkImports["@curio/sdk/auth"],
-  "__CURIO_SDK_DRIZZLE_IMPORT__": (context: TemplateContext) =>
-    context.sdkImports["@curio/sdk/drizzle"],
-  "__CURIO_SDK_HTTP_OAK_IMPORT__": (context: TemplateContext) =>
-    context.sdkImports["@curio/sdk/http/oak"],
+  "__CURIO_CORE_IMPORT__": (context: TemplateContext) =>
+    context.coreImports["@curio/core"],
+  "__CURIO_CORE_ADMIN_IMPORT__": (context: TemplateContext) =>
+    context.coreImports["@curio/core/admin"],
+  "__CURIO_CORE_ADMIN_MODULES_RBAC_IMPORT__": (context: TemplateContext) =>
+    context.coreImports["@curio/core/admin/modules/rbac"],
+  "__CURIO_CORE_AUTH_IMPORT__": (context: TemplateContext) =>
+    context.coreImports["@curio/core/auth"],
+  "__CURIO_CORE_DRIZZLE_IMPORT__": (context: TemplateContext) =>
+    context.coreImports["@curio/core/drizzle"],
+  "__CURIO_CORE_HTTP_OAK_IMPORT__": (context: TemplateContext) =>
+    context.coreImports["@curio/core/http/oak"],
 } as const;
 
 type TemplateContext = {
   projectDatabaseIdentifier: string;
   projectName: string;
   projectSlug: string;
-  sdkImports: Record<(typeof SDK_IMPORT_KEYS)[number], string>;
+  coreImports: Record<(typeof CORE_IMPORT_KEYS)[number], string>;
 };
 
 export const helpText = `Create a new Curio project.
@@ -167,19 +167,19 @@ const renderTemplate = (
   return rendered;
 };
 
-const readSdkImports = (): Record<(typeof SDK_IMPORT_KEYS)[number], string> => {
+const readCoreImports = (): Record<(typeof CORE_IMPORT_KEYS)[number], string> => {
   const rawConfig = Deno.readTextFileSync(INIT_PACKAGE_CONFIG_URL);
   const parsedConfig = JSON.parse(rawConfig) as {
-    imports?: Partial<Record<(typeof SDK_IMPORT_KEYS)[number], unknown>>;
+    imports?: Partial<Record<(typeof CORE_IMPORT_KEYS)[number], unknown>>;
   };
 
   const imports = parsedConfig.imports ?? {};
   const resolvedImports = {} as Record<
-    (typeof SDK_IMPORT_KEYS)[number],
+    (typeof CORE_IMPORT_KEYS)[number],
     string
   >;
 
-  for (const key of SDK_IMPORT_KEYS) {
+  for (const key of CORE_IMPORT_KEYS) {
     const value = imports[key];
 
     if (typeof value !== "string" || !value.trim()) {
@@ -359,7 +359,7 @@ export const scaffoldProject = async (
     projectDatabaseIdentifier: toDatabaseIdentifier(projectSlug),
     projectName,
     projectSlug,
-    sdkImports: readSdkImports(),
+    coreImports: readCoreImports(),
   };
 
   await copyTemplateDirectory(templateDir, targetDir, context);

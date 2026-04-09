@@ -72,4 +72,4 @@ And an opinionated admin setup with:
 
 - [Build a First API](first-api.md)
 - [Init](../init/README.md)
-- [Admin](../sdk/admin.md)
+- [Admin](../core/admin.md)

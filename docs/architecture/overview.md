@@ -4,16 +4,16 @@ Curio is a Deno-native backend toolkit organized as a monorepo.
 
 The repo currently contains two packages:
 
-- `packages/sdk`
+- `packages/core`
 - `packages/init`
 
 ## Product Split
 
 Curio contains two separate products that should not be conflated.
 
-### SDK
+### Core
 
-The SDK is the framework and reusable toolkit.
+The core package is the framework and reusable toolkit.
 
 It owns:
 
@@ -41,7 +41,8 @@ It owns:
 - placeholder replacement
 - CLI ergonomics
 
-It should not drive the SDK into a shape optimized for scaffolding internals.
+It should not drive the core package into a shape optimized for scaffolding
+internals.
 
 ## Guiding Principles
 
@@ -66,7 +67,7 @@ Curio should hide complexity behind:
 
 ### Domain-Oriented Organization
 
-The repository and the SDK should be organized by responsibility, not by
+The repository and the core package should be organized by responsibility, not by
 implementation accident.
 
 ### Opinionated Defaults Without Lock-In
