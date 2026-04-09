@@ -1,0 +1,107 @@
+name: Publish
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: ["main"]
+
+jobs:
+  publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Detect package version bumps
+        id: detect-versions
+        run: |
+          TAGS_TO_CREATE=""
+          PACKAGES_TO_PUBLISH=""
+
+          for package_dir in packages/*/; do
+            [ -d "$package_dir" ] || continue
+
+            package_name=$(basename "$package_dir")
+            deno_json="${package_dir}deno.json"
+
+            [ -f "$deno_json" ] || continue
+
+            version=$(jq -r '.version // empty' "$deno_json")
+            [ -n "$version" ] || continue
+
+            tag_name="${package_name}-${version}"
+
+            if git rev-parse "$tag_name" >/dev/null 2>&1; then
+              echo "Tag $tag_name already exists, skipping"
+              continue
+            fi
+
+            echo "Queued release for $package_name@$version"
+            TAGS_TO_CREATE="${TAGS_TO_CREATE:+$TAGS_TO_CREATE|}${tag_name}"
+            PACKAGES_TO_PUBLISH="${PACKAGES_TO_PUBLISH:+$PACKAGES_TO_PUBLISH|}${package_name}"
+          done
+
+          echo "tags_to_create=$TAGS_TO_CREATE" >> "$GITHUB_OUTPUT"
+          echo "packages_to_publish=$PACKAGES_TO_PUBLISH" >> "$GITHUB_OUTPUT"
+
+      - name: Publish changed packages
+        if: steps.detect-versions.outputs.packages_to_publish != ''
+        env:
+          PACKAGES: ${{ steps.detect-versions.outputs.packages_to_publish }}
+        run: |
+          IFS='|' read -ra PACKAGE_ARRAY <<< "$PACKAGES"
+
+          for package_name in "${PACKAGE_ARRAY[@]}"; do
+            [ -n "$package_name" ] || continue
+            echo "Publishing packages/$package_name"
+            (
+              cd "packages/$package_name"
+              deno publish --allow-slow-types
+            )
+          done
+
+      - name: Create tags and releases
+        if: steps.detect-versions.outputs.tags_to_create != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAGS: ${{ steps.detect-versions.outputs.tags_to_create }}
+        run: |
+          IFS='|' read -ra TAG_ARRAY <<< "$TAGS"
+
+          for tag_name in "${TAG_ARRAY[@]}"; do
+            [ -n "$tag_name" ] || continue
+
+            echo "Creating tag and release for $tag_name"
+            git tag "$tag_name"
+            git push origin "$tag_name"
+
+            if [[ "$tag_name" == core-* ]]; then
+              latest_flag="--latest=true"
+            else
+              latest_flag="--latest=false"
+            fi
+
+            gh release create "$tag_name" \
+              --title "$tag_name" \
+              --generate-notes \
+              $latest_flag
+          done

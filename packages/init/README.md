@@ -2,6 +2,9 @@
 
 `@curio/init` is Curio's project bootstrap tool.
 
+[Workspace Docs](https://github.com/fazzatti/curio/tree/main/docs/init) |
+[Architecture Notes](https://github.com/fazzatti/curio/blob/main/ARCHITECTURE.md)
+
 Run it like this:
 
 ```sh

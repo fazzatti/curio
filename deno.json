@@ -9,6 +9,7 @@
     "test:init": "deno task --config packages/init/deno.json test",
     "test:unit": "deno task --config packages/core/deno.json test:unit",
     "test:integration": "deno task --config packages/core/deno.json test:integration",
+    "test": "deno task test:unit && deno task test:init && deno task test:integration",
     "coverage:core": "deno task --config packages/core/deno.json coverage",
     "coverage:init": "deno task --config packages/init/deno.json coverage",
     "coverage:collect": "deno task --config packages/core/deno.json test:unit:coverage && deno task --config packages/core/deno.json test:integration:coverage && deno task --config packages/init/deno.json test:coverage",

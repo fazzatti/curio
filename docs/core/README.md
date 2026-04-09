@@ -1,32 +1,63 @@
-# Core
+# Core Package Overview
 
-`@curio/core` is the reusable framework package in the Curio monorepo.
+`@curio/core` is the reusable framework package in the Curio monorepo. It owns
+the runtime layers that applications build on top of: HTTP authoring, schema
+integration, the relational-first DB layer, the server-rendered admin runtime,
+focused admin modules, testing fixtures, value objects, and advanced OpenAPI
+generation.
 
-It combines:
+## Installation
 
-- HTTP route authoring
-- schema-backed request and response handling
-- a relational-first DB layer
-- deterministic testing fixtures
-- class-based value objects
-- a server-rendered admin runtime
-- focused modules for admin RBAC, sessions, and audit
-- optional Drizzle/Postgres integration
-- advanced OpenAPI generation
+```sh
+deno add jsr:@curio/core
+```
 
-## Design Goal
+## Architecture At A Glance
 
-The core package is built around a strong happy path:
+- **HTTP** — Oak-first route authoring with an adapter-agnostic core beneath it
+- **Database** — models, entities, relations, repositories, and adapters
+- **Admin** — server-rendered admin runtime plus focused Curio modules
+- **Tooling** — OpenAPI generation, testing fixtures, and value objects
 
-- Oak for HTTP transport
-- Valibot for schema-backed request and response validation
-- Curio's own DB abstractions for repositories and admin integration
+## Quick Import Examples
 
-That happy path is deliberate, but it is not meant to hard-code the entire
-framework around one runtime forever. The root core entrypoint remains
-adapter-agnostic and exposes lower-level contracts for advanced users.
+### HTTP
 
-## How To Choose An Entrypoint
+```ts
+import { API, GET, Route } from "@curio/core/http/oak";
+```
+
+### Database
+
+```ts
+import { Database, Model, field } from "@curio/core";
+```
+
+### Admin
+
+```ts
+import { Admin } from "@curio/core/admin";
+```
+
+### OpenAPI
+
+```ts
+import { OpenAPI } from "@curio/core/openapi";
+```
+
+### Testing
+
+```ts
+import { createFixtureBuilder } from "@curio/core/testing";
+```
+
+### Value Objects
+
+```ts
+import { ValueObject } from "@curio/core/value-object";
+```
+
+## Choosing An Entrypoint
 
 - use `@curio/core/http/oak` for normal API work
 - use `@curio/core` for framework-agnostic primitives and the DB layer
@@ -36,15 +67,15 @@ adapter-agnostic and exposes lower-level contracts for advanced users.
 - use `@curio/core/admin/modules/*` for focused built-in admin modules
 - use `@curio/core/openapi` when you want a spec document from your route tree
 
-## Documentation
+## Next Steps
 
 - [Entrypoints](entrypoints.md)
 - [HTTP](http.md)
 - [Database](database.md)
-- [Testing](testing.md)
-- [Value Objects](value-objects.md)
 - [Admin](admin.md)
 - [Admin Modules](admin-modules.md)
+- [Testing](testing.md)
+- [Value Objects](value-objects.md)
 - [Auth](auth.md)
 - [Drizzle](drizzle.md)
 - [OpenAPI](openapi.md)
