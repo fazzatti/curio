@@ -18,10 +18,15 @@ TypeScript-first backend toolkit for Deno, built around typed APIs, a relational
   <a href="https://github.com/fazzatti/curio/actions/workflows/deno.yml">
     <img src="https://github.com/fazzatti/curio/actions/workflows/deno.yml/badge.svg" alt="CI" />
   </a>
+  <a href="https://codecov.io/gh/fazzatti/curio">
+    <img src="https://codecov.io/gh/fazzatti/curio/branch/main/graph/badge.svg" alt="Codecov" />
+  </a>
   <a href="https://opensource.org/licenses/MIT">
     <img alt="MIT License" src="https://badges.frapsoft.com/os/mit/mit.svg?v=103" />
   </a>
-  <img alt="Beta" src="https://img.shields.io/badge/status-beta-orange" />
+  <a href="https://github.com/ellerbrock/open-source-badge/">
+    <img alt="Open Source Love" src="https://badges.frapsoft.com/os/v1/open-source.svg?v=103" />
+  </a>
 </div>
 
 <br />
