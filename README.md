@@ -1,4 +1,7 @@
 <div align="center">
+  <a href="https://jsr.io/@curio/core" title="@curio/core">
+    <img alt="@curio" src="./_internal/img/logo.png" width="320" />
+  </a>
   <h1>@curio</h1>
 </div>
 

@@ -1,3 +1,5 @@
+<figure><img src=".gitbook/assets/logo.png" alt="Curio"><figcaption></figcaption></figure>
+
 # Introduction
 
 {% hint style="info" %}
