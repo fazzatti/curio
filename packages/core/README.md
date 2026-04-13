@@ -13,8 +13,8 @@ Curio Core is the reusable framework package for Curio. It combines typed HTTP
 authoring, a relational-first persistence layer, a server-rendered admin
 runtime, testing fixtures, value objects, and advanced OpenAPI generation.
 
-[Workspace Docs](https://github.com/fazzatti/curio/tree/main/docs/core) |
-[Architecture Notes](https://github.com/fazzatti/curio/blob/main/ARCHITECTURE.md)
+[Workspace Docs](https://fifo-docs.gitbook.io/curio/core) |
+[Architecture Notes](https://fifo-docs.gitbook.io/curio/architecture/overview)
 
 ## Installation
 

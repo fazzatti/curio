@@ -1,5 +1,15 @@
 # Getting Started
 
+## Requirements
+
+Before scaffolding a Curio project, install Deno locally and make sure it is
+available on your `PATH`.
+
+- Curio currently assumes a Deno `2.x` workflow
+- verify your installation with `deno --version`
+- if Deno is not installed yet, follow the official guide:
+  [https://docs.deno.com/runtime/getting_started/installation/](https://docs.deno.com/runtime/getting_started/installation/)
+
 The fastest way to start with Curio is:
 
 1. scaffold a new project with `@curio/init`

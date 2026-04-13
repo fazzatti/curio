@@ -11,8 +11,8 @@
 
 `@curio/init` is Curio's project bootstrap tool.
 
-[Workspace Docs](https://github.com/fazzatti/curio/tree/main/docs/init) |
-[Architecture Notes](https://github.com/fazzatti/curio/blob/main/ARCHITECTURE.md)
+[Workspace Docs](https://fifo-docs.gitbook.io/curio/init) |
+[Architecture Notes](https://fifo-docs.gitbook.io/curio/architecture/overview)
 
 Run it like this:
 

@@ -65,6 +65,6 @@ const router = API.from(routes);
 ## Resources
 
 - [Repository README](../README.md)
-- [Architecture Notes](../ARCHITECTURE.md)
-- [Core Package README](../packages/core/README.md)
-- [Init Package README](../packages/init/README.md)
+- [Architecture Overview](architecture/overview.md)
+- [Core Package Overview](core/README.md)
+- [Init Package Overview](init/README.md)
