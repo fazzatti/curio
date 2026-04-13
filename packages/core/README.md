@@ -1,5 +1,14 @@
 # @curio/core
 
+<p>
+  <a href="https://jsr.io/@curio/core">
+    <img src="https://jsr.io/badges/@curio/core" alt="@curio/core on JSR" />
+  </a>
+  <a href="https://jsr.io/@curio/core">
+    <img src="https://jsr.io/badges/@curio/core/total-downloads" alt="@curio/core total downloads" />
+  </a>
+</p>
+
 Curio Core is the reusable framework package for Curio. It combines typed HTTP
 authoring, a relational-first persistence layer, a server-rendered admin
 runtime, testing fixtures, value objects, and advanced OpenAPI generation.
