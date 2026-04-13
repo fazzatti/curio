@@ -96,11 +96,11 @@ const createRawContext = (
       hasBody: true,
       body: {
         type: () => bodyType,
-        json: async () => bodyValue,
-        text: async () => bodyValue,
-        form: async () => bodyValue,
-        formData: async () => bodyValue,
-        blob: async () => bodyValue,
+        json: () => Promise.resolve(bodyValue),
+        text: () => Promise.resolve(bodyValue),
+        form: () => Promise.resolve(bodyValue),
+        formData: () => Promise.resolve(bodyValue),
+        blob: () => Promise.resolve(bodyValue),
       },
     },
     response: {
@@ -132,25 +132,25 @@ const createCountedRawContext = (
       hasBody: true,
       body: {
         type: () => bodyType,
-        json: async () => {
+        json: () => {
           counters.json += 1;
-          return bodyValue;
+          return Promise.resolve(bodyValue);
         },
-        text: async () => {
+        text: () => {
           counters.text += 1;
-          return bodyValue;
+          return Promise.resolve(bodyValue);
         },
-        form: async () => {
+        form: () => {
           counters.form += 1;
-          return bodyValue;
+          return Promise.resolve(bodyValue);
         },
-        formData: async () => {
+        formData: () => {
           counters.formData += 1;
-          return bodyValue;
+          return Promise.resolve(bodyValue);
         },
-        blob: async () => {
+        blob: () => {
           counters.blob += 1;
-          return bodyValue;
+          return Promise.resolve(bodyValue);
         },
       },
     },
@@ -232,11 +232,11 @@ const createCountedRawContext = (
         hasBody: false,
         body: {
           type: () => "unknown",
-          json: async () => undefined,
-          text: async () => undefined,
-          form: async () => new URLSearchParams(),
-          formData: async () => new FormData(),
-          blob: async () => new Blob(),
+          json: () => Promise.resolve(undefined),
+          text: () => Promise.resolve(undefined),
+          form: () => Promise.resolve(new URLSearchParams()),
+          formData: () => Promise.resolve(new FormData()),
+          blob: () => Promise.resolve(new Blob()),
         },
       },
       response: {

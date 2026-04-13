@@ -14,7 +14,10 @@ import {
   Timestamps,
   UuidPrimaryKey,
 } from "@/mod.ts";
-import { createFixtureBuilder } from "@/testing.ts";
+import {
+  createFixtureBuilder,
+  type FixtureBuildContext,
+} from "@/testing.ts";
 
 const UserModel = new Model({
   name: "User",
@@ -167,9 +170,11 @@ Deno.test("createFixtureBuilder covers deterministic defaults, cloning, and batc
   const fixtures = createFixtureBuilder(ArticleModel, {
     seed: "article-fixtures",
     generators: {
-      luckyNumber: (context: any) => Number(context.random().toFixed(6)),
-      favoriteColor: (context: any) =>
-        context.pick(["red", "blue", "green"] as const),
+      luckyNumber: (context: FixtureBuildContext) =>
+        Number(context.random().toFixed(6)),
+      favoriteColor: (
+        context: FixtureBuildContext<Record<string, unknown>>,
+      ) => context.pick(["red", "blue", "green"] as const),
     },
   });
 
@@ -219,7 +224,8 @@ Deno.test("createFixtureBuilder covers deterministic defaults, cloning, and batc
 Deno.test("createFixtureBuilder surfaces generator and enum edge cases explicitly", () => {
   const emptyPickFixtures = createFixtureBuilder(ArticleModel, {
     generators: {
-      favoriteColor: (context: any) => context.pick([] as const),
+      favoriteColor: (context: FixtureBuildContext<Record<string, unknown>>) =>
+        context.pick([] as const),
     },
   });
   const brokenEnumFixtures = createFixtureBuilder(BrokenEnumModel);

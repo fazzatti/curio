@@ -15,7 +15,7 @@ import type { DrizzleExecutor } from "@/db/drizzle/types.ts";
 import { Entity } from "@/db/entity.ts";
 import { field, resolveFieldDefinition } from "@/db/field.ts";
 import { Model } from "@/db/model.ts";
-import type { RawRecord, ResolvedTableDefinition } from "@/db/types.ts";
+import type { ResolvedTableDefinition } from "@/db/types.ts";
 import { UuidPrimaryKey } from "@/db/variant.ts";
 
 const UserModel = new Model({
@@ -373,8 +373,9 @@ Deno.test("Drizzle runtime executes CRUD statements, normalizes rows, and reuses
   const runtime = DRIZZLE_INTERNALS.createRuntime(
     executor,
     [USER_DEFINITION],
-    async () => {
+    () => {
       prepareCalls += 1;
+      return Promise.resolve();
     },
   );
   const createdAt = "2026-03-25T12:34:56.000Z";
@@ -612,9 +613,9 @@ Deno.test("Drizzle lazy executors instantiate the executor once and delegate exe
   const calls: string[] = [];
   let factoryCalls = 0;
   const transactionExecutor: DrizzleExecutor = {
-    execute: async () => {
+    execute: () => {
       calls.push("tx-execute");
-      return [];
+      return Promise.resolve([]);
     },
     transaction: async <T>(
       operation: (transaction: DrizzleExecutor) => Promise<T>,
@@ -625,9 +626,9 @@ Deno.test("Drizzle lazy executors instantiate the executor once and delegate exe
     factoryCalls += 1;
 
     return {
-      execute: async () => {
+      execute: () => {
         calls.push("execute");
-        return [];
+        return Promise.resolve([]);
       },
       transaction: async <T>(
         operation: (transaction: DrizzleExecutor) => Promise<T>,
@@ -653,7 +654,7 @@ Deno.test("Drizzle runtime throws for unknown table registrations and unsupporte
   const runtime = DRIZZLE_INTERNALS.createRuntime(
     executor,
     [USER_DEFINITION],
-    async () => {},
+    () => Promise.resolve(),
   );
 
   await assertRejects(

@@ -21,7 +21,7 @@ export const normalizeWidgets = (
   registrations: Record<string, AdminDashboardWidgetRegistration>,
 ): Record<string, AdminNormalizedDashboardWidget> => {
   return Object.fromEntries(
-    Object.entries(registrations).map(([registrationKey, registration]) => {
+    Object.entries(registrations).map(([_registrationKey, registration]) => {
       const config = registration.config;
       const key = config.key;
       const title = config.title;

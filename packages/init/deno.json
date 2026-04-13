@@ -5,6 +5,7 @@
   "license": "MIT",
   "tasks": {
     "init": "deno run -A mod.ts",
+    "lint": "deno lint mod.ts src",
     "check": "deno check mod.ts src/mod.ts src/init.ts src/init_test.ts",
     "test": "deno test -A --clean src",
     "test:coverage": "deno test -A --clean --coverage=../../.coverage/init/unit src",

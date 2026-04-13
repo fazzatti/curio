@@ -69,10 +69,13 @@ type ReadOperationOptions<
   requestSchema?: ReadRequestSchema<TPathParamsSchema, TQuerySchema>;
   responseSchema?: TResponseSchema;
   docs?: RouteMethodDocs;
-  middlewares?: EnsureUniqueMiddlewareKeys<TMiddlewares>;
+  middlewares?: EnsureUniqueMiddlewareKeys<TContext, TMiddlewares>;
   handler(
     input: ReadHandlerInput<TPathParamsSchema, TQuerySchema>,
-    ctx: WithMiddlewareData<TContext, MiddlewareDataFromDefinitions<TMiddlewares>>,
+    ctx: WithMiddlewareData<
+      TContext,
+      MiddlewareDataFromDefinitions<TContext, TMiddlewares>
+    >,
   ): OperationOutput<TResponseSchema> | Promise<OperationOutput<TResponseSchema>>;
 };
 
@@ -92,10 +95,13 @@ type WriteOperationOptions<
   >;
   responseSchema?: TResponseSchema;
   docs?: RouteMethodDocs;
-  middlewares?: EnsureUniqueMiddlewareKeys<TMiddlewares>;
+  middlewares?: EnsureUniqueMiddlewareKeys<TContext, TMiddlewares>;
   handler(
     input: WriteHandlerInput<TPathParamsSchema, TQuerySchema, TBodySchema>,
-    ctx: WithMiddlewareData<TContext, MiddlewareDataFromDefinitions<TMiddlewares>>,
+    ctx: WithMiddlewareData<
+      TContext,
+      MiddlewareDataFromDefinitions<TContext, TMiddlewares>
+    >,
   ): OperationOutput<TResponseSchema> | Promise<OperationOutput<TResponseSchema>>;
 };
 
@@ -118,7 +124,10 @@ type ReadOperationBuilder<
   >,
 ) => RouteMethodOperation<
   M,
-  WithMiddlewareData<TContext, MiddlewareDataFromDefinitions<TMiddlewares>>
+  WithMiddlewareData<
+    TContext,
+    MiddlewareDataFromDefinitions<TContext, TMiddlewares>
+  >
 >;
 
 type WriteOperationBuilder<
@@ -142,7 +151,10 @@ type WriteOperationBuilder<
   >,
 ) => RouteMethodOperation<
   M,
-  WithMiddlewareData<TContext, MiddlewareDataFromDefinitions<TMiddlewares>>
+  WithMiddlewareData<
+    TContext,
+    MiddlewareDataFromDefinitions<TContext, TMiddlewares>
+  >
 >;
 
 /**
@@ -181,16 +193,22 @@ const createMethodOperation = <
       TQuerySchema,
       TBodySchema,
       TResponseSchema,
-      WithMiddlewareData<TContext, MiddlewareDataFromDefinitions<TMiddlewares>>
+      WithMiddlewareData<
+        TContext,
+        MiddlewareDataFromDefinitions<TContext, TMiddlewares>
+      >
   >,
   "schemaAdapter"
   > & {
     docs?: RouteMethodDocs;
-    middlewares?: EnsureUniqueMiddlewareKeys<TMiddlewares>;
+    middlewares?: EnsureUniqueMiddlewareKeys<TContext, TMiddlewares>;
   },
 ): RouteMethodOperation<
   M,
-  WithMiddlewareData<TContext, MiddlewareDataFromDefinitions<TMiddlewares>>
+  WithMiddlewareData<
+    TContext,
+    MiddlewareDataFromDefinitions<TContext, TMiddlewares>
+  >
 > => {
   const builtPipe = createRequestPipe({
     ...options,
@@ -200,7 +218,7 @@ const createMethodOperation = <
   const handler = async (
     ctx: WithMiddlewareData<
       TContext,
-      MiddlewareDataFromDefinitions<TMiddlewares>
+      MiddlewareDataFromDefinitions<TContext, TMiddlewares>
     >,
   ) => {
     await builtPipe(ctx);
@@ -216,7 +234,10 @@ const createMethodOperation = <
     middlewares: options.middlewares as readonly RouteMiddleware[] | undefined,
   } satisfies RouteMethodOperation<
     M,
-    WithMiddlewareData<TContext, MiddlewareDataFromDefinitions<TMiddlewares>>
+    WithMiddlewareData<
+      TContext,
+      MiddlewareDataFromDefinitions<TContext, TMiddlewares>
+    >
   >;
 };
 

@@ -68,7 +68,7 @@ describe("route middleware", () => {
             .auth).account.id;
       },
       [
-        middleware("auth", async () => ({
+        middleware("auth", () => Promise.resolve({
           account: {
             id: "acc_123",
           },
@@ -87,7 +87,7 @@ describe("route middleware", () => {
         throw new Error("handler should not run");
       },
       [
-        middleware("auth", async ({ halt }) => {
+        middleware("auth", ({ halt }) => {
           return halt({
             status: 401,
             payload: {
@@ -169,12 +169,12 @@ describe("route middleware", () => {
   });
 
   it("allows built-in operations to infer middleware data in the handler context", () => {
-    const auth = middleware("auth", async () => ({
+    const auth = middleware("auth", () => Promise.resolve({
       account: {
         id: "acc_123",
       },
     }));
-    const request = middleware("request", async () => ({
+    const request = middleware("request", () => Promise.resolve({
       requestId: "req_123",
     }));
 
@@ -195,7 +195,7 @@ describe("route middleware", () => {
   });
 
   it("type-checks duplicate middleware keys as an error for built-in operations", () => {
-    const auth = middleware("auth", async () => ({
+    const auth = middleware("auth", () => Promise.resolve({
       account: {
         id: "acc_123",
       },
@@ -213,7 +213,7 @@ describe("route middleware", () => {
   });
 
   it("throws for duplicate keyed middleware data during route assembly", () => {
-    const auth = middleware("auth", async () => ({
+    const auth = middleware("auth", () => Promise.resolve({
       account: {
         id: "acc_123",
       },
@@ -235,7 +235,7 @@ describe("route middleware", () => {
       await next();
       calls.push("after");
     });
-    const keyed = factory("auth", async () => ({
+    const keyed = factory("auth", () => Promise.resolve({
       accountId: "acc_123",
     }));
 

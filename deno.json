@@ -2,6 +2,9 @@
   "workspace": ["./packages/*"],
 
   "tasks": {
+    "lint:core": "deno task --config packages/core/deno.json lint",
+    "lint:init": "deno task --config packages/init/deno.json lint",
+    "lint": "deno task lint:core && deno task lint:init",
     "check:core": "deno task --config packages/core/deno.json check",
     "check:init": "deno task --config packages/init/deno.json check",
     "check": "deno task check:core && deno task check:init",

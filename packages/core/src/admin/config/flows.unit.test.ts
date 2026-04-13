@@ -39,9 +39,9 @@ describe("admin runtime flows", () => {
   });
 
   it("preserves explicit flow overrides", () => {
-    const load = async () => ({ ok: true });
+    const load = () => Promise.resolve({ ok: true });
     const render = () => "flow";
-    const submit = async () => ({ redirectTo: "/admin/flows/ops" });
+    const submit = () => Promise.resolve({ redirectTo: "/admin/flows/ops" });
     const normalized = normalizeFlows({
       operations: {
         config: {

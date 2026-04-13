@@ -1,4 +1,4 @@
-import { entityBindingSymbol } from "@/db/entity/constants.ts";
+import type { entityBindingSymbol } from "@/db/entity/constants.ts";
 import type { Entity } from "@/db/entity.ts";
 import type { AnyModel, InferModelRecord, RawRecord } from "@/db/types.ts";
 

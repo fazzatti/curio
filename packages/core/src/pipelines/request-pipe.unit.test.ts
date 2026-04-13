@@ -39,7 +39,7 @@ describe("request pipe", () => {
         headers: new Headers(),
         query: new URL("http://localhost/health").searchParams,
         params: {},
-        body: async () => undefined,
+        body: () => Promise.resolve(undefined),
       },
       response: {
         setStatus() {},
@@ -64,7 +64,7 @@ describe("request pipe", () => {
   it("throws when the HTTP context is missing from pipeline state", async () => {
     const builtPipe = createRequestPipe({
       schemaAdapter,
-      handler: async (_input, _ctx) => ({
+      handler: (_input, _ctx) => Promise.resolve({
         status: 200,
         payload: { ok: true },
       }),
@@ -81,7 +81,7 @@ describe("request pipe", () => {
   it("throws from the response step when a one-argument handler runs without seeded context", async () => {
     const builtPipe = createRequestPipe({
       schemaAdapter,
-      handler: async () => ({
+      handler: () => Promise.resolve({
         status: 200,
         payload: { ok: true },
       }),

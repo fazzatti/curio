@@ -39,7 +39,7 @@ describe("admin runtime views", () => {
   });
 
   it("preserves explicit view overrides", () => {
-    const load = async () => ({ ok: true });
+    const load = () => Promise.resolve({ ok: true });
     const render = () => "custom";
     const normalized = normalizeViews({
       operations: {

@@ -12,7 +12,6 @@ import type {
 import type {
   AnyModelVariant,
   ModelVariant,
-  VariantFieldMap,
 } from "@/db/variant.ts";
 import type {
   ModelOptions,

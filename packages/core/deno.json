@@ -44,6 +44,7 @@
     "@valibot/valibot": "jsr:@valibot/valibot@^1.3.0"
   },
   "tasks": {
+    "lint": "deno lint src",
     "check": "deno check src/mod.ts src/admin.ts src/admin/modules.ts src/admin/modules/audit.ts src/admin/modules/rbac.ts src/admin/modules/sessions.ts src/auth.ts src/drizzle.ts src/http/oak-api.ts src/openapi.ts src/testing.ts src/value-object.ts",
     "test": "deno test -A --parallel --clean --ignore='_*/' --ignore='src/OLD-reference/' src",
     "test:unit": "deno test -A --parallel --clean --ignore='_*/' --ignore='src/OLD-reference/' --ignore='**/*.integration.test.ts' --ignore='**/*.integration.test.tsx' src",

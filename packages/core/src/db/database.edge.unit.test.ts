@@ -5,7 +5,6 @@ import {
 } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { Database } from "@/db/database.ts";
-import { Entity } from "@/db/entity.ts";
 import {
   MissingRelationForeignKeyError,
   MissingRequiredFieldError,

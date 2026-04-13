@@ -107,19 +107,19 @@ const createMountedAdmin = () => {
             <button type="submit">Run setup</button>
           </form>
         ),
-        submit: async ({ form }) => {
+        submit: ({ form }) => {
           const confirm = "get" in form ? form.get("confirm") : null;
 
           if (String(confirm ?? "") !== "yes") {
             throw new Error("Confirm setup.");
           }
 
-          return {
+          return Promise.resolve({
             flash: {
               tone: "success",
               message: "Setup complete.",
             },
-          };
+          });
         },
       }),
     },
@@ -179,15 +179,15 @@ const createDirectContext = (
     headers: new Headers(),
     body: {
       type: () => "form",
-      form: async () => new URLSearchParams(formValues),
-      formData: async () => {
+      form: () => Promise.resolve(new URLSearchParams(formValues)),
+      formData: () => {
         const data = new FormData();
 
         for (const [key, value] of Object.entries(formValues)) {
           data.set(key, value);
         }
 
-        return data;
+        return Promise.resolve(data);
       },
     },
     ip: "127.0.0.1",
@@ -198,9 +198,9 @@ const createDirectContext = (
     body: null,
   },
   cookies: {
-    get: async () => undefined,
-    set: async () => undefined,
-    delete: async () => undefined,
+    get: () => Promise.resolve(undefined),
+    set: () => Promise.resolve(undefined),
+    delete: () => Promise.resolve(undefined),
   },
 });
 
@@ -648,7 +648,7 @@ describe("admin runtime handlers", () => {
     const runtime = {
       ...admin,
       findResource: () => resource,
-      getActorOrRedirect: async () => null,
+      getActorOrRedirect: () => Promise.resolve(null),
     };
 
     await handleDetail(
@@ -711,7 +711,7 @@ describe("admin runtime handlers", () => {
     const runtime = {
       ...admin,
       findResource: () => disabledResource,
-      getActorOrRedirect: async () => actor,
+      getActorOrRedirect: () => Promise.resolve(actor),
       renderForbidden() {
         forbiddenCalls += 1;
       },
@@ -750,9 +750,12 @@ describe("admin runtime handlers", () => {
     const deletedCookies: string[] = [];
     const logoutContext = createDirectContext({});
     logoutContext.cookies = {
-      get: async () => undefined,
-      set: async () => undefined,
-      delete: async (name) => deletedCookies.push(name),
+      get: () => Promise.resolve(undefined),
+      set: () => Promise.resolve(undefined),
+      delete: (name) => {
+        deletedCookies.push(name);
+        return Promise.resolve();
+      },
     };
     await handleLogout(admin as never, logoutContext);
     assertEquals(deletedCookies.length, 1);
@@ -772,7 +775,7 @@ describe("admin runtime handlers", () => {
     const runtime = admin as typeof admin & {
       getActorOrRedirect: typeof admin.getActorOrRedirect;
     };
-    runtime.getActorOrRedirect = async () => actor as never;
+    runtime.getActorOrRedirect = () => Promise.resolve(actor as never);
 
     const dashboardContext = createDirectContext({});
     await handleDashboard(runtime as never, dashboardContext);

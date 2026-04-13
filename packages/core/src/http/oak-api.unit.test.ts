@@ -18,7 +18,7 @@ const createAppResponse = async (
 
 describe("Oak HTTP surface", () => {
   it("binds built-in operations, routes, and middleware to Oak", async () => {
-    const auth = middleware("auth", async ({ ctx }) => ({
+    const auth = middleware("auth", ({ ctx }) => Promise.resolve({
       method: ctx.raw.request.method,
     }));
 

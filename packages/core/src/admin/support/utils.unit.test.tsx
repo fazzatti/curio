@@ -276,7 +276,7 @@ Deno.test("admin runtime utils resolve field access, titles, flashes, and reques
     ({
       getRepository() {
         return {
-          findMany: async () => [{ id: "one" }, { id: "two" }],
+          findMany: () => Promise.resolve([{ id: "one" }, { id: "two" }]),
         };
       },
     } as unknown) as Parameters<typeof countResourceRecords>[0],

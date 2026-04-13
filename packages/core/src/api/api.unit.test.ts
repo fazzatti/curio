@@ -48,7 +48,7 @@ Deno.test("API.withHttp(oakHttpAdapter) accepts root routes and pass-through mid
           middleware(async (_ctx, next) => {
             await next();
           }),
-          middleware("auth", async () => ({
+          middleware("auth", () => Promise.resolve({
             account: {
               id: "acc_123",
             },
@@ -140,7 +140,7 @@ Deno.test("API.withHttp(oakHttpAdapter) accepts object-form method config entrie
 });
 
 Deno.test("INTERNALS.normalizeRouteMethodEntry preserves method-level middlewares", () => {
-  const authMiddleware = middleware("auth", async () => ({
+  const authMiddleware = middleware("auth", () => Promise.resolve({
     account: {
       id: "acc_123",
     },
@@ -198,7 +198,7 @@ Deno.test("INTERNALS validation errors are concrete error instances", () => {
 });
 
 Deno.test("API.withHttp(oakHttpAdapter) rejects duplicate keyed middleware data on one route", () => {
-  const auth = middleware("auth", async () => ({
+  const auth = middleware("auth", () => Promise.resolve({
     account: {
       id: "acc_123",
     },

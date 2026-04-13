@@ -17,7 +17,6 @@ import {
   formatRecordValue,
   getFieldLabel,
   getRecordId,
-  humanize,
   PAGE_SIZE,
   parsePage,
   parseScalarFieldValue,

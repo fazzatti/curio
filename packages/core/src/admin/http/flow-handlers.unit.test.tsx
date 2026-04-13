@@ -35,15 +35,15 @@ const createContext = (
     headers: new Headers(),
     body: {
       type: () => "form",
-      form: async () => new URLSearchParams(formValues),
-      formData: async () => {
+      form: () => Promise.resolve(new URLSearchParams(formValues)),
+      formData: () => {
         const data = new FormData();
 
         for (const [key, value] of Object.entries(formValues)) {
           data.set(key, value);
         }
 
-        return data;
+        return Promise.resolve(data);
       },
     },
     ip: "127.0.0.1",
@@ -54,9 +54,9 @@ const createContext = (
     body: null,
   },
   cookies: {
-    get: async () => undefined,
-    set: async () => undefined,
-    delete: async () => undefined,
+    get: () => Promise.resolve(undefined),
+    set: () => Promise.resolve(undefined),
+    delete: () => Promise.resolve(undefined),
   },
 });
 
@@ -88,20 +88,20 @@ const createFlow = (
       <button type="submit">Run setup</button>
     </form>
   ),
-  submit: async ({ form }) => {
+  submit: ({ form }) => {
     const confirm = "get" in form ? form.get("confirm") : null;
 
     if (String(confirm ?? "") !== "yes") {
       throw new Error("Confirm setup.");
     }
 
-    return {
+    return Promise.resolve({
       redirectTo: "/admin/flows/setup",
       flash: {
         tone: "success",
         message: "Setup complete.",
       },
-    };
+    });
   },
   ...overrides,
 });
@@ -128,8 +128,8 @@ const createAdmin = (
     rolling: true,
     sameSite: "Strict",
   },
-  prepareData: async () => {},
-  resolveActor: async () => actor,
+  prepareData: () => Promise.resolve(),
+  resolveActor: () => Promise.resolve(actor),
   buildNavigation: () => ({
     homeItem: {
       href: "/admin",
@@ -139,7 +139,7 @@ const createAdmin = (
     },
     groups: [],
   }),
-  getActorOrRedirect: async () => actor,
+  getActorOrRedirect: () => Promise.resolve(actor),
   renderForbidden(ctx: OakRouterContext) {
     ctx.response.status = 403;
     ctx.response.body = "forbidden";
@@ -152,7 +152,7 @@ const createAdmin = (
     ctx.response.body = "missing flow";
   },
   renderMissingRecord() {},
-  countResourceRecords: async () => 0,
+  countResourceRecords: () => Promise.resolve(0),
   getRepository: () => {
     throw new Error("not used");
   },
@@ -168,7 +168,7 @@ const createAdmin = (
 
     return flow;
   },
-  getDashboardWidgets: async () => [],
+  getDashboardWidgets: () => Promise.resolve([]),
   getDashboardPath: () => "/admin",
   getDocumentTitle: (title: string) => `${title} | Test Admin`,
   getLoginPath: () => "/admin/login",
@@ -246,7 +246,7 @@ describe("admin runtime flow handlers", () => {
     assertEquals(missingContext.response.body, "missing flow");
 
     const neutralAdmin = createAdmin(createFlow({
-      submit: async () => ({
+      submit: () => Promise.resolve({
         redirectTo: "/admin/flows/setup?tab=advanced",
         flash: {
           tone: "neutral",
@@ -264,7 +264,7 @@ describe("admin runtime flow handlers", () => {
     );
 
     const plainRedirectAdmin = createAdmin(createFlow({
-      submit: async () => ({
+      submit: () => Promise.resolve({
         redirectTo: "/admin/flows/setup?tab=advanced",
       }),
     }));
@@ -281,9 +281,7 @@ describe("admin runtime flow handlers", () => {
     );
 
     const stringErrorAdmin = createAdmin(createFlow({
-      submit: async () => {
-        throw "plain failure";
-      },
+      submit: () => Promise.reject("plain failure"),
     }));
     const stringErrorContext = createContext({ flow: "setup" }, { confirm: "yes" });
 

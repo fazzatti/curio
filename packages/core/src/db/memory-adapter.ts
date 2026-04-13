@@ -357,8 +357,8 @@ export const memoryDatabaseAdapter = (
 
     return {
       ...baseScope,
-      async prepare() {
-        return;
+      prepare(): Promise<void> {
+        return Promise.resolve();
       },
       async transaction<T>(
         operation: (transaction: AdapterTransactionScope) => Promise<T>,

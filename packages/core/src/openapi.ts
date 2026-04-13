@@ -75,6 +75,13 @@ export type OpenApiOptions = {
   defaultResponseDescription?: string;
 };
 
+export type OpenApiNamespace = {
+  from<TContext extends CurioHttpContext>(
+    routes: RouteSegment<TContext>[],
+    options?: OpenApiOptions,
+  ): OpenApiDocument;
+};
+
 type OpenApiRequestSchemas = {
   pathParams?: ValibotSchema;
   query?: ValibotSchema;
@@ -260,7 +267,7 @@ const toOpenApiOperation = (
  * Built-in Curio operations contribute Valibot request/response schemas
  * automatically, while custom handlers can opt in through `withSchemas(...)`.
  */
-export const OpenAPI = {
+export const OpenAPI: OpenApiNamespace = {
   from<TContext extends CurioHttpContext>(
     routes: RouteSegment<TContext>[],
     options: OpenApiOptions = {},
@@ -291,4 +298,4 @@ export const OpenAPI = {
       paths: pathItems,
     };
   },
-} as const;
+};

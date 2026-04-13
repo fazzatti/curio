@@ -74,7 +74,7 @@ type TemplateContext = {
   coreImports: Record<(typeof CORE_IMPORT_KEYS)[number], string>;
 };
 
-export const helpText = `Create a new Curio project.
+export const helpText: string = `Create a new Curio project.
 
 Usage:
   deno run -Ar jsr:@curio/init [directory]
