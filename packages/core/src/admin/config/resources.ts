@@ -5,7 +5,7 @@ import type {
   AdminResourceConfig,
   AdminResourceRegistration,
 } from "@/admin/core/types.ts";
-import { humanize, mergeComponentOverrides } from "@/admin/support/utils.tsx";
+import { mergeComponentOverrides } from "@/admin/support/utils.tsx";
 import type { Model } from "@/db/model.ts";
 import type { OrderByClause, RawRecord } from "@/db/types.ts";
 // deno-coverage-ignore-stop

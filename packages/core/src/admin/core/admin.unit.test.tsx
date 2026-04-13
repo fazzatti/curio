@@ -148,7 +148,7 @@ const createRuntimeAdmin = () => {
           load: () => ({
             configured: false,
           }),
-          submit: async () => ({
+          submit: () => Promise.resolve({
             redirectTo: "/admin/flows/configure-channels",
             flash: {
               tone: "success",
@@ -163,6 +163,7 @@ const createRuntimeAdmin = () => {
           title: "Transaction Queue",
           size: "lg",
           href: "/admin/views/transactions",
+          live: { mode: "poll", intervalMs: 5000 },
           render: TransactionsWidget,
           load: () => ({
             pending: 3,
@@ -269,8 +270,8 @@ const createOakContext = (
     headers: new Headers(),
     body: {
       type: () => "form",
-      form: async () => new URLSearchParams(),
-      formData: async () => new FormData(),
+      form: () => Promise.resolve(new URLSearchParams()),
+      formData: () => Promise.resolve(new FormData()),
     },
     ip: "127.0.0.1",
   },
@@ -280,9 +281,9 @@ const createOakContext = (
     body: null,
   },
   cookies: {
-    get: async () => undefined,
-    set: async () => undefined,
-    delete: async () => undefined,
+    get: () => Promise.resolve(undefined),
+    set: () => Promise.resolve(undefined),
+    delete: () => Promise.resolve(undefined),
   },
 });
 
@@ -827,6 +828,10 @@ Deno.test("admin runtime SSR renders dashboard widgets and custom views for supe
   const dashboardHtml = await dashboardResponse.text();
   assertStringIncludes(dashboardHtml, "Transaction Queue");
   assertStringIncludes(dashboardHtml, "Pending: 3");
+  assertStringIncludes(
+    dashboardHtml,
+    'data-curio-admin-live-poll-interval="5000"',
+  );
 
   const viewResponse = await requestAdmin(app, "/admin/views/transactions", {
     headers: { cookie: sessionCookie },

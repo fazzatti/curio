@@ -1,6 +1,6 @@
 /** @jsxImportSource preact */
 
-import { assertEquals, assertStringIncludes } from "@std/assert";
+import { assertStringIncludes } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { renderToString } from "preact-render-to-string";
 import { DefaultAdminAssignmentField } from "@/admin/components.tsx";

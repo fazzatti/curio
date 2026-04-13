@@ -4,10 +4,7 @@ import {
   SchemaValidationError,
   type SchemaValidationResult,
 } from "@/schema/types.ts";
-import type {
-  InferValibotSchema,
-  ValibotSchema,
-} from "@/schema/valibot/types.ts";
+import type { ValibotSchema } from "@/schema/valibot/types.ts";
 
 export type {
   InferValibotSchema,

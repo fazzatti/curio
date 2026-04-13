@@ -14,8 +14,6 @@ import type {
 } from "@/db/types.ts";
 import type {
   DrizzleAdapterConfig,
-  DrizzleAdapterDialect,
-  DrizzleAdapterPostgresConfig,
   DrizzleExecutor,
 } from "@/db/drizzle/types.ts";
 // deno-coverage-ignore-stop
@@ -120,7 +118,7 @@ export const shouldApplyNotNullConstraint = (
 
 const createTableStatement = (definition: ResolvedTableDefinition): SQL => {
   const columnDefinitions = Object.entries(definition.model.fields).map(
-    ([fieldName, field]) => {
+    ([_fieldName, field]) => {
       const parts = [quoteIdentifier(field.column), fieldSqlType(field)];
 
       if (field.primaryKey) {

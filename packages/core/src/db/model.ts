@@ -6,13 +6,13 @@ import {
 } from "@/db/relation.ts";
 import type {
   ModelLabels,
+  ResolvedModelLabels,
   ModelValidationConfig,
   OrderByClause,
 } from "@/db/types.ts";
 import type {
   AnyModelVariant,
   ModelVariant,
-  VariantFieldMap,
 } from "@/db/variant.ts";
 import type {
   ModelOptions,
@@ -135,7 +135,7 @@ export class Model<
   /** Resolved model relations keyed by relation name. */
   readonly relations: ResolvedModelRelations<TRelations>;
   /** Human-friendly labels associated with the model. */
-  readonly labels: ModelLabels;
+  readonly labels: ResolvedModelLabels;
   /** Default ordering applied when queries omit `orderBy`. */
   readonly defaultOrder?: OrderByClause<Record<string, unknown>>;
   /** Optional model-level validation bindings. */
@@ -223,7 +223,7 @@ export class Model<
       "explicit model metadata",
     );
 
-    const resolvedLabels = {
+    const resolvedLabels: ResolvedModelLabels = {
       singular: metadata.labels?.singular ?? options.name,
       plural: metadata.labels?.plural ?? `${options.name}s`,
     };

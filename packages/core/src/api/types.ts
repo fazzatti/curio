@@ -5,32 +5,46 @@ export type EndpointMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 type MaybePromise<T> = T | Promise<T>;
 
-type Simplify<T> = { [K in keyof T]: T[K] } & {};
+type Simplify<T> = { [K in keyof T]: T[K] } & Record<never, never>;
 
 type UnionToIntersection<TUnion> =
   (TUnion extends unknown ? (value: TUnion) => void : never) extends
     (value: infer TIntersection) => void ? TIntersection
     : never;
 
-type MiddlewareDataEntry<TMiddleware> =
-  TMiddleware extends KeyedRouteMiddleware<any, infer TKey, infer TData>
+type MiddlewareDataEntry<
+  TContext extends CurioHttpContext,
+  TMiddleware,
+> =
+  TMiddleware extends
+    KeyedRouteMiddleware<TContext, infer TKey, infer TData>
     ? { [K in TKey]: Awaited<TData> }
     : Record<never, never>;
 
-type MiddlewareKeyOf<TMiddleware> =
-  TMiddleware extends KeyedRouteMiddleware<any, infer TKey, unknown>
+type MiddlewareKeyOf<
+  TContext extends CurioHttpContext,
+  TMiddleware,
+> =
+  TMiddleware extends
+    KeyedRouteMiddleware<TContext, infer TKey, unknown>
     ? TKey
     : never;
 
 type DuplicateMiddlewareKeys<
+  TContext extends CurioHttpContext,
   TMiddlewares extends readonly unknown[],
   TSeen extends string = never,
 > = TMiddlewares extends readonly [infer THead, ...infer TTail]
-  ? MiddlewareKeyOf<THead> extends never
-    ? DuplicateMiddlewareKeys<TTail, TSeen>
-    : MiddlewareKeyOf<THead> extends TSeen
-      ? MiddlewareKeyOf<THead> | DuplicateMiddlewareKeys<TTail, TSeen>
-      : DuplicateMiddlewareKeys<TTail, TSeen | MiddlewareKeyOf<THead>>
+  ? MiddlewareKeyOf<TContext, THead> extends never
+    ? DuplicateMiddlewareKeys<TContext, TTail, TSeen>
+    : MiddlewareKeyOf<TContext, THead> extends TSeen
+      ? MiddlewareKeyOf<TContext, THead> |
+        DuplicateMiddlewareKeys<TContext, TTail, TSeen>
+      : DuplicateMiddlewareKeys<
+        TContext,
+        TTail,
+        TSeen | MiddlewareKeyOf<TContext, THead>
+      >
   : never;
 
 /** Output passed to `halt(...)` from keyed route middleware. */
@@ -129,9 +143,10 @@ export type RouteMiddleware<TContext extends CurioHttpContext = CurioHttpContext
  * resolve to `never`, which causes Curio helper calls to fail type-checking.
  */
 export type EnsureUniqueMiddlewareKeys<
-  TMiddlewares extends readonly RouteMiddleware<any>[] | undefined,
-> = TMiddlewares extends readonly RouteMiddleware<any>[]
-  ? [DuplicateMiddlewareKeys<TMiddlewares>] extends [never]
+  TContext extends CurioHttpContext,
+  TMiddlewares extends readonly RouteMiddleware<TContext>[] | undefined,
+> = TMiddlewares extends readonly RouteMiddleware<TContext>[]
+  ? [DuplicateMiddlewareKeys<TContext, TMiddlewares>] extends [never]
     ? TMiddlewares
     : never
   : TMiddlewares;
@@ -142,11 +157,14 @@ export type EnsureUniqueMiddlewareKeys<
  * @typeParam TMiddlewares The route middleware array to inspect.
  */
 export type MiddlewareDataFromDefinitions<
-  TMiddlewares extends readonly RouteMiddleware<any>[] | undefined,
+  TContext extends CurioHttpContext,
+  TMiddlewares extends readonly RouteMiddleware<TContext>[] | undefined,
 > = Simplify<
   UnionToIntersection<
     MiddlewareDataEntry<
-      TMiddlewares extends readonly RouteMiddleware<any>[] ? TMiddlewares[number]
+      TContext,
+      TMiddlewares extends readonly RouteMiddleware<TContext>[]
+        ? TMiddlewares[number]
         : never
     >
   >
@@ -258,7 +276,7 @@ export type RouteMethodEntry<
 > =
   | RouteHandler<TContext>
   | RouteMethodConfig<TContext>
-  | RouteMethodOperation<M, any>;
+  | RouteMethodOperation<M, never>;
 
 /**
  * Methods available on a single route segment.

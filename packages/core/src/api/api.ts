@@ -169,7 +169,7 @@ const validateRouteSiblings = <TContext>(
 /** Type guard for method-specific operation objects. */
 const isRouteMethodOperation = <M extends EndpointMethod, TContext>(
   entry: RouteMethodEntry<M, TContext>,
-): entry is RouteMethodOperation<M, unknown> => {
+): entry is RouteMethodOperation<M, never> => {
   return (
     typeof entry === "object" &&
     entry !== null &&
@@ -276,7 +276,7 @@ const flattenRoutes = <TContext>(
 
       registeredRoutes.push({
         method: normalizedMethod.method,
-        path: fullPath || "/",
+        path: fullPath,
         handler: normalizedMethod.handler,
         docs: normalizedMethod.docs,
         middlewares: normalizedMethod.middlewares,
@@ -324,7 +324,7 @@ const validateMiddlewareDataKeys = (
 
 const composeRouteHandler = <TContext extends CurioHttpContext>(
   handler: RouteHandler<TContext>,
-  middlewares: readonly RouteMiddleware<any>[] | undefined,
+  middlewares: readonly RouteMiddleware<TContext>[] | undefined,
 ): RouteHandler<TContext> => {
   if (!middlewares?.length) {
     return handler;

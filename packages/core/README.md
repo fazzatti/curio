@@ -1,11 +1,17 @@
-# Curio Core
+# @curio/core
 
-Curio is a TypeScript-first backend toolkit for Deno. It combines:
+Curio Core is the reusable framework package for Curio. It combines typed HTTP
+authoring, a relational-first persistence layer, a server-rendered admin
+runtime, testing fixtures, value objects, and advanced OpenAPI generation.
 
-- a typed route authoring model
-- a small relational-first persistence layer
-- a server-rendered admin mounted directly on the backend
-- optional Drizzle/Postgres integration
+[Workspace Docs](https://github.com/fazzatti/curio/tree/main/docs/core) |
+[Architecture Notes](https://github.com/fazzatti/curio/blob/main/ARCHITECTURE.md)
+
+## Installation
+
+```sh
+deno add jsr:@curio/core
+```
 
 The package is published in focused entrypoints so backends can opt into only
 the pieces they need.

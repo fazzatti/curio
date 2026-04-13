@@ -2,6 +2,9 @@
 
 `@curio/init` is Curio's project bootstrap tool.
 
+[Workspace Docs](https://github.com/fazzatti/curio/tree/main/docs/init) |
+[Architecture Notes](https://github.com/fazzatti/curio/blob/main/ARCHITECTURE.md)
+
 Run it like this:
 
 ```sh
@@ -30,16 +33,16 @@ From `packages/init/`:
 ```sh
 deno task check
 deno task test
-deno task coverage
 deno task init
 ```
 
 From the repo root:
 
 ```sh
-deno task check:init
-deno task test:init
-deno task coverage:init
+deno lint
+deno task check
+deno task test
+deno coverage .coverage
 deno task init -- my-app
 ```
 

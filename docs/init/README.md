@@ -1,24 +1,10 @@
-# Init
+# Init Package Overview
 
-`@curio/init` is Curio's scaffolding CLI.
+`@curio/init` is Curio's scaffolding CLI. Its job is to assemble a fresh Curio
+project from the canonical template without becoming part of the app's runtime
+surface.
 
-Its job is to assemble a fresh Curio project from the canonical template. It is
-not the framework itself.
-
-## Package Role
-
-`@curio/init` should stay minimal:
-
-- parse scaffold arguments
-- resolve the target directory
-- copy the selected template
-- replace Curio placeholders
-- print next steps
-
-It should not become a second core-package entrypoint or a runtime package that users
-import from inside their application code.
-
-## CLI Usage
+## Installation And Usage
 
 Published usage:
 
@@ -32,6 +18,17 @@ Workspace usage:
 deno task init -- my-app
 ```
 
+## What Init Owns
+
+- argument parsing and help output
+- target directory resolution
+- template copying
+- Curio placeholder replacement
+- next-step instructions after scaffold
+
+It should not become a second framework package that applications import from
+at runtime.
+
 ## Supported Flags
 
 - `--name <name>`: override the generated display name
@@ -43,24 +40,25 @@ deno task init -- my-app
 
 `packages/init` has two responsibilities:
 
-- `src/`: the scaffolding CLI
+- `src/`: scaffolding CLI code
 - `template/default/`: the canonical generated project
 
-The template is the reference source of truth for newly generated Curio apps.
+The template is the source of truth for what new Curio apps should look like.
 
 ## Testing Strategy
 
-The init package is validated in two ways:
+The init package is validated through:
 
-- package-level checking and unit tests
+- package-level checks
+- CLI tests
 - scaffold smoke tests that generate a project and run its checks
 
 Inside the workspace, scaffold smoke tests patch the generated app to use the
-local core implementation. That keeps `@curio/init` verifiable before the core
-package is published to JSR.
+local core implementation. That keeps `@curio/init` verifiable before
+`@curio/core` is published.
 
-## Related Docs
+## Next Steps
 
 - [Template](template.md)
-- [Getting Started](../getting-started/create-a-project.md)
-- [Architecture: Package Boundaries](../architecture/package-boundaries.md)
+- [Create a Project](../getting-started/create-a-project.md)
+- [Package Boundaries](../architecture/package-boundaries.md)

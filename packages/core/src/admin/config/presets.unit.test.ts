@@ -110,8 +110,8 @@ describe("admin runtime presets", () => {
             headers: new Headers(),
             body: {
               type: () => "form",
-              form: async () => new URLSearchParams(),
-              formData: async () => new FormData(),
+              form: () => Promise.resolve(new URLSearchParams()),
+              formData: () => Promise.resolve(new FormData()),
             },
             ip: "127.0.0.1",
           },
@@ -121,9 +121,9 @@ describe("admin runtime presets", () => {
             body: null,
           },
           cookies: {
-            get: async () => undefined,
-            set: async () => undefined,
-            delete: async () => undefined,
+            get: () => Promise.resolve(undefined),
+            set: () => Promise.resolve(undefined),
+            delete: () => Promise.resolve(undefined),
           },
         },
       )).length,
@@ -131,7 +131,7 @@ describe("admin runtime presets", () => {
     );
   });
 
-  it("resolves the built-in default preset with namespaced resource links", async () => {
+  it("resolves the built-in default preset with namespaced resource links", () => {
     const db = createPresetTestDatabase();
     const configuration = resolveAdminConfiguration({
       db,
@@ -170,8 +170,9 @@ describe("admin runtime presets", () => {
           components: {
             Shell: (() => null) as never,
           },
-          seed: async () => {
+          seed: () => {
             seeded.push("preset");
+            return Promise.resolve();
           },
         }),
       ],
@@ -247,6 +248,20 @@ describe("admin runtime presets", () => {
       Error,
       'Conflicting admin resource path "shared".',
     );
+  });
+
+  it("falls back to the registration key when a resource path is omitted", () => {
+    const db = createPresetTestDatabase();
+    const admin = Admin.create({
+      db,
+      resources: {
+        users: Admin.resource(User, {
+          label: "Users",
+        }),
+      },
+    });
+
+    assertEquals(admin.findResource("users")?.slug, "users");
   });
 
   it("rejects conflicting normalized paths for views, flows, and widgets", () => {

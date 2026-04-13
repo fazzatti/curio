@@ -160,7 +160,7 @@ const createActor = (
 };
 
 describe("admin runtime listing helpers", () => {
-  it("build search and filter clauses and render controls", async () => {
+  it("build search and filter clauses and render controls", () => {
     const { admin, runtime } = createListingAdmin();
     const resource = admin.findResource("users");
     assert(resource);

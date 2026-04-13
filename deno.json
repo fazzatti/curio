@@ -2,27 +2,18 @@
   "workspace": ["./packages/*"],
 
   "tasks": {
-    "check:core": "deno task --config packages/core/deno.json check",
-    "check:init": "deno task --config packages/init/deno.json check",
-    "check": "deno task check:core && deno task check:init",
-    "test:core": "deno task --config packages/core/deno.json test",
-    "test:init": "deno task --config packages/init/deno.json test",
-    "test:unit": "deno task --config packages/core/deno.json test:unit",
-    "test:integration": "deno task --config packages/core/deno.json test:integration",
-    "coverage:core": "deno task --config packages/core/deno.json coverage",
-    "coverage:init": "deno task --config packages/init/deno.json coverage",
-    "coverage:collect": "deno task --config packages/core/deno.json test:unit:coverage && deno task --config packages/core/deno.json test:integration:coverage && deno task --config packages/init/deno.json test:coverage",
-    "coverage": "deno task coverage:collect && deno task coverage:report",
-    "coverage:report": "sh -c 'inputs=\"\"; for dir in .coverage/core/unit .coverage/core/integration .coverage/init/unit; do if [ -d \"$dir\" ]; then inputs=\"$inputs $dir\"; fi; done; if [ -z \"$inputs\" ]; then echo \"No coverage data found\"; exit 1; fi; deno coverage $inputs'",
-    "coverage:detailed": "sh -c 'inputs=\"\"; for dir in .coverage/core/unit .coverage/core/integration .coverage/init/unit; do if [ -d \"$dir\" ]; then inputs=\"$inputs $dir\"; fi; done; if [ -z \"$inputs\" ]; then echo \"No coverage data found\"; exit 1; fi; deno coverage $inputs --detailed'",
-    "coverage:lcov": "sh -c 'inputs=\"\"; for dir in .coverage/core/unit .coverage/core/integration .coverage/init/unit; do if [ -d \"$dir\" ]; then inputs=\"$inputs $dir\"; fi; done; if [ -z \"$inputs\" ]; then echo \"No coverage data found\"; exit 1; fi; deno coverage $inputs --lcov --output=.coverage/lcov.info'",
-    "coverage:html": "sh -c 'inputs=\"\"; for dir in .coverage/core/unit .coverage/core/integration .coverage/init/unit; do if [ -d \"$dir\" ]; then inputs=\"$inputs $dir\"; fi; done; if [ -z \"$inputs\" ]; then echo \"No coverage data found\"; exit 1; fi; deno coverage $inputs --html --output=.coverage/html'",
+    "check": "deno check packages/core/src/mod.ts packages/core/src/admin.ts packages/core/src/admin/modules/audit.ts packages/core/src/admin/modules/rbac.ts packages/core/src/admin/modules/sessions.ts packages/core/src/auth.ts packages/core/src/drizzle.ts packages/core/src/http/oak-api.ts packages/core/src/openapi.ts packages/core/src/testing.ts packages/core/src/value-object.ts packages/init/mod.ts",
+    "test": "deno test -A --parallel --clean --ignore='_*/' --ignore='packages/core/src/OLD-reference/' --ignore='**/*.integration.test.ts' --ignore='**/*.integration.test.tsx' --coverage=.coverage packages/core/src packages/init/src",
+    "test:unit": "deno test -A --parallel --clean --ignore='_*/' --ignore='packages/core/src/OLD-reference/' --ignore='**/*.integration.test.ts' --ignore='**/*.integration.test.tsx' --coverage=.coverage packages/core/src packages/init/src",
+    "test:integration": "sh -c 'files=$(find packages/core/src packages/init/src -type f \\( -name \"*.integration.test.ts\" -o -name \"*.integration.test.tsx\" \\)); if [ -z \"$files\" ]; then echo \"No integration tests found\"; else deno test -A --parallel --clean --ignore=\"_*/\" --coverage=.coverage $files; fi'",
+    "test:file": "deno test -A --parallel --clean --ignore='_*/'",
     "init": "deno run -A ./packages/init/mod.ts"
   },
   "compilerOptions": {
     "lib": ["deno.ns", "deno.window", "deno.worker"],
     "strict": true
   },
+  "exclude": ["node_modules", "_*", "dist", ".coverage"],
   "nodeModulesDir": "auto",
   "imports": {
     "jsr:@curio/core": "./packages/core",

@@ -260,17 +260,17 @@ export const renderRelationSummaryCard = async (
       continue;
     }
 
-    const relatedRecords = await admin.getRepository(targetResource).findMany({
-      where: {
-        [relation.foreignKey ?? ""]:
-          record[relation.references ?? targetResource.model.primaryKey],
-      },
-    }) as unknown as RawRecord[];
-    const filterParams = new URLSearchParams();
-    filterParams.set(
-      relation.foreignKey ?? "",
-      String(record[relation.references ?? resource.model.primaryKey]),
-    );
+      const relatedRecords = await admin.getRepository(targetResource).findMany({
+        where: {
+          [relation.foreignKey ?? ""]:
+            record[relation.references ?? targetResource.model.primaryKey],
+        },
+      }) as unknown as RawRecord[];
+      const filterParams = new URLSearchParams();
+      filterParams.set(
+        relation.foreignKey ?? "",
+        String(record[relation.references ?? resource.model.primaryKey]),
+      );
     items.push(
       <div data-curio-admin-kv-row>
         <dt>{humanize(relationName)}</dt>

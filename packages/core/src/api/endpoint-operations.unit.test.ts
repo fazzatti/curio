@@ -355,7 +355,7 @@ Deno.test("DELETE parses request inputs without accepting a request body", async
 });
 
 Deno.test("POST passes middleware data into two-argument handlers", async () => {
-  const auth = middleware("auth", async () => ({
+  const auth = middleware("auth", () => Promise.resolve({
     account: {
       id: "acc_123",
     },

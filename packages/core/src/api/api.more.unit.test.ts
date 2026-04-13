@@ -3,6 +3,7 @@ import { describe, it } from "@std/testing/bdd";
 import * as v from "@valibot/valibot";
 import { API, INTERNALS } from "@/api/api.ts";
 import { GET } from "@/api/endpoint-operations.ts";
+import { middleware } from "@/api/middleware.ts";
 import { Route } from "@/api/route.ts";
 import type { HttpAdapter } from "@/http/types.ts";
 
@@ -120,5 +121,41 @@ describe("API helpers", () => {
       (result.routes[0]?.schemas as { response?: unknown })?.response,
       responseSchema,
     );
+  });
+
+  it("preserves pass-through middleware on built-in operations", () => {
+    const registrations: Array<{ method: string; path: string }> = [];
+    const adapter: HttpAdapter<{ kind: "router" }, unknown> = {
+      createRouter() {
+        return { kind: "router" };
+      },
+      registerRoute(router, method, path) {
+        assertEquals(router.kind, "router");
+        registrations.push({ method, path });
+      },
+      createContext: () => {
+        throw new Error("Not needed");
+      },
+    };
+    const tracing = middleware(async (_ctx, next) => {
+      await next();
+    });
+
+    const result = API.withHttp(adapter).build([
+      Route("health", {
+        GET: GET({
+          middlewares: [tracing],
+          handler: () => ({
+            payload: {
+              ok: true,
+            },
+          }),
+        }),
+      }),
+    ]);
+
+    assertEquals(result.router, { kind: "router" });
+    assertEquals(registrations, [{ method: "GET", path: "/health" }]);
+    assertEquals(result.routes[0]?.middlewares, [tracing]);
   });
 });

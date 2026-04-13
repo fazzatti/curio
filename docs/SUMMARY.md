@@ -1,10 +1,16 @@
-# Summary
+# Table of contents
 
-- [Curio](README.md)
+- [Introduction](README.md)
+
+## Getting Started
+
 - [Getting Started](getting-started/README.md)
-  - [Create a Project](getting-started/create-a-project.md)
-  - [Build a First API](getting-started/first-api.md)
-- [Core](core/README.md)
+- [Create a Project](getting-started/create-a-project.md)
+- [Build a First API](getting-started/first-api.md)
+
+## @curio/core
+
+- [Core Package Overview](core/README.md)
   - [Entrypoints](core/entrypoints.md)
   - [HTTP](core/http.md)
   - [Database](core/database.md)
@@ -15,9 +21,15 @@
   - [Auth](core/auth.md)
   - [Drizzle](core/drizzle.md)
   - [OpenAPI](core/openapi.md)
-- [Init](init/README.md)
+
+## @curio/init
+
+- [Init Package Overview](init/README.md)
   - [Template](init/template.md)
-- [Architecture](architecture/overview.md)
+
+## Architecture
+
+- [Architecture Overview](architecture/overview.md)
   - [Package Boundaries](architecture/package-boundaries.md)
   - [Extension Points](architecture/extension-points.md)
   - [Testing and Tasks](architecture/testing-and-tasks.md)

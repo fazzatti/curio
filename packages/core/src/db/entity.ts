@@ -7,7 +7,7 @@ import type {
   EntityClass,
   HydratedEntityInstance,
 } from "@/db/entity/types.ts";
-import type { AnyModel, InferModelRecord, RawRecord } from "@/db/types.ts";
+import type { AnyModel, InferModelRecord } from "@/db/types.ts";
 
 export type {
   BoundEntityClass,

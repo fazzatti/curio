@@ -6,7 +6,6 @@ import {
   resolveFlashes,
 } from "@/admin/support/utils.tsx";
 import { hasAdminPermission } from "@/admin/modules.ts";
-import type { Entity } from "@/db/entity.ts";
 import type { FieldDefinition } from "@/db/field.ts";
 import type { DatabaseInstance, RawRecord, TableRegistry } from "@/db/types.ts";
 import type {

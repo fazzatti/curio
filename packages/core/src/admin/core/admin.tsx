@@ -1,4 +1,5 @@
 import type { Application } from "@oak/oak";
+import type { AdminFlashMessage, AdminNavigation } from "@/admin/components/types.ts";
 import {
   getAdminActorOrRedirect,
   prepareAdminData,
@@ -42,13 +43,12 @@ import {
   createAdminState,
   type AdminState,
 } from "@/admin/core/state.ts";
-import type { BoundEntityClass, Entity } from "@/db/entity.ts";
+import type { BoundEntityClass } from "@/db/entity.ts";
 import type { FieldDefinition } from "@/db/field.ts";
-import type { RawRecord, TableRegistry } from "@/db/types.ts";
+import type { DatabaseInstance, RawRecord, TableRegistry } from "@/db/types.ts";
 import type {
   AdminActorContext,
   AdminBranding,
-  AdminComponentOverrides,
   AdminCreateInput,
   AdminDashboardWidgetConfig,
   AdminDashboardWidgetRegistration,
@@ -56,6 +56,7 @@ import type {
   AdminFlowConfig,
   AdminFlowRegistration,
   AdminNavigationTarget,
+  AdminNormalizedDashboardWidget,
   AdminNormalizedFlow,
   AdminNormalizedResource,
   AdminNormalizedView,
@@ -63,6 +64,7 @@ import type {
   AdminPresetConfig,
   AdminResourceConfig,
   AdminResourceRegistration,
+  ResolvedAdminComponents,
   AdminRuntimeLike,
   AdminSessionSettings,
   AdminViewConfig,
@@ -143,7 +145,7 @@ export class Admin<TTables extends TableRegistry = TableRegistry>
     this.#state = createAdminState(input);
   }
 
-  get db() {
+  get db(): DatabaseInstance<TTables> {
     return this.#state.db;
   }
 
@@ -171,11 +173,11 @@ export class Admin<TTables extends TableRegistry = TableRegistry>
     return this.#state.resourceByModelName;
   }
 
-  get dashboardWidgets() {
+  get dashboardWidgets(): Record<string, AdminNormalizedDashboardWidget> {
     return this.#state.dashboardWidgets;
   }
 
-  get components(): AdminComponentOverrides {
+  get components(): ResolvedAdminComponents {
     return this.#state.components;
   }
 
@@ -211,7 +213,7 @@ export class Admin<TTables extends TableRegistry = TableRegistry>
   buildNavigation(
     actor: AdminActorContext | null,
     currentTarget: AdminNavigationTarget = { kind: "dashboard" },
-  ) {
+  ): AdminNavigation {
     return buildAdminNavigation(this, actor, currentTarget);
   }
 
@@ -279,7 +281,9 @@ export class Admin<TTables extends TableRegistry = TableRegistry>
     return getAdminRepository(this, resource);
   }
 
-  resolveFlashes(searchParams: URLSearchParams) {
+  resolveFlashes(
+    searchParams: URLSearchParams,
+  ): AdminFlashMessage[] | undefined {
     return resolveAdminFlashMessages(searchParams);
   }
 

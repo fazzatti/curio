@@ -161,8 +161,8 @@ export type AdminFieldWidgetOverride = Partial<{
   ) => ComponentChildren | Promise<ComponentChildren>;
 }>;
 
-/** Component slots accepted by Curio admin. */
-export type AdminComponentOverrides = Partial<{
+/** Fully resolved component slots available on the normalized admin runtime. */
+export type ResolvedAdminComponents = {
   Shell: FunctionComponent<AdminShellProps>;
   LoginPage: FunctionComponent<AdminLoginPageProps>;
   DashboardPage: FunctionComponent<AdminDashboardPageProps>;
@@ -170,7 +170,10 @@ export type AdminComponentOverrides = Partial<{
   DetailPage: FunctionComponent<AdminDetailPageProps>;
   FormPage: FunctionComponent<AdminFormPageProps>;
   TableCell: FunctionComponent<AdminTableCellProps>;
-}>;
+};
+
+/** Component slots accepted by Curio admin. */
+export type AdminComponentOverrides = Partial<ResolvedAdminComponents>;
 
 /** Resource configuration accepted by `Admin.resource(...)`. */
 export type AdminResourceConfig = {
@@ -535,7 +538,7 @@ export type AdminRuntimeLike<
   flows: Record<string, AdminNormalizedFlow>;
   resourceByModelName: Record<string, AdminNormalizedResource>;
   dashboardWidgets: Record<string, AdminNormalizedDashboardWidget>;
-  components: AdminComponentOverrides;
+  components: ResolvedAdminComponents;
   fieldWidgets: Record<string, AdminFieldWidgetOverride>;
   session: AdminSessionSettings;
   prepareData(): Promise<void>;

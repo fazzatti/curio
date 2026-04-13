@@ -1,5 +1,5 @@
 import type { RouteHandler } from "@/api/types.ts";
-import { handlerSchemasSymbol } from "@/api/with-schemas.ts";
+import type { handlerSchemasSymbol } from "@/api/with-schemas.ts";
 
 /**
  * Schema metadata attached to a handler.

@@ -274,8 +274,8 @@ const createMockContext = (): OakRouterContext => ({
     }),
     body: {
       type: () => "form",
-      form: async () => new URLSearchParams(),
-      formData: async () => new FormData(),
+      form: () => Promise.resolve(new URLSearchParams()),
+      formData: () => Promise.resolve(new FormData()),
     },
     ip: "127.0.0.1",
   },
@@ -285,9 +285,9 @@ const createMockContext = (): OakRouterContext => ({
     body: null,
   },
   cookies: {
-    get: async () => undefined,
-    set: async () => undefined,
-    delete: async () => undefined,
+    get: () => Promise.resolve(undefined),
+    set: () => Promise.resolve(undefined),
+    delete: () => Promise.resolve(undefined),
   },
 });
 
@@ -308,7 +308,7 @@ describe("admin runtime form helpers", () => {
       action: "list",
       description: "Read audit events",
     });
-    const usersViewPermission = await db.Permission.create({
+    await db.Permission.create({
       key: "users:view",
       label: "Users view",
       resource: "users",

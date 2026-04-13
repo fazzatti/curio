@@ -5,7 +5,6 @@ import type { ComponentChildren } from "preact";
 import { hashPassword } from "@/auth/password.ts";
 import {
   DefaultAdminAssignmentField,
-  DefaultAdminFormPage,
 } from "@/admin/components.tsx";
 import {
   loadRolePermissions,
@@ -57,11 +56,10 @@ export const renderCreateForm = async (
   error?: string,
   form?: FormSource,
 ): Promise<void> => {
-  const FormPage = resource.components.FormPage ?? admin.components.FormPage ??
-    DefaultAdminFormPage;
+  const FormPage = resource.components.FormPage ?? admin.components.FormPage;
   sendHtml(
     ctx,
-    admin.getDocumentTitle(`New ${resource.model.labels.singular ?? "Record"}`),
+    admin.getDocumentTitle(`New ${resource.model.labels.singular}`),
     (
       <FormPage
         shell={{
@@ -72,11 +70,9 @@ export const renderCreateForm = async (
           brandName: admin.branding.name,
           brandTagline: admin.branding.tagline,
           currentUserEmail: (actor.user as AdminUserRecord).email,
-          title: `New ${resource.model.labels.singular ?? "record"}`,
+          title: `New ${resource.model.labels.singular}`,
           kicker: resource.label,
-          subtitle: `Create a new ${
-            resource.model.labels.singular?.toLowerCase() ?? "record"
-          }.`,
+          subtitle: `Create a new ${resource.model.labels.singular.toLowerCase()}.`,
           logoutAction: admin.getLogoutPath(),
           flashes: error ? [{ tone: "error", message: error }] : undefined,
         }}
@@ -103,8 +99,7 @@ export const renderEditForm = async (
   error?: string,
   form?: FormSource,
 ): Promise<void> => {
-  const FormPage = resource.components.FormPage ?? admin.components.FormPage ??
-    DefaultAdminFormPage;
+  const FormPage = resource.components.FormPage ?? admin.components.FormPage;
   sendHtml(
     ctx,
     admin.getDocumentTitle(`Edit ${admin.getRecordTitle(resource, record)}`),
@@ -120,9 +115,7 @@ export const renderEditForm = async (
           currentUserEmail: (actor.user as AdminUserRecord).email,
           title: `Edit ${admin.getRecordTitle(resource, record)}`,
           kicker: resource.label,
-          subtitle: `Update this ${
-            resource.model.labels.singular?.toLowerCase() ?? "record"
-          }.`,
+          subtitle: `Update this ${resource.model.labels.singular.toLowerCase()}.`,
           logoutAction: admin.getLogoutPath(),
           flashes: error ? [{ tone: "error", message: error }] : undefined,
         }}
@@ -596,9 +589,7 @@ export const createRecord = async (
 
       if (!record) {
         throw new Error(
-          `Created ${
-            resource.model.labels.singular?.toLowerCase() ?? "record"
-          } could not be reloaded.`,
+          `Created ${resource.model.labels.singular.toLowerCase()} could not be reloaded.`,
         );
       }
 
@@ -613,9 +604,10 @@ export const createRecord = async (
     eventType: `admin.${resource.slug}.create`,
     resource: resource.slug,
     recordId: resolvedCreatedId,
-    summary: `Created ${
-      resource.model.labels.singular?.toLowerCase() ?? "record"
-    } ${admin.getRecordTitle(resource, created)}.`,
+    summary:
+      `Created ${resource.model.labels.singular.toLowerCase()} ${
+        admin.getRecordTitle(resource, created)
+      }.`,
     ipAddress: getRequestIpAddress(ctx),
     userAgent: getRequestUserAgent(ctx),
   });
@@ -730,9 +722,7 @@ export const updateRecord = async (
     eventType: `admin.${resource.slug}.update`,
     resource: resource.slug,
     recordId: id,
-    summary: `Updated ${
-      resource.model.labels.singular?.toLowerCase() ?? "record"
-    } ${id}.`,
+    summary: `Updated ${resource.model.labels.singular.toLowerCase()} ${id}.`,
     ipAddress: getRequestIpAddress(ctx),
     userAgent: getRequestUserAgent(ctx),
   });
@@ -813,9 +803,7 @@ export const deleteRecord = async (
     eventType: `admin.${resource.slug}.delete`,
     resource: resource.slug,
     recordId: id,
-    summary: `Deleted ${
-      resource.model.labels.singular?.toLowerCase() ?? "record"
-    } ${id}.`,
+    summary: `Deleted ${resource.model.labels.singular.toLowerCase()} ${id}.`,
     ipAddress: getRequestIpAddress(ctx),
     userAgent: getRequestUserAgent(ctx),
   });

@@ -1,53 +1,70 @@
-# Curio
+<figure><img src=".gitbook/assets/logo.png" alt="Curio"><figcaption></figcaption></figure>
 
-Curio is a Deno-native backend toolkit organized around two products:
+# Introduction
 
-- `@curio/core`: the reusable framework package
-- `@curio/init`: the scaffolding CLI that generates a Curio app
+{% hint style="info" %}
+**Beta Software** — Curio is still in `0.x.x`. Public APIs may change between
+minor releases while the package boundaries and happy path continue to settle.
+{% endhint %}
 
-This `docs/` tree is the canonical documentation source for the repository and
-for GitBook sync.
+Curio is a TypeScript-first backend toolkit for Deno. It combines typed route
+authoring, a relational-first data layer, a server-rendered admin runtime, and
+a bootstrap CLI that generates a Curio application from the canonical
+template.
 
-## What Curio Is Optimized For
+## Why Curio?
 
-Curio is opinionated about the common backend path:
+- **One backend, one admin surface** — Mount the admin in the same backend that
+  owns your APIs and persistence layer.
+- **Small happy-path API** — Start with Oak, Valibot, and the generated
+  template instead of assembling a framework from scratch.
+- **Focused extension points** — Drop to adapter-agnostic HTTP, build
+  artifacts, schema metadata, or admin modules only when you need more control.
+- **Project generation that stays honest** — `@curio/init` produces the same
+  app shape Curio itself expects and tests.
+- **Deno + JSR first** — Curio is designed to publish cleanly to JSR and remain
+  easy to consume from Deno-native workflows.
 
-- define typed models
-- expose APIs through a small route tree
-- mount a server-rendered admin in the same backend
-- adopt built-in auth, RBAC, sessions, and audit helpers quickly
+## Packages
 
-Curio is not trying to hide everything behind a rigid black box. The happy path
-is streamlined, but advanced users can still swap transport adapters, compose
-middleware, annotate custom handlers, and override admin rendering and config.
+| Package | Description |
+| --- | --- |
+| `@curio/core` | Core HTTP, DB, admin, testing, value-object, and OpenAPI tooling |
+| `@curio/init` | Bootstrap CLI that scaffolds a new Curio project |
 
-## Package Split
+## Quick Example
 
-### `@curio/core`
+```ts
+import * as v from "@valibot/valibot";
+import { API, GET, Route } from "@curio/core/http/oak";
 
-The core package contains:
+const routes = [
+  Route("health", {
+    GET: GET({
+      responseSchema: v.object({
+        ok: v.boolean(),
+      }),
+      handler: () => ({
+        payload: { ok: true },
+      }),
+    }),
+  }),
+];
 
-- framework-agnostic HTTP primitives
-- Oak-bound HTTP helpers
-- schema adapters
-- the DB layer
-- the admin runtime
-- focused admin modules
-- auth and Drizzle integration
-- advanced OpenAPI generation
+const router = API.from(routes);
+```
 
-### `@curio/init`
+## Next Steps
 
-The init package:
+- [Create a Project](getting-started/create-a-project.md)
+- [Build a First API](getting-started/first-api.md)
+- [Core Package Overview](core/README.md)
+- [Init Package Overview](init/README.md)
+- [Architecture Overview](architecture/overview.md)
 
-- scaffolds a new Curio app from a template
-- stays conceptually separate from the core package
-- produces a user-owned project
-- should not become a second framework surface
+## Resources
 
-## Start Here
-
-- [Getting Started](getting-started/README.md)
-- [Core](core/README.md)
-- [Init](init/README.md)
-- [Architecture](architecture/overview.md)
+- [Repository README](../README.md)
+- [Architecture Notes](../ARCHITECTURE.md)
+- [Core Package README](../packages/core/README.md)
+- [Init Package README](../packages/init/README.md)

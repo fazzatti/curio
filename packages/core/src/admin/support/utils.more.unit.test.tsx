@@ -23,8 +23,8 @@ describe("admin runtime utils extra coverage", () => {
       request: {
         body: {
           type: () => "form-data",
-          form: async () => new URLSearchParams(),
-          formData: async () => formData,
+          form: () => Promise.resolve(new URLSearchParams()),
+          formData: () => Promise.resolve(formData),
         },
       },
     };
@@ -40,8 +40,8 @@ describe("admin runtime utils extra coverage", () => {
           request: {
             body: {
               type: () => "json",
-              form: async () => new URLSearchParams(),
-              formData: async () => new FormData(),
+              form: () => Promise.resolve(new URLSearchParams()),
+              formData: () => Promise.resolve(new FormData()),
             },
           },
         } as Parameters<typeof readForm>[0]),

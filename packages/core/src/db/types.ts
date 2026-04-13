@@ -147,6 +147,12 @@ export type ModelLabels = {
   plural?: string;
 };
 
+/** Model labels after Curio fills defaults during model construction. */
+export type ResolvedModelLabels = {
+  singular: string;
+  plural: string;
+};
+
 /**
  * Repository contract exposed on assembled Curio databases.
  *

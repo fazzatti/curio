@@ -21,7 +21,7 @@ export const normalizeViews = (
   registrations: Record<string, AdminViewRegistration>,
 ): Record<string, AdminNormalizedView> => {
   return Object.fromEntries(
-    Object.entries(registrations).map(([registrationKey, registration]) => {
+    Object.entries(registrations).map(([_registrationKey, registration]) => {
       const config = registration.config;
       const slug = config.path;
       const label = config.label;

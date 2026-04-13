@@ -126,8 +126,8 @@ const createContext = () => ({
     headers: new Headers(),
     body: {
       type: () => "form",
-      form: async () => new URLSearchParams(),
-      formData: async () => new FormData(),
+      form: () => Promise.resolve(new URLSearchParams()),
+      formData: () => Promise.resolve(new FormData()),
     },
     ip: "127.0.0.1",
   },
@@ -137,9 +137,9 @@ const createContext = () => ({
     body: null,
   },
   cookies: {
-    get: async () => undefined,
-    set: async () => undefined,
-    delete: async () => undefined,
+    get: () => Promise.resolve(undefined),
+    set: () => Promise.resolve(undefined),
+    delete: () => Promise.resolve(undefined),
   },
 });
 

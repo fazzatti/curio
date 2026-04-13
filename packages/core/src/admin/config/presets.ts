@@ -322,20 +322,17 @@ export const resolveAdminConfiguration = <TTables extends TableRegistry>(
   );
   assertUniqueRegistrationPaths(
     views,
-    (registrationKey, registration) =>
-      registration.config.path ?? registrationKey,
+    (_registrationKey, registration) => registration.config.path,
     "view",
   );
   assertUniqueRegistrationPaths(
     flows,
-    (registrationKey, registration) =>
-      registration.config.path ?? registrationKey,
+    (_registrationKey, registration) => registration.config.path,
     "flow",
   );
   assertUniqueRegistrationPaths(
     widgets,
-    (registrationKey, registration) =>
-      registration.config.key ?? registrationKey,
+    (_registrationKey, registration) => registration.config.key,
     "widget",
   );
 

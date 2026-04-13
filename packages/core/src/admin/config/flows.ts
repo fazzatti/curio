@@ -21,7 +21,7 @@ export const normalizeFlows = (
   registrations: Record<string, AdminFlowRegistration>,
 ): Record<string, AdminNormalizedFlow> => {
   return Object.fromEntries(
-    Object.entries(registrations).map(([registrationKey, registration]) => {
+    Object.entries(registrations).map(([_registrationKey, registration]) => {
       const config = registration.config;
       const slug = config.path;
       const label = config.label;

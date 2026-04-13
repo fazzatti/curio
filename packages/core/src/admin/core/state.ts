@@ -10,13 +10,13 @@ import {
 import { resolveAdminConfiguration } from "@/admin/config/presets.ts";
 import type {
   AdminBranding,
-  AdminComponentOverrides,
   AdminCreateInput,
   AdminFieldWidgetOverride,
   AdminNormalizedDashboardWidget,
   AdminNormalizedFlow,
   AdminNormalizedResource,
   AdminNormalizedView,
+  ResolvedAdminComponents,
   AdminSessionSettings,
 } from "@/admin/core/types.ts";
 import { resolveAdminSessionSettings } from "@/admin/modules.ts";
@@ -36,7 +36,7 @@ export type AdminState<TTables extends TableRegistry = TableRegistry> = {
   flows: Record<string, AdminNormalizedFlow>;
   resourceByModelName: Record<string, AdminNormalizedResource>;
   dashboardWidgets: Record<string, AdminNormalizedDashboardWidget>;
-  components: AdminComponentOverrides;
+  components: ResolvedAdminComponents;
   fieldWidgets: Record<string, AdminFieldWidgetOverride>;
   session: AdminSessionSettings;
   seeders: Array<

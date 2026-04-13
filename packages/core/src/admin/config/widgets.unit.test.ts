@@ -36,7 +36,7 @@ describe("admin runtime widgets", () => {
   });
 
   it("preserves explicit widget overrides", () => {
-    const load = async () => ({ value: "12" });
+    const load = () => Promise.resolve({ value: "12" });
     const render = () => "widget";
     const normalized = normalizeWidgets({
       users: {
