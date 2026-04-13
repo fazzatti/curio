@@ -2,10 +2,10 @@
 
 Curio is a Deno-native backend toolkit organized as a monorepo.
 
-The repo currently contains two packages:
+The repository currently contains two publishable packages:
 
-- `packages/core`
-- `packages/init`
+- `@curio/core` in `packages/core`
+- `@curio/init` in `packages/init`
 
 ## Product Split
 
@@ -13,7 +13,7 @@ Curio contains two separate products that should not be conflated.
 
 ### Core
 
-The core package is the framework and reusable toolkit.
+`@curio/core` is the reusable framework package.
 
 It owns:
 
@@ -32,7 +32,7 @@ It owns:
 
 ### Init
 
-The init package is the bootstrap experience.
+`@curio/init` is the project bootstrap package.
 
 It owns:
 
@@ -73,5 +73,5 @@ implementation accident.
 ### Opinionated Defaults Without Lock-In
 
 Curio is intentionally opinionated around Oak, Valibot, and the generated
-starter path. At the same time, advanced consumers should still have credible
-extension points where that matters.
+project template. At the same time, advanced consumers should still have
+credible extension points where that matters.

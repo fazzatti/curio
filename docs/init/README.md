@@ -1,8 +1,11 @@
 # Init Package Overview
 
 `@curio/init` is Curio's scaffolding CLI. Its job is to assemble a fresh Curio
-project from the canonical template without becoming part of the app's runtime
-surface.
+project from the canonical template without becoming part of the generated
+app's runtime surface.
+
+If you are looking for the runtime package that generated apps import from, use
+the `@curio/core` docs instead. `@curio/init` only owns project creation.
 
 ## Installation And Usage
 
@@ -26,8 +29,8 @@ deno task init -- my-app
 - Curio placeholder replacement
 - next-step instructions after scaffold
 
-It should not become a second framework package that applications import from
-at runtime.
+It should not become a second framework package that applications import from at
+runtime.
 
 ## Supported Flags
 
@@ -54,7 +57,7 @@ The init package is validated through:
 - scaffold smoke tests that generate a project and run its checks
 
 Inside the workspace, scaffold smoke tests patch the generated app to use the
-local core implementation. That keeps `@curio/init` verifiable before
+local `@curio/core` implementation. That keeps `@curio/init` verifiable before
 `@curio/core` is published.
 
 ## Next Steps

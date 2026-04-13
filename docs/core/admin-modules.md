@@ -43,8 +43,8 @@ Common entrypoints:
 - `loadUserRoles(...)`
 - `loadRolePermissions(...)`
 
-The default template uses `seedDefaultAdminData(...)` while preparing the
-database.
+The generated project template uses `seedDefaultAdminData(...)` while preparing
+the database.
 
 ## Sessions Module
 

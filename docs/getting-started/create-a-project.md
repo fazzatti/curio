@@ -1,8 +1,21 @@
 # Create a Project
 
+## Requirements
+
+The published scaffold command runs through Deno, so install Deno first and
+confirm it is available in your shell:
+
+```sh
+deno --version
+```
+
+Curio currently assumes a Deno `2.x` workflow. If the command is not available
+yet, install Deno through the official guide:
+[https://docs.deno.com/runtime/getting_started/installation/](https://docs.deno.com/runtime/getting_started/installation/)
+
 ## Scaffold
 
-Use the published init package:
+Use the published `@curio/init` package:
 
 ```sh
 deno run -Ar jsr:@curio/init my-app

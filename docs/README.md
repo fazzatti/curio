@@ -9,19 +9,18 @@ minor releases while the package boundaries and happy path continue to settle.
 
 Curio is a TypeScript-first backend toolkit for Deno. It combines typed route
 authoring, a relational-first data layer, a server-rendered admin runtime, and
-a bootstrap CLI that generates a Curio application from the canonical
-template.
+a bootstrap CLI that generates a Curio project from the canonical template.
 
 ## Why Curio?
 
 - **One backend, one admin surface** — Mount the admin in the same backend that
   owns your APIs and persistence layer.
 - **Small happy-path API** — Start with Oak, Valibot, and the generated
-  template instead of assembling a framework from scratch.
+  project template instead of assembling a framework from scratch.
 - **Focused extension points** — Drop to adapter-agnostic HTTP, build
   artifacts, schema metadata, or admin modules only when you need more control.
 - **Project generation that stays honest** — `@curio/init` produces the same
-  app shape Curio itself expects and tests.
+  project shape Curio itself expects and tests.
 - **Deno + JSR first** — Curio is designed to publish cleanly to JSR and remain
   easy to consume from Deno-native workflows.
 
@@ -29,8 +28,8 @@ template.
 
 | Package | Description |
 | --- | --- |
-| `@curio/core` | Core HTTP, DB, admin, testing, value-object, and OpenAPI tooling |
-| `@curio/init` | Bootstrap CLI that scaffolds a new Curio project |
+| `@curio/core` | Reusable framework package for HTTP, DB, admin, testing, value objects, and OpenAPI tooling |
+| `@curio/init` | Bootstrap CLI that scaffolds a new Curio project from the canonical template |
 
 ## Quick Example
 
@@ -64,7 +63,7 @@ const router = API.from(routes);
 
 ## Resources
 
-- [Repository README](../README.md)
-- [Architecture Notes](../ARCHITECTURE.md)
-- [Core Package README](../packages/core/README.md)
-- [Init Package README](../packages/init/README.md)
+- [GitHub Repository](https://github.com/fazzatti/curio)
+- [Architecture Overview](architecture/overview.md)
+- [Core Package Overview](core/README.md)
+- [Init Package Overview](init/README.md)

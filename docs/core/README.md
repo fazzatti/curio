@@ -6,6 +6,10 @@ integration, the relational-first DB layer, the server-rendered admin runtime,
 focused admin modules, testing fixtures, value objects, and advanced OpenAPI
 generation.
 
+Use `@curio/init` to scaffold a project. Use `@curio/core` inside the generated
+application and any other Curio-based backend that wants the reusable runtime
+surface.
+
 ## Installation
 
 ```sh

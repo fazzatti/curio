@@ -1,5 +1,15 @@
 # Getting Started
 
+## Requirements
+
+Before scaffolding a Curio project, install Deno locally and make sure it is
+available on your `PATH`.
+
+- Curio currently assumes a Deno `2.x` workflow
+- verify your installation with `deno --version`
+- if Deno is not installed yet, follow the official guide:
+  [https://docs.deno.com/runtime/getting_started/installation/](https://docs.deno.com/runtime/getting_started/installation/)
+
 The fastest way to start with Curio is:
 
 1. scaffold a new project with `@curio/init`
@@ -22,5 +32,5 @@ runtime shape:
 - Curio's DB layer owns models, repositories, and admin data access
 - the admin is mounted inside the backend, not split into a separate frontend
 
-The generated template is not a demo separate from the framework. It is the
-canonical starting point produced by `@curio/init`.
+The generated project template is not a demo separate from the framework. It is
+the canonical starting point produced by `@curio/init`.

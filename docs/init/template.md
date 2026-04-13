@@ -2,7 +2,7 @@
 
 The default template lives at `packages/init/template/default/`.
 
-It is the canonical reference for the generated Curio app shape.
+It is the canonical reference for the generated Curio project shape.
 
 ## Why The Template Matters
 
@@ -10,7 +10,7 @@ Changing files in the template changes what new `@curio/init` runs produce.
 
 That means the template is:
 
-- the source of truth for the starter app shape
+- the source of truth for the generated app shape
 - the basis for scaffold tests
 - the concrete example of Curio's intended happy path
 
@@ -39,7 +39,7 @@ The default template contains:
 - `src/db/`: DB assembly and tables
 - `src/config/`: environment loading and config
 - `src/cli/admin/create.ts`: first superadmin bootstrap
-- `src/tools/logger/`: starter logging helpers
+- `src/tools/logger/`: default logging helpers
 
 The generated `deno.json` also includes tasks for:
 
@@ -61,5 +61,5 @@ The default template is intentionally opinionated:
 - Drizzle plus Postgres for persistence
 - Curio admin mounted directly in the backend
 
-These are the Curio happy-path defaults. They do not mean the core package itself is
-locked forever to those exact integrations.
+These are the Curio happy-path defaults. They do not mean the core package
+itself is locked forever to those exact integrations.

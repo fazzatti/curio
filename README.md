@@ -10,8 +10,8 @@ TypeScript-first backend toolkit for Deno, built around typed APIs, a relational
 </p>
 
 <p align="center">
-  <a href="./docs/README.md">Documentation</a> |
-  <a href="./ARCHITECTURE.md">Architecture</a>
+  <a href="https://fifo-docs.gitbook.io/curio">Documentation</a> |
+  <a href="https://fifo-docs.gitbook.io/curio/architecture/overview">Architecture</a>
 </p>
 
 <div align="center">
@@ -46,7 +46,7 @@ fixtures, value objects, and advanced OpenAPI support.
 deno add jsr:@curio/core
 ```
 
-[View Package Documentation →](./packages/core/README.md)
+[View Package Documentation →](https://fifo-docs.gitbook.io/curio/core)
 
 ---
 
@@ -60,7 +60,7 @@ path.
 deno run -Ar jsr:@curio/init my-app
 ```
 
-[View Package Documentation →](./packages/init/README.md)
+[View Package Documentation →](https://fifo-docs.gitbook.io/curio/init)
 
 ---
 
