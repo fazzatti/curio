@@ -5,6 +5,7 @@ import {
   assertStringIncludes,
 } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
+import { DefaultAdminFormPage } from "@/admin/components.tsx";
 import { handleFlow, handleFlowSubmit } from "@/admin/http/flow-handlers.tsx";
 import type {
   AdminActorContext,
@@ -120,7 +121,9 @@ const createAdmin = (
   flows: flow ? { [flow.slug]: flow } : {},
   resourceByModelName: {},
   dashboardWidgets: {},
-  components: {},
+  components: {
+    FormPage: DefaultAdminFormPage,
+  },
   fieldWidgets: {},
   session: {
     cookieName: "session",

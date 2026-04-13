@@ -1,7 +1,6 @@
 /** @jsxImportSource preact */
 
 // deno-coverage-ignore-start
-import { DefaultAdminFormPage } from "@/admin/components.tsx";
 import { readForm, redirect, sendHtml } from "@/admin/support/utils.tsx";
 import { formatUnknownError } from "@/support/errors.ts";
 import type {
@@ -22,7 +21,7 @@ const renderFlowPage = async (
   error?: string,
   form?: URLSearchParams | FormData,
 ): Promise<void> => {
-  const FormPage = admin.components.FormPage ?? DefaultAdminFormPage;
+  const FormPage = admin.components.FormPage;
   const FlowRenderer = flow.render;
   const data = flow.load
     ? await flow.load({

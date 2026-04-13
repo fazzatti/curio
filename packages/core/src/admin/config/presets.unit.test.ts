@@ -250,6 +250,20 @@ describe("admin runtime presets", () => {
     );
   });
 
+  it("falls back to the registration key when a resource path is omitted", () => {
+    const db = createPresetTestDatabase();
+    const admin = Admin.create({
+      db,
+      resources: {
+        users: Admin.resource(User, {
+          label: "Users",
+        }),
+      },
+    });
+
+    assertEquals(admin.findResource("users")?.slug, "users");
+  });
+
   it("rejects conflicting normalized paths for views, flows, and widgets", () => {
     const db = createPresetTestDatabase();
 

@@ -163,6 +163,7 @@ const createRuntimeAdmin = () => {
           title: "Transaction Queue",
           size: "lg",
           href: "/admin/views/transactions",
+          live: { mode: "poll", intervalMs: 5000 },
           render: TransactionsWidget,
           load: () => ({
             pending: 3,
@@ -827,6 +828,10 @@ Deno.test("admin runtime SSR renders dashboard widgets and custom views for supe
   const dashboardHtml = await dashboardResponse.text();
   assertStringIncludes(dashboardHtml, "Transaction Queue");
   assertStringIncludes(dashboardHtml, "Pending: 3");
+  assertStringIncludes(
+    dashboardHtml,
+    'data-curio-admin-live-poll-interval="5000"',
+  );
 
   const viewResponse = await requestAdmin(app, "/admin/views/transactions", {
     headers: { cookie: sessionCookie },

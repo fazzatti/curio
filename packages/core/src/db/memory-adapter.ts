@@ -210,7 +210,7 @@ const enforceUniqueConstraints = (
   currentId?: unknown,
 ): void => {
   const definition = findTableDefinition(schema, table);
-  const rows = store[table] ?? [];
+  const rows = store[table];
 
   for (const [fieldName, field] of Object.entries(definition.model.fields)) {
     const typedField = field as { unique: boolean; primaryKey: boolean };
@@ -248,7 +248,7 @@ const createScope = (
 ): AdapterTransactionScope => ({
   findById(table: string, options: AdapterFindByIdOptions) {
     const definition = findTableDefinition(schema, table);
-    const row = (store[table] ?? []).find((entry) =>
+    const row = store[table].find((entry) =>
       entry[definition.primaryKey] === options.id
     );
 
@@ -257,7 +257,7 @@ const createScope = (
 
   findOne(table: string, options?: AdapterFindOneOptions) {
     const rows = applyOrderBy(
-      (store[table] ?? []).filter((entry) =>
+      store[table].filter((entry) =>
         matchesWhereClause(entry, options?.where)
       ),
       options?.orderBy,
@@ -269,7 +269,7 @@ const createScope = (
 
   findMany(table: string, options?: AdapterFindManyOptions) {
     const orderedRows = applyOrderBy(
-      (store[table] ?? []).filter((entry) =>
+      store[table].filter((entry) =>
         matchesWhereClause(entry, options?.where)
       ),
       options?.orderBy,
@@ -287,13 +287,13 @@ const createScope = (
   create(table: string, input: RawRecord) {
     enforceUniqueConstraints(schema, store, table, input);
     const row = structuredClone(input);
-    store[table] = [...(store[table] ?? []), row];
+    store[table] = [...store[table], row];
     return Promise.resolve(structuredClone(row));
   },
 
   updateById(table: string, id: unknown, input: RawRecord) {
     const definition = findTableDefinition(schema, table);
-    const rows = store[table] ?? [];
+    const rows = store[table];
     const index = rows.findIndex((entry) => entry[definition.primaryKey] === id);
 
     if (index === -1) {
@@ -316,7 +316,7 @@ const createScope = (
 
   deleteById(table: string, id: unknown) {
     const definition = findTableDefinition(schema, table);
-    const rows = store[table] ?? [];
+    const rows = store[table];
     const index = rows.findIndex((entry) => entry[definition.primaryKey] === id);
 
     if (index === -1) {
@@ -368,7 +368,7 @@ export const memoryDatabaseAdapter = (
         const result = await operation(transactionalScope);
 
         for (const key of Object.keys(rootStore)) {
-          rootStore[key] = structuredClone(transactionalStore[key] ?? []);
+          rootStore[key] = structuredClone(transactionalStore[key]);
         }
 
         return result;

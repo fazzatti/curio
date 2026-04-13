@@ -301,6 +301,36 @@ Deno.test("OpenAPI.from uses default metadata, skips blank responses, and omits 
   });
 });
 
+Deno.test("OpenAPI.from marks optional query parameters as non-required when Valibot omits a required array", () => {
+  const document = OpenAPI.from([
+    Route("search", {
+      GET: GET({
+        requestSchema: {
+          query: v.object({
+            q: v.optional(v.string()),
+          }),
+        },
+        handler: () => ({
+          payload: {
+            ok: true,
+          },
+        }),
+      }),
+    }),
+  ]);
+
+  assertEquals(document.paths["/search"]?.get?.parameters, [
+    {
+      name: "q",
+      in: "query",
+      required: false,
+      schema: {
+        type: "string",
+      },
+    },
+  ]);
+});
+
 Deno.test("OpenAPI.from wraps Valibot conversion failures in OpenApiGenerationError", () => {
   const invalidHandler = withSchemas(
     () => {},

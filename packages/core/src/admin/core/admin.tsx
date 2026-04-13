@@ -49,7 +49,6 @@ import type { DatabaseInstance, RawRecord, TableRegistry } from "@/db/types.ts";
 import type {
   AdminActorContext,
   AdminBranding,
-  AdminComponentOverrides,
   AdminCreateInput,
   AdminDashboardWidgetConfig,
   AdminDashboardWidgetRegistration,
@@ -65,6 +64,7 @@ import type {
   AdminPresetConfig,
   AdminResourceConfig,
   AdminResourceRegistration,
+  ResolvedAdminComponents,
   AdminRuntimeLike,
   AdminSessionSettings,
   AdminViewConfig,
@@ -177,7 +177,7 @@ export class Admin<TTables extends TableRegistry = TableRegistry>
     return this.#state.dashboardWidgets;
   }
 
-  get components(): AdminComponentOverrides {
+  get components(): ResolvedAdminComponents {
     return this.#state.components;
   }
 

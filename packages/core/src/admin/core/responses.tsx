@@ -1,6 +1,5 @@
 /** @jsxImportSource preact */
 
-import { DefaultAdminShell } from "@/admin/components.tsx";
 import type {
   AdminActorContext,
   AdminNormalizedResource,
@@ -14,7 +13,7 @@ export function renderAdminForbidden(
   ctx: OakRouterContext,
   actor: AdminActorContext,
 ): void {
-  const Shell = admin.components.Shell ?? DefaultAdminShell;
+  const Shell = admin.components.Shell;
   sendHtml(
     ctx,
     admin.getDocumentTitle("Forbidden"),
@@ -100,7 +99,7 @@ export function renderMissingAdminRecord(
   actor: AdminActorContext,
   resource: AdminNormalizedResource,
 ): void {
-  const Shell = admin.components.Shell ?? DefaultAdminShell;
+  const Shell = admin.components.Shell;
   sendHtml(
     ctx,
     admin.getDocumentTitle("Not Found"),

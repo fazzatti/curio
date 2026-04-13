@@ -238,4 +238,21 @@ describe("Model", () => {
     assertEquals(WidgetModel.labels.singular, "Control");
     assertEquals(WidgetModel.labels.plural, "Widgets");
   });
+
+  it("supports variant-only models without explicit fields", () => {
+    const AuditModel = new Model({
+      name: "AuditEntry",
+      table: "audit_entries",
+      uses: [UuidPrimaryKey, Timestamps],
+    });
+
+    assertEquals(Object.keys(AuditModel.fields).sort(), [
+      "createdAt",
+      "id",
+      "updatedAt",
+    ]);
+    assertEquals(AuditModel.primaryKey, "id");
+    assertEquals(AuditModel.labels.singular, "AuditEntry");
+    assertEquals(AuditModel.labels.plural, "AuditEntrys");
+  });
 });

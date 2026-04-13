@@ -276,7 +276,7 @@ const flattenRoutes = <TContext>(
 
       registeredRoutes.push({
         method: normalizedMethod.method,
-        path: fullPath || "/",
+        path: fullPath,
         handler: normalizedMethod.handler,
         docs: normalizedMethod.docs,
         middlewares: normalizedMethod.middlewares,

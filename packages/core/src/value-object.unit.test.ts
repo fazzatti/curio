@@ -53,6 +53,13 @@ class EventWindow extends ValueObject.define({
   }),
 }) {}
 
+class DeferredSchemaValue extends ValueObject.define({
+  name: "DeferredSchemaValue",
+  schema: () => v.object({
+    enabled: v.boolean(),
+  }),
+}) {}
+
 Deno.test("ValueObject.define creates class-based value objects with parsing helpers", () => {
   const email = new Email("  Alice@Example.com ");
   const parsed = Email.parse("bob@example.com");
@@ -92,6 +99,8 @@ Deno.test("ValueObject instances support equality, serialization, and metadata l
   assertEquals(first.toString(), "ops@example.com");
   assertEquals(first.unwrap(), "ops@example.com");
   assertEquals(point.toJSON(), "10,20");
+  assertEquals(point.toString(), '"10,20"');
+  assertEquals(tags.toJSON(), ["ops", "support"]);
   assertEquals(tags.equals(["ops", "support"]), true);
   assertEquals(tags.equals(["ops"]), false);
   assertEquals(
@@ -141,6 +150,18 @@ Deno.test("ValueObject helpers cover default definitions and assertion helpers",
   );
   assertCurioValueObject(Email, "owner@example.com");
   assertInstanceOf(value, AnonymousValue);
+});
+
+Deno.test("ValueObject.define resolves deferred schemas on demand", () => {
+  const value = DeferredSchemaValue.parse({
+    enabled: true,
+  });
+
+  assertEquals(DeferredSchemaValue.schema.type, "object");
+  assertEquals(value.toJSON(), {
+    enabled: true,
+  });
+  assertEquals(value.toString(), '{"enabled":true}');
 });
 
 Deno.test("ValueObject parsing failures surface as schema validation errors", () => {

@@ -3,13 +3,6 @@
 // deno-coverage-ignore-start
 import { hashPassword } from "@/auth/password.ts";
 import {
-  DefaultAdminDashboardPage,
-  DefaultAdminDetailPage,
-  DefaultAdminFormPage,
-  DefaultAdminListPage,
-  DefaultAdminLoginPage,
-} from "@/admin/components.tsx";
-import {
   authenticateAdminUser,
   destroyAdminSession,
   hasAdminPermission,
@@ -69,7 +62,7 @@ export const handleLoginPage = async (
     return;
   }
 
-  const LoginPage = admin.components.LoginPage ?? DefaultAdminLoginPage;
+  const LoginPage = admin.components.LoginPage;
   sendHtml(
     ctx,
     admin.getDocumentTitle("Login"),
@@ -186,8 +179,7 @@ export const handleDashboard = async (
     return;
   }
 
-  const DashboardPage = admin.components.DashboardPage ??
-    DefaultAdminDashboardPage;
+  const DashboardPage = admin.components.DashboardPage;
   const dashboardWidgets = await admin.getDashboardWidgets(actor, ctx);
 
   sendHtml(
@@ -255,8 +247,7 @@ export const handleList = async (
     resource,
     ctx.request.url.searchParams,
   );
-  const ListPage = resource.components.ListPage ?? admin.components.ListPage ??
-    DefaultAdminListPage;
+  const ListPage = resource.components.ListPage ?? admin.components.ListPage;
   const table = await renderListTable(
     admin,
     resource,
@@ -327,8 +318,7 @@ export const handleDetail = async (
   }
 
   const DetailPage = resource.components.DetailPage ??
-    admin.components.DetailPage ??
-    DefaultAdminDetailPage;
+    admin.components.DetailPage;
   const recentAudit = hasAdminPermission(actor, "audit:list")
     ? await loadRecentAuditEventsForRecord(
       admin.db as unknown as AdminDatabase,
@@ -350,11 +340,10 @@ export const handleDetail = async (
           brandName: admin.branding.name,
           brandTagline: admin.branding.tagline,
           currentUserEmail: (actor.user as AdminUserRecord).email,
-          title: resource.model.labels.singular ?? resource.label,
+          title: resource.model.labels.singular,
           kicker: resource.label,
-          subtitle: `Inspect this ${
-            resource.model.labels.singular?.toLowerCase() ?? "record"
-          } and its current state.`,
+          subtitle:
+            `Inspect this ${resource.model.labels.singular.toLowerCase()} and its current state.`,
           logoutAction: admin.getLogoutPath(),
           headerActions: renderDetailHeaderActions(
             admin,
@@ -437,7 +426,7 @@ export const handleCreate = async (
     const params = new URLSearchParams();
     params.set(
       "flash",
-      `${resource.model.labels.singular ?? "Record"} created.`,
+      `${resource.model.labels.singular} created.`,
     );
     params.set("tone", "success");
     redirect(
@@ -534,7 +523,7 @@ export const handleUpdate = async (
     const params = new URLSearchParams();
     params.set(
       "flash",
-      `${resource.model.labels.singular ?? "Record"} updated.`,
+      `${resource.model.labels.singular} updated.`,
     );
     params.set("tone", "success");
     redirect(
@@ -593,8 +582,7 @@ export const handleResetPasswordForm = async (
     return;
   }
 
-  const FormPage = resource.components.FormPage ?? admin.components.FormPage ??
-    DefaultAdminFormPage;
+  const FormPage = resource.components.FormPage ?? admin.components.FormPage;
   sendHtml(
     ctx,
     admin.getDocumentTitle("Reset Password"),
@@ -726,12 +714,11 @@ export const handleDeleteForm = async (
     return;
   }
 
-  const FormPage = resource.components.FormPage ?? admin.components.FormPage ??
-    DefaultAdminFormPage;
+  const FormPage = resource.components.FormPage ?? admin.components.FormPage;
   sendHtml(
     ctx,
     admin.getDocumentTitle(
-      `Delete ${resource.model.labels.singular ?? "Record"}`,
+      `Delete ${resource.model.labels.singular}`,
     ),
     (
       <FormPage
@@ -790,7 +777,7 @@ export const handleDelete = async (
   await deleteRecord(admin, resource, actor, String(ctx.params.id), ctx);
 
   const params = new URLSearchParams();
-  params.set("flash", `${resource.model.labels.singular ?? "Record"} deleted.`);
+  params.set("flash", `${resource.model.labels.singular} deleted.`);
   params.set("tone", "success");
   redirect(
     ctx,
@@ -815,8 +802,7 @@ export const handleView = async (
     return;
   }
 
-  const DetailPage = admin.components.DetailPage ??
-    DefaultAdminDetailPage;
+  const DetailPage = admin.components.DetailPage;
   const ViewRenderer = view.render;
   const data = view.load
     ? await view.load({

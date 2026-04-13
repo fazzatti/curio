@@ -2,7 +2,6 @@
 
 // deno-coverage-ignore-start
 import type { ComponentChildren } from "preact";
-import { DefaultAdminTableCell } from "@/admin/components.tsx";
 import { AdminIcon } from "@/admin/components/icons.tsx";
 import { hasAdminPermission } from "@/admin/modules.ts";
 import { getRoleRepo, getUserRoleRepo } from "@/admin/modules/repositories.ts";
@@ -371,8 +370,7 @@ export const renderListTable = async (
   searchParams: URLSearchParams,
 ): Promise<ComponentChildren> => {
   const TableCell = resource.components.TableCell ??
-    admin.components.TableCell ??
-    DefaultAdminTableCell;
+    admin.components.TableCell;
   const roleMap = resource.kind === "users"
     ? await loadUserRoleBadges(admin, records)
     : new Map<string, string[]>();
