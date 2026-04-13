@@ -8,12 +8,7 @@
     "lint": "deno lint mod.ts src",
     "check": "deno check mod.ts src/mod.ts src/init.ts src/init_test.ts",
     "test": "deno test -A --clean src",
-    "test:coverage": "deno test -A --clean --coverage=../../.coverage/init/unit src",
-    "coverage": "deno task test:coverage && deno task coverage:report",
-    "coverage:report": "deno coverage ../../.coverage/init/unit",
-    "coverage:detailed": "deno coverage ../../.coverage/init/unit --detailed",
-    "coverage:lcov": "deno coverage ../../.coverage/init/unit --lcov --output=../../.coverage/init/lcov.info",
-    "coverage:html": "deno coverage ../../.coverage/init/unit --html --output=../../.coverage/init/html"
+    "test:file": "deno test -A --clean"
   },
   "publish": {
     "include": [

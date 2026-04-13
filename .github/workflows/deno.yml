@@ -14,39 +14,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code
+      - name: Setup repo
         uses: actions/checkout@v4
 
       - name: Setup Deno
         uses: denoland/setup-deno@v2
         with:
-          deno-version: v2.x
+          deno-version: 2.7.11
 
-      - name: Run lint
-        run: deno task lint
+      - name: Run linter
+        run: deno lint
 
       - name: Run type checks
         run: deno task check
 
-      - name: Run tests and coverage
-        run: deno task coverage
+      - name: Run tests
+        run: deno task test
 
-      - name: Export LCOV coverage
-        run: deno task coverage:lcov
+      - name: Generate coverage report
+        run: deno coverage --lcov .coverage > coverage.lcov
 
-      - name: Export HTML coverage
-        run: deno task coverage:html
-
-      - name: Upload LCOV coverage artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
         with:
-          name: coverage-lcov
-          path: .coverage/lcov.info
-          if-no-files-found: error
-
-      - name: Upload HTML coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-html
-          path: .coverage/html
-          if-no-files-found: error
+          file: ./coverage.lcov
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}

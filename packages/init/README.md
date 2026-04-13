@@ -33,16 +33,16 @@ From `packages/init/`:
 ```sh
 deno task check
 deno task test
-deno task coverage
 deno task init
 ```
 
 From the repo root:
 
 ```sh
-deno task check:init
-deno task test:init
-deno task coverage:init
+deno lint
+deno task check
+deno task test
+deno coverage .coverage
 deno task init -- my-app
 ```
 

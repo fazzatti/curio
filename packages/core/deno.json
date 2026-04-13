@@ -48,14 +48,7 @@
     "check": "deno check src/mod.ts src/admin.ts src/admin/modules.ts src/admin/modules/audit.ts src/admin/modules/rbac.ts src/admin/modules/sessions.ts src/auth.ts src/drizzle.ts src/http/oak-api.ts src/openapi.ts src/testing.ts src/value-object.ts",
     "test": "deno test -A --parallel --clean --ignore='_*/' --ignore='src/OLD-reference/' src",
     "test:unit": "deno test -A --parallel --clean --ignore='_*/' --ignore='src/OLD-reference/' --ignore='**/*.integration.test.ts' --ignore='**/*.integration.test.tsx' src",
-    "test:unit:coverage": "deno test -A --parallel --clean --ignore='_*/' --ignore='src/OLD-reference/' --ignore='**/*.integration.test.ts' --ignore='**/*.integration.test.tsx' --coverage=../../.coverage/core/unit src",
     "test:integration": "sh -c 'files=$(find src -type f \\( -name \"*.integration.test.ts\" -o -name \"*.integration.test.tsx\" \\)); if [ -z \"$files\" ]; then echo \"No integration tests found\"; else deno test -A --parallel --clean --ignore=\"_*/\" --ignore=\"src/OLD-reference/\" $files; fi'",
-    "test:integration:coverage": "sh -c 'files=$(find src -type f \\( -name \"*.integration.test.ts\" -o -name \"*.integration.test.tsx\" \\)); if [ -z \"$files\" ]; then echo \"No integration tests found\"; else deno test -A --parallel --clean --ignore=\"_*/\" --ignore=\"src/OLD-reference/\" $files --coverage=../../.coverage/core/integration; fi'",
-    "coverage": "deno task test:unit:coverage && deno task test:integration:coverage && deno task coverage:report",
-    "coverage:report": "sh -c 'inputs=\"../../.coverage/core/unit\"; if [ -d ../../.coverage/core/integration ]; then inputs=\"$inputs ../../.coverage/core/integration\"; fi; deno coverage $inputs'",
-    "coverage:detailed": "sh -c 'inputs=\"../../.coverage/core/unit\"; if [ -d ../../.coverage/core/integration ]; then inputs=\"$inputs ../../.coverage/core/integration\"; fi; deno coverage $inputs --detailed'",
-    "coverage:lcov": "sh -c 'inputs=\"../../.coverage/core/unit\"; if [ -d ../../.coverage/core/integration ]; then inputs=\"$inputs ../../.coverage/core/integration\"; fi; deno coverage $inputs --lcov --output=../../.coverage/core/lcov.info'",
-    "coverage:html": "sh -c 'inputs=\"../../.coverage/core/unit\"; if [ -d ../../.coverage/core/integration ]; then inputs=\"$inputs ../../.coverage/core/integration\"; fi; deno coverage $inputs --html --output=../../.coverage/core/html'",
     "test:file": "deno test -A --parallel --clean --ignore='_*/' --ignore='src/OLD-reference/' src"
   },
   "compilerOptions": {

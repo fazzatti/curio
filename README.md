@@ -84,7 +84,7 @@ without forcing advanced users into a rigid box.
 ### 4. Deterministic developer tooling
 
 - scaffold tests validate generated apps
-- workspace coverage is aggregated at the repo root
+- workspace coverage is aggregated in the root `.coverage/` directory
 - testing utilities live under `@curio/core/testing`
 
 ## Architecture
@@ -104,9 +104,10 @@ Curio is organized in layers:
 From the repo root:
 
 ```sh
+deno lint
 deno task check
 deno task test
-deno task coverage
+deno coverage .coverage
 deno task init -- my-app
 ```
 
