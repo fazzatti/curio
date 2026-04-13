@@ -15,7 +15,7 @@ yet, install Deno through the official guide:
 
 ## Scaffold
 
-Use the published init package:
+Use the published `@curio/init` package:
 
 ```sh
 deno run -Ar jsr:@curio/init my-app

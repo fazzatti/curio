@@ -38,7 +38,7 @@ export const admin = Admin.create({
 });
 ```
 
-The generated template mounts the admin at `/admin`.
+The generated project template mounts the admin at `/admin`.
 
 ## Runtime Model
 
@@ -110,14 +110,14 @@ types, not just convenience helpers.
 ## Presets
 
 Presets group together Curio-shipped admin configuration. The generated
-template uses:
+project template uses:
 
 ```ts
 presets: ["default"]
 ```
 
-The default preset wires the built-in admin resources and pages needed for the
-starter admin experience.
+The default preset wires the built-in admin resources and pages used by the
+generated project template.
 
 ## Important Admin Rules
 

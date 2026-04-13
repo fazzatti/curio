@@ -42,5 +42,6 @@ Keeping Drizzle separate:
 
 ## Generated Template
 
-The default template uses `drizzleAdapter(...)` with Postgres. That reflects the
-intended starter path, not a hard requirement for every Curio backend.
+The generated project template uses `drizzleAdapter(...)` with Postgres. That
+reflects the default persistence path in Curio's generated app, not a hard
+requirement for every Curio backend.

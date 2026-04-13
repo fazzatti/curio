@@ -78,10 +78,10 @@ const createUserRoute = Route("users", {
 });
 ```
 
-## Generated Template Shape
+## Generated Project Shape
 
-The default template keeps HTTP routes in `src/http/api/` and assembles them in
-`src/http/api/index.ts`:
+The generated project template keeps HTTP routes in `src/http/api/` and
+assembles them in `src/http/api/index.ts`:
 
 ```ts
 import type { RouteSegment } from "@curio/core";

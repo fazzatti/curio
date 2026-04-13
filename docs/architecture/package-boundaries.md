@@ -1,11 +1,11 @@
 # Package Boundaries
 
-Package boundaries matter in Curio because the framework and the scaffolder are
-deliberately not the same product.
+Package boundaries matter in Curio because the reusable framework package and
+the scaffolding CLI are deliberately not the same product.
 
-## `packages/core`
+## `packages/core` / `@curio/core`
 
-`packages/core` is the reusable framework package.
+`packages/core` publishes `@curio/core`, the reusable framework package.
 
 It is the place for:
 
@@ -18,9 +18,9 @@ It is the place for:
 
 It should not depend on `packages/init`.
 
-## `packages/init`
+## `packages/init` / `@curio/init`
 
-`packages/init` is the scaffolding CLI.
+`packages/init` publishes `@curio/init`, the scaffolding CLI.
 
 It is the place for:
 
@@ -30,7 +30,7 @@ It is the place for:
 - placeholder replacement
 - scaffold-oriented tests
 
-It should not pretend to be a runtime app package.
+It should not pretend to be a runtime framework package.
 
 ## Template Boundary
 
@@ -46,7 +46,7 @@ When deciding where a file belongs, use this rule:
 
 ## Admin Boundary
 
-Inside the core package, the admin is also intentionally split:
+Inside `@curio/core`, the admin surface is also intentionally split:
 
 - `@curio/core/admin`: runtime, config types, built-in admin models
 - `@curio/core/admin/modules/*`: focused Curio-shipped modules layered on top
