@@ -35,6 +35,10 @@ TypeScript-first backend toolkit for Deno, built around typed APIs, a relational
 
 ### [@curio/core](./packages/core)
 
+<a href="https://jsr.io/@curio/core">
+  <img src="https://jsr.io/badges/@curio/core" alt="@curio/core on JSR" />
+</a>
+
 The reusable framework package. It provides the typed HTTP layer, DB
 abstractions, server-rendered admin runtime, focused admin modules, testing
 fixtures, value objects, and advanced OpenAPI support.
@@ -48,6 +52,10 @@ deno add jsr:@curio/core
 ---
 
 ### [@curio/init](./packages/init)
+
+<a href="https://jsr.io/@curio/init">
+  <img src="https://jsr.io/badges/@curio/init" alt="@curio/init on JSR" />
+</a>
 
 The bootstrap CLI. It scaffolds a fresh Curio project from the canonical
 template and keeps the generated app shape aligned with the framework's happy

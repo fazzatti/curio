@@ -1,5 +1,14 @@
 # Curio Init
 
+<p>
+  <a href="https://jsr.io/@curio/init">
+    <img src="https://jsr.io/badges/@curio/init" alt="@curio/init on JSR" />
+  </a>
+  <a href="https://jsr.io/@curio/init">
+    <img src="https://jsr.io/badges/@curio/init/total-downloads" alt="@curio/init total downloads" />
+  </a>
+</p>
+
 `@curio/init` is Curio's project bootstrap tool.
 
 [Workspace Docs](https://github.com/fazzatti/curio/tree/main/docs/init) |
