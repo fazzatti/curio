@@ -15,6 +15,9 @@ TypeScript-first backend toolkit for Deno, built around typed APIs, a relational
 </p>
 
 <div align="center">
+  <a href="https://jsr.io/@curio">
+    <img src="https://jsr.io/badges/@curio/" alt="JSR @curio" />
+  </a>
   <a href="https://github.com/fazzatti/curio/actions/workflows/deno.yml">
     <img src="https://github.com/fazzatti/curio/actions/workflows/deno.yml/badge.svg" alt="CI" />
   </a>
@@ -33,11 +36,7 @@ TypeScript-first backend toolkit for Deno, built around typed APIs, a relational
 
 ## Packages
 
-### [@curio/core](./packages/core)
-
-<a href="https://jsr.io/@curio/core">
-  <img src="https://jsr.io/badges/@curio/core" alt="@curio/core on JSR" />
-</a>
+### [@curio/core](./packages/core) <a href="https://jsr.io/@curio/core"><img src="https://jsr.io/badges/@curio/core" alt="JSR @curio/core" /></a>
 
 The reusable framework package. It provides the typed HTTP layer, DB
 abstractions, server-rendered admin runtime, focused admin modules, testing
@@ -51,11 +50,7 @@ deno add jsr:@curio/core
 
 ---
 
-### [@curio/init](./packages/init)
-
-<a href="https://jsr.io/@curio/init">
-  <img src="https://jsr.io/badges/@curio/init" alt="@curio/init on JSR" />
-</a>
+### [@curio/init](./packages/init) <a href="https://jsr.io/@curio/init"><img src="https://jsr.io/badges/@curio/init" alt="JSR @curio/init" /></a>
 
 The bootstrap CLI. It scaffolds a fresh Curio project from the canonical
 template and keeps the generated app shape aligned with the framework's happy
