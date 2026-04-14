@@ -188,7 +188,10 @@ const columnIdentifier = (
   fieldName: string,
 ): SQL => {
   const field = definition.model.fields[fieldName];
-  const columnName = field?.column ?? fieldName;
+  if (!field) {
+    return rawIdentifier(fieldName);
+  }
+  const columnName = field.column ? field.column : fieldName;
 
   return rawIdentifier(columnName);
 };

@@ -682,3 +682,56 @@ Deno.test("Drizzle runtime throws for unknown table registrations and unsupporte
   }).bind([USER_DEFINITION]);
   assertEquals(typeof postgresRuntime.prepare, "function");
 });
+
+
+Deno.test("Drizzle internals falls back to object fieldName if column is undefined", () => {
+  const ModelWithoutColumn = new Model({
+    name: "MissingCol",
+    table: "missing_col",
+    uses: [UuidPrimaryKey],
+    fields: {
+      weirdField: field.string(),
+    },
+  });
+  
+  const hackedField = { ...ModelWithoutColumn.fields.weirdField };
+  delete (hackedField as any).column;
+  
+  const def = {
+    key: "MissingCol",
+    model: {
+      ...ModelWithoutColumn,
+      fields: {
+        weirdField: hackedField,
+      }
+    },
+    entity: Entity.from(ModelWithoutColumn),
+    primaryKey: "id",
+    relations: {},
+  } as any;
+
+  const predicate = DRIZZLE_INTERNALS.buildFieldPredicate(def, "weirdField", { eq: "value" });
+  assert(predicate);
+  const sql = flattenSql(predicate);
+  assertStringIncludes(sql.text, '"weirdField" = ?');
+});
+
+Deno.test("Drizzle internals falls back to the requested field name when the field is missing", () => {
+  const definition = {
+    ...USER_DEFINITION,
+    model: {
+      ...USER_DEFINITION.model,
+      fields: {
+        id: USER_DEFINITION.model.fields.id,
+      },
+    },
+  } as any;
+
+  const predicate = DRIZZLE_INTERNALS.buildFieldPredicate(
+    definition,
+    "nonExistentField",
+    { eq: "value" },
+  );
+  assert(predicate);
+  assertStringIncludes(flattenSql(predicate).text, '"nonExistentField" = ?');
+});

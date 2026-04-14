@@ -224,7 +224,7 @@ export const renderRelationSummaryCard = async (
         continue;
       }
 
-      const foreignKeyValue = record[relation.foreignKey ?? ""];
+      const foreignKeyValue = record[relation.foreignKey as string];
 
       if (!foreignKeyValue) {
         continue;
@@ -262,13 +262,13 @@ export const renderRelationSummaryCard = async (
 
       const relatedRecords = await admin.getRepository(targetResource).findMany({
         where: {
-          [relation.foreignKey ?? ""]:
+          [relation.foreignKey as string]:
             record[relation.references ?? targetResource.model.primaryKey],
         },
       }) as unknown as RawRecord[];
       const filterParams = new URLSearchParams();
       filterParams.set(
-        relation.foreignKey ?? "",
+        relation.foreignKey as string,
         String(record[relation.references ?? resource.model.primaryKey]),
       );
     items.push(

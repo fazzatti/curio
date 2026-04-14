@@ -241,3 +241,27 @@ Deno.test("createFixtureBuilder surfaces generator and enum edge cases explicitl
     'Enum field "BrokenEnum.state" has no registered values.',
   );
 });
+
+
+Deno.test("fixtures handles missing values property on enum fields by defaulting to empty array", () => {
+  const ModelWithoutValues = new Model({
+    name: "NoValues",
+    table: "novalues",
+    fields: { 
+      id: field.id(),
+    }
+  });
+  ModelWithoutValues.fields["badEnum"] = {
+    ...field.string().definition,
+    kind: "enum",
+  } as any;
+
+  const b = createFixtureBuilder(ModelWithoutValues);
+  
+  assertThrows(
+    () => b.build(),
+    Error,
+    'Enum field "NoValues.badEnum" has no registered values.'
+  );
+});
+

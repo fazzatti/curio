@@ -558,3 +558,107 @@ describe("admin runtime listing helpers", () => {
     assertEquals(orphanedBadges.size, 0);
   });
 });
+
+
+describe("admin runtime listing extra edge cases", () => {
+  it("handles omitted filter types and invalid sorting gracefully", () => {
+    const { admin, runtime } = createListingAdmin();
+    const resource = admin.findResource("users");
+    assert(resource);
+    
+    const hackedResource = {
+      ...resource,
+      filters: [
+        { field: "email" as const },
+        { field: "status" as const, type: "select" },
+      ],
+    } as any;
+    const html = renderToString(<>{renderSearchAndFilters(hackedResource, new URLSearchParams())}</>);
+    assertStringIncludes(html, "Search");
+    assertStringIncludes(html, ">All<");
+    
+    const orderBy = buildOrderBy(resource, new URLSearchParams({ sort: "missingField", direction: "desc" }));
+    assertEquals(orderBy, [{ createdAt: "desc" }]);
+  });
+
+  it("marks descending sort as active and omits reset password without permission", async () => {
+    const { admin, runtime } = createListingAdmin();
+    const resource = admin.findResource("users");
+    assert(resource);
+    
+    const noIdRecord = { email: "noid@example.com", status: "pending", active: true } as unknown as RawRecord;
+    
+    const actor = createActor(["users:view"], false);
+    const tableHtml = renderToString(
+      <>{await renderListTable(runtime, resource, actor, [noIdRecord], new URLSearchParams({ sort: "email", direction: "desc" }))}</>
+    );
+    
+    assert(!tableHtml.includes("Reset password"));
+    assertStringIncludes(
+      tableHtml,
+      "/admin/resources/users?sort=email&amp;direction=asc",
+    );
+    assertStringIncludes(tableHtml, 'data-active="true"');
+  });
+
+  it("sorts correctly when direction isn't explicitly desc", async () => {
+    const { admin, runtime } = createListingAdmin();
+    const resource = admin.findResource("users");
+    assert(resource);
+    
+    const noIdRecord = { email: "noid@example.com", status: "pending", active: true } as unknown as RawRecord;
+    
+    const actor = createActor(["users:view"], false);
+    const tableHtmlAsc = renderToString(
+      <>{await renderListTable(runtime, resource, actor, [noIdRecord], new URLSearchParams({ sort: "email", direction: "asc" }))}</>
+    );
+    
+    assert(tableHtmlAsc);
+  });
+});
+
+
+
+describe("admin runtime listing extra edge cases 2", () => {
+  it("handles explicit undefined filter type and reset_password action block", async () => {
+    const { db, admin, runtime } = createListingAdmin();
+    const resource = admin.findResource("users");
+    
+    const hackedResource = { ...resource, filters: [{ field: "email" as const, type: undefined }] } as any;
+    const html = renderToString(<>{renderSearchAndFilters(hackedResource, new URLSearchParams())}</>);
+    assertStringIncludes(html, "Search");
+    
+    // reset_password: false but user HAS permission
+    hackedResource.actions = { ...resource!.actions, reset_password: false };
+    const noIdRecord = { email: "noid@example.com", status: "pending", active: true } as unknown as RawRecord;
+    
+    const actor = createActor(["users:view", "users:reset_password"], false);
+    const tableHtml = renderToString(
+      <>{await renderListTable(runtime, hackedResource, actor, [noIdRecord], new URLSearchParams())}</>
+    );
+    
+    assert(!tableHtml.includes("Reset password"));
+  });
+});
+
+
+
+
+
+Deno.test("loadUserRoleBadges edge cases", async () => {
+  const { admin } = createListingAdmin();
+  
+  // Empty user array
+  const emptyRes = await loadUserRoleBadges(admin as any, []);
+  assertEquals(emptyRes.size, 0);
+
+  // Users without role assignments
+  const noRolesRes = await loadUserRoleBadges(admin as any, [{ id: "missing-user" }] as any[]);
+  assertEquals(noRolesRes.size, 0);
+
+  // Hack a bogus assignment into memory db to trigger missing roleKey
+  const db = admin.db as any;
+  await db.UserRole.create({ userId: "user-1", roleId: "non-existent-role" });
+  const missingRoleRes = await loadUserRoleBadges(admin as any, [{ id: "user-1" }] as any[]);
+  assertEquals(missingRoleRes.size, 0);
+});

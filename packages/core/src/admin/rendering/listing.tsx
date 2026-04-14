@@ -181,7 +181,7 @@ export const renderSearchAndFilters = (
 
     const label = filter.label ?? getFieldLabel(resource, filter.field);
 
-    if ((filter.type ?? "text") === "select") {
+    if (filter.type === "select") {
       const options = filter.options ?? [];
       return [
         (
@@ -209,7 +209,7 @@ export const renderSearchAndFilters = (
       ];
     }
 
-    if ((filter.type ?? "text") === "boolean") {
+    if (filter.type === "boolean") {
       return [
         (
           <div data-curio-admin-field>
@@ -240,7 +240,7 @@ export const renderSearchAndFilters = (
       ];
     }
 
-    if ((filter.type ?? "text") === "date") {
+    if (filter.type === "date") {
       return [
         (
           <div data-curio-admin-field>

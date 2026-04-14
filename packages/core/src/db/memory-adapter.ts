@@ -256,6 +256,7 @@ const createScope = (
   },
 
   findOne(table: string, options?: AdapterFindOneOptions) {
+    findTableDefinition(schema, table);
     const rows = applyOrderBy(
       store[table].filter((entry) =>
         matchesWhereClause(entry, options?.where)
@@ -268,6 +269,7 @@ const createScope = (
   },
 
   findMany(table: string, options?: AdapterFindManyOptions) {
+    findTableDefinition(schema, table);
     const orderedRows = applyOrderBy(
       store[table].filter((entry) =>
         matchesWhereClause(entry, options?.where)

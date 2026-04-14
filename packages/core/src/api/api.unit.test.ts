@@ -217,3 +217,19 @@ Deno.test("API.withHttp(oakHttpAdapter) rejects duplicate keyed middleware data 
     DuplicateMiddlewareDataKeyError,
   );
 });
+
+
+Deno.test("validateMiddlewareDataKeys allows middlewares without data keys", () => {
+  const router = oakApi.from([
+    Route("unkeyed", {
+      GET: {
+        middlewares: [
+          middleware(async (_ctx, next) => { await next(); }),
+        ],
+        handler: noop,
+      },
+    }),
+  ]);
+  assertEquals(typeof router.routes, "function");
+});
+

@@ -461,3 +461,26 @@ Deno.test("admin runtime utils honor create and edit field access overrides", ()
     "publishedAt",
   ]);
 });
+
+
+Deno.test("defaultFormWidget handles explicitly required enum without optional label", () => {
+  const requiredEnumField = resolveFieldDefinition(
+    field.enum(["one", "two"] as const).required(),
+    "reqEnum"
+  );
+  const widgetHtml = renderToString(
+    <>{defaultFormWidget("reqEnum", requiredEnumField, "one")}</>
+  );
+  assert(!widgetHtml.includes("Select one"));
+});
+
+
+
+Deno.test("defaultFormWidget handles enum missing values array", () => {
+  const badEnumField = { ...field.string().definition, kind: "enum" } as any;
+  const widgetHtml = renderToString(<>{defaultFormWidget("bad", badEnumField, "")}</>);
+  assertStringIncludes(widgetHtml, "<select");
+});
+
+
+

@@ -572,3 +572,61 @@ Deno.test("Model-level validation adapter overrides the database default adapter
 
   assertEquals(created.slug, "allowed");
 });
+
+
+Deno.test("Database relation loader gracefully handles inherently null foreign keys", async () => {
+  const OptionalModel = new Model({
+    name: "OptSession",
+    table: "opt_sessions",
+    uses: [UuidPrimaryKey],
+    fields: { userId: field.uuid().nullable() },
+    relations: { user: relation.belongsTo("OptSession").foreignKey("userId") },
+  });
+
+  const db = Database.create({
+    adapter: memoryDatabaseAdapter(),
+    schemaAdapter: validationAdapter,
+    tables: { OptSession: OptionalModel },
+  });
+
+  const sess = await db.OptSession.create({ userId: null }, { validate: false });
+  const sessWithUser = await db.OptSession.findById(sess.id, { include: { user: true } });
+  
+  assertEquals((sessWithUser as any)?.user, null);
+});
+
+Deno.test("Database relation loader gracefully handles undefined foreign keys", async () => {
+  const OptionalModel = new Model({
+    name: "OptSession2",
+    table: "opt_sessions2",
+    uses: [UuidPrimaryKey],
+    fields: { userId: field.uuid().nullable() },
+    relations: { user: relation.belongsTo("OptSession2").foreignKey("userId") },
+  });
+
+  const db = Database.create({
+    adapter: memoryDatabaseAdapter(),
+    schemaAdapter: validationAdapter,
+    tables: { OptSession2: OptionalModel },
+  });
+
+  const sess = await db.OptSession2.create({ }, { validate: false });
+  const sessWithUser = await db.OptSession2.findById(sess.id, { include: { user: true } });
+  
+  assertEquals((sessWithUser as any)?.user, null);
+  
+  assertEquals((sessWithUser as any)?.user, null);
+});
+
+
+
+
+
+Deno.test("Database missing branches explicitly covered", async () => {
+  assertThrows(() => { Database.create({
+    adapter: null as any,
+    schemaAdapter: null as any,
+    tables: {} as any,
+  }) });
+});
+

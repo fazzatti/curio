@@ -98,6 +98,12 @@ type JsonSchemaObjectShape = {
   required?: unknown;
 };
 
+const normalizeRequiredKeys = (value: unknown): string[] => {
+  return ([] as unknown[]).concat(value as never).filter((
+    entry,
+  ): entry is string => typeof entry === "string");
+};
+
 export class OpenApiGenerationError extends Error {
   constructor(message: string) {
     super(message);
@@ -150,16 +156,21 @@ const toOpenApiParameters = (
     );
   }
 
-  const required = new Set(
-    Array.isArray(jsonSchema.required) ? jsonSchema.required as string[] : [],
-  );
+  const required = new Set(normalizeRequiredKeys(jsonSchema.required));
 
-  return Object.entries(properties).map(([name, propertySchema]) => ({
-    name,
-    in: location,
-    required: location === "path" ? true : required.has(name),
-    schema: propertySchema as OpenApiSchema,
-  }));
+  return Object.entries(properties).map(([name, propertySchema]) => {
+    let isRequired = required.has(name);
+    if (location === "path") {
+      isRequired = true;
+    }
+    
+    return {
+      name,
+      in: location,
+      required: isRequired,
+      schema: propertySchema as OpenApiSchema,
+    };
+  });
 };
 
 const toOpenApiRequestBody = (

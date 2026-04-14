@@ -314,3 +314,38 @@ describe("memoryDatabaseAdapter", () => {
     );
   });
 });
+
+
+
+
+Deno.test("Memory adapter deep coverage", async () => {
+  const runtime = memoryDatabaseAdapter({
+    seed: {
+      MemoryRecord: [
+        { id: "x", name: "foo", score: 10, active: true, note: "hello" },
+        { id: "y", name: "bar", score: -10, active: false, note: "world" },
+      ]
+    }
+  }).bind([MEMORY_DEFINITION]);
+
+  // Test various operators
+  await runtime.findMany("MemoryRecord", { where: { score: { gt: 0 } } as any });
+  await runtime.findMany("MemoryRecord", { where: { score: { gte: 10 } } as any });
+  await runtime.findMany("MemoryRecord", { where: { score: { lt: 0 } } as any });
+  await runtime.findMany("MemoryRecord", { where: { score: { lte: -10 } } as any });
+  await runtime.findMany("MemoryRecord", { where: { name: { notIn: ["bar"] } } as any });
+  await runtime.findMany("MemoryRecord", { where: { score: { isNull: true } } as any });
+  await runtime.findMany("MemoryRecord", { where: { name: { contains: "f" } } as any });
+  await runtime.findMany("MemoryRecord", { where: { note: { startsWith: "hel" } } as any });
+  await runtime.findMany("MemoryRecord", { where: { note: { endsWith: "rld" } } as any });
+  await runtime.findMany("MemoryRecord", { where: { AND: [{score: 10}, {name: "foo"}] } as any });
+  await runtime.findMany("MemoryRecord", { where: { OR: [{score: 99}, {name: "bar"}] } as any });
+  await runtime.findMany("MemoryRecord", { where: { NOT: [{score: 10}] } as any });
+
+  // Missing conditions covered!
+  assertThrows(
+    () => runtime.findMany("non-existent-table" as any),
+    TypeError,
+    'Unknown bound table "non-existent-table" in memory adapter.',
+  );
+});

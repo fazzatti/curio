@@ -425,9 +425,11 @@ const createDatabaseInstance = <TTables extends TableRegistry>(
 
       if (relation.kind === "belongsTo") {
         const foreignKeyValue = record[relation.foreignKey];
-        loadedRelations[relationName] = foreignKeyValue == null
-          ? null
-          : await targetRepo.findById(foreignKeyValue);
+        if (foreignKeyValue == null) {
+          loadedRelations[relationName] = null;
+        } else {
+          loadedRelations[relationName] = await targetRepo.findById(foreignKeyValue);
+        }
         continue;
       }
 
