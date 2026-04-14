@@ -7,6 +7,7 @@ import {
 } from "@std/assert";
 import { dirname, fromFileUrl, join, relative } from "@std/path";
 import { INIT_PACKAGE_CONFIG, TEMPLATE_BUNDLES } from "./scaffold-assets.ts";
+import type { SelectPrompt } from "./select-prompt.ts";
 import { parseInitArgs, runInit, scaffoldProject } from "./init.ts";
 
 const localCoreImportMap = {
@@ -134,8 +135,6 @@ const patchGeneratedProjectForWorkspaceCore = async (
 Deno.test("parseInitArgs reads the supported scaffold flags", () => {
   const parsedArgs = parseInitArgs([
     "my-app",
-    "--name",
-    "My App",
     "--template",
     "default",
     "--force",
@@ -145,17 +144,11 @@ Deno.test("parseInitArgs reads the supported scaffold flags", () => {
     directory: "my-app",
     force: true,
     help: false,
-    projectName: "My App",
     template: "default",
   });
 });
 
 Deno.test("parseInitArgs rejects missing flag values and unknown arguments", () => {
-  assertThrows(
-    () => parseInitArgs(["--name"]),
-    Error,
-    "Missing value for --name.",
-  );
   assertThrows(
     () => parseInitArgs(["--template"]),
     Error,
@@ -265,21 +258,19 @@ Deno.test({
 });
 
 Deno.test({
-  name: "runInit prompts for the project directory in interactive terminals",
+  name: "runInit asks for IDE selection in interactive terminals",
   ignore: !canRunScaffoldTests,
   async fn() {
     const tempRoot = await Deno.makeTempDir({ prefix: "curio-init-" });
-    const workspaceDir = join(tempRoot, "workspace");
     const stdout: string[] = [];
     const stderr: string[] = [];
 
-    await Deno.mkdir(workspaceDir);
-
     try {
-      const exitCode = await runInit([], {
-        cwd: workspaceDir,
+      const selectVscode = (() => Promise.resolve("vscode")) as SelectPrompt;
+      const exitCode = await runInit(["prompted-app"], {
+        cwd: tempRoot,
         isInteractive: () => true,
-        prompt: () => " prompted-app ",
+        select: selectVscode,
         stdout: (message) => stdout.push(message),
         stderr: (message) => stderr.push(message),
       });
@@ -288,19 +279,29 @@ Deno.test({
       assertEquals(stderr, []);
       assertStringIncludes(stdout[0] ?? "", "Created Prompted App");
       assertStringIncludes(stdout[0] ?? "", "cd prompted-app");
-      assert(await Deno.stat(join(workspaceDir, "prompted-app", "README.md")));
+      assertStringIncludes(
+        stdout[0] ?? "",
+        "Install the Deno VS Code extension",
+      );
+      const generatedReadme = await Deno.readTextFile(
+        join(tempRoot, "prompted-app", "README.md"),
+      );
+      assert(await Deno.stat(join(tempRoot, "prompted-app", "README.md")));
+      assert(await Deno.stat(join(tempRoot, "prompted-app", ".vscode")));
+      assertStringIncludes(generatedReadme, "## VS Code");
     } finally {
       await Deno.remove(tempRoot, { recursive: true });
     }
   },
 });
 
-Deno.test("runInit reports interactive prompt cancellation", async () => {
+Deno.test("runInit reports interactive selection cancellation", async () => {
   const stderr: string[] = [];
+  const cancelSelection = (() => Promise.resolve(null)) as SelectPrompt;
 
-  const exitCode = await runInit([], {
+  const exitCode = await runInit(["cancelled-app"], {
     isInteractive: () => true,
-    prompt: () => null,
+    select: cancelSelection,
     stderr: (message) => stderr.push(message),
   });
 
@@ -310,17 +311,18 @@ Deno.test("runInit reports interactive prompt cancellation", async () => {
 
 Deno.test("runInit stringifies non-Error failures", async () => {
   const stderr: string[] = [];
+  const throwSelectionError = (() => {
+    throw "ide selection failed";
+  }) as SelectPrompt;
 
-  const exitCode = await runInit([], {
+  const exitCode = await runInit(["broken-app"], {
     isInteractive: () => true,
-    prompt: () => {
-      throw "prompt failed";
-    },
+    select: throwSelectionError,
     stderr: (message) => stderr.push(message),
   });
 
   assertEquals(exitCode, 1);
-  assertEquals(stderr, ["prompt failed"]);
+  assertEquals(stderr, ["ide selection failed"]);
 });
 
 Deno.test({
@@ -354,6 +356,11 @@ Deno.test({
       assertStringIncludes(envExample, "DB_NAME=hello_curio");
       assertStringIncludes(composeYaml, "container_name: hello-curio-db");
       assertStringIncludes(adminConfig, 'name: "Hello Curio Admin"');
+      assertEquals(
+        await Deno.stat(join(projectDir, ".vscode")).catch(() => null),
+        null,
+      );
+      assertEquals(readme.includes("## VS Code"), false);
       assert(!denoConfig.includes("__CURIO_"));
 
       await patchGeneratedProjectForWorkspaceCore(projectDir);
@@ -377,6 +384,38 @@ Deno.test({
           ].join("\n"),
         );
       }
+    } finally {
+      await Deno.remove(tempRoot, { recursive: true });
+    }
+  },
+});
+
+Deno.test({
+  name: "scaffoldProject adds VS Code workspace files when requested",
+  ignore: !canRunScaffoldTests,
+  async fn() {
+    const tempRoot = await Deno.makeTempDir({ prefix: "curio-init-" });
+
+    try {
+      const projectDir = join(tempRoot, "editor-app");
+      const result = await scaffoldProject({
+        ide: "vscode",
+        targetDir: projectDir,
+      });
+
+      const readme = await Deno.readTextFile(join(projectDir, "README.md"));
+      const vscodeSettings = await Deno.readTextFile(
+        join(projectDir, ".vscode", "settings.json"),
+      );
+      const vscodeExtensions = await Deno.readTextFile(
+        join(projectDir, ".vscode", "extensions.json"),
+      );
+
+      assertEquals(result.ide, "vscode");
+      assertStringIncludes(readme, "## VS Code");
+      assertStringIncludes(readme, "Deno: Initialize Workspace Configuration");
+      assertStringIncludes(vscodeSettings, '"deno.enable": true');
+      assertStringIncludes(vscodeExtensions, "denoland.vscode-deno");
     } finally {
       await Deno.remove(tempRoot, { recursive: true });
     }
@@ -531,26 +570,27 @@ Deno.test({
   async fn() {
     const tempRoot = await Deno.makeTempDir({ prefix: "curio-init-" });
     const projectDir = join(tempRoot, "binary-template");
-    const originalBundle = TEMPLATE_BUNDLES.default;
+    const originalBundle = TEMPLATE_BUNDLES.vscode;
     const binaryTemplateContent = new Uint8Array([0xff, 0x00, 0xfe]);
 
-    TEMPLATE_BUNDLES.default = [{
+    TEMPLATE_BUNDLES.vscode = [{
       content: "/wD+",
       encoding: "base64",
-      path: ".gitignore",
+      path: ".vscode/icon.bin",
     }];
 
     try {
       await scaffoldProject({
+        ide: "vscode",
         targetDir: projectDir,
       });
 
       assertEquals(
-        [...(await Deno.readFile(join(projectDir, ".gitignore")))],
+        [...(await Deno.readFile(join(projectDir, ".vscode", "icon.bin")))],
         [...binaryTemplateContent],
       );
     } finally {
-      TEMPLATE_BUNDLES.default = originalBundle;
+      TEMPLATE_BUNDLES.vscode = originalBundle;
       await Deno.remove(tempRoot, { recursive: true });
     }
   },
@@ -636,6 +676,16 @@ Deno.test({
       assertStringIncludes(stdout[0] ?? "", "Created Hello Curio");
       assertStringIncludes(stdout[0] ?? "", "cd hello-curio");
       assertStringIncludes(stdout[0] ?? "", "deno task start");
+      assertEquals(
+        (stdout[0] ?? "").includes("Install the Deno VS Code extension"),
+        false,
+      );
+      assertEquals(
+        await Deno.stat(join(tempRoot, "hello-curio", ".vscode")).catch(() =>
+          null
+        ),
+        null,
+      );
     } finally {
       await Deno.remove(tempRoot, { recursive: true });
     }

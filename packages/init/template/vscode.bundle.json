@@ -1,0 +1,14 @@
+{
+  "files": [
+    {
+      "content": "{\n  \"recommendations\": [\n    \"denoland.vscode-deno\"\n  ]\n}\n",
+      "encoding": "utf8",
+      "path": ".vscode/extensions.json"
+    },
+    {
+      "content": "{\n  \"deno.enable\": true\n}\n",
+      "encoding": "utf8",
+      "path": ".vscode/settings.json"
+    }
+  ]
+}

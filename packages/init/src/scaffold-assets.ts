@@ -2,6 +2,9 @@ import initPackageConfig from "../deno.json" with { type: "json" };
 import defaultTemplateBundle from "../template/default.bundle.json" with {
   type: "json",
 };
+import vscodeTemplateBundle from "../template/vscode.bundle.json" with {
+  type: "json",
+};
 
 export type TemplateFileEncoding = "base64" | "utf8";
 
@@ -22,11 +25,13 @@ type InitPackageConfig = {
 const UTF8_ENCODER = new TextEncoder();
 
 const parsedDefaultTemplateBundle = defaultTemplateBundle as TemplateBundle;
+const parsedVscodeTemplateBundle = vscodeTemplateBundle as TemplateBundle;
 
 export const INIT_PACKAGE_CONFIG = initPackageConfig as InitPackageConfig;
 
 export const TEMPLATE_BUNDLES: Record<string, readonly TemplateFile[]> = {
   default: parsedDefaultTemplateBundle.files,
+  vscode: parsedVscodeTemplateBundle.files,
 };
 
 const decodeBase64 = (value: string): Uint8Array => {

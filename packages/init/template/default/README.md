@@ -22,6 +22,8 @@ Static validation:
 deno task check
 ```
 
+CURIO_VSCODE_README_SECTION_PLACEHOLDER
+
 ## Current Routes
 
 - `GET /health`

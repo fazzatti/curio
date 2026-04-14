@@ -7,9 +7,20 @@ type TemplateFile = {
   path: string;
 };
 
-const TEMPLATE_ROOT = new URL("../template/default/", import.meta.url);
-const OUTPUT_FILE = new URL("../template/default.bundle.json", import.meta.url);
 const UTF8_DECODER = new TextDecoder("utf-8", { fatal: true });
+
+const BUNDLE_SOURCES = [
+  {
+    inputRoot: new URL("../template/default/", import.meta.url),
+    outputFile: new URL("../template/default.bundle.json", import.meta.url),
+    outputLabel: join("packages", "init", "template", "default.bundle.json"),
+  },
+  {
+    inputRoot: new URL("../template/features/vscode/", import.meta.url),
+    outputFile: new URL("../template/vscode.bundle.json", import.meta.url),
+    outputLabel: join("packages", "init", "template", "vscode.bundle.json"),
+  },
+] as const;
 
 const collectTemplateFiles = async (
   directory: URL,
@@ -58,20 +69,13 @@ const collectTemplateFiles = async (
   return files.sort((left, right) => left.path.localeCompare(right.path));
 };
 
-const files = await collectTemplateFiles(TEMPLATE_ROOT, TEMPLATE_ROOT);
+for (const bundle of BUNDLE_SOURCES) {
+  const files = await collectTemplateFiles(bundle.inputRoot, bundle.inputRoot);
 
-await Deno.writeTextFile(
-  OUTPUT_FILE,
-  `${JSON.stringify({ files }, null, 2)}\n`,
-);
+  await Deno.writeTextFile(
+    bundle.outputFile,
+    `${JSON.stringify({ files }, null, 2)}\n`,
+  );
 
-console.log(
-  `Wrote ${
-    join(
-      "packages",
-      "init",
-      "template",
-      "default.bundle.json",
-    )
-  } with ${files.length} files.`,
-);
+  console.log(`Wrote ${bundle.outputLabel} with ${files.length} files.`);
+}
