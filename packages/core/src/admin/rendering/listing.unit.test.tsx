@@ -610,15 +610,31 @@ describe("admin runtime listing extra edge cases", () => {
     const { admin, runtime } = createListingAdmin();
     const resource = admin.findResource("users");
     assert(resource);
-    
-    const noIdRecord = { email: "noid@example.com", status: "pending", active: true } as unknown as RawRecord;
-    
+
+    const noIdRecord = {
+      email: "noid@example.com",
+      status: "pending",
+      active: true,
+    } as unknown as RawRecord;
+
     const actor = createActor(["users:view"], false);
     const tableHtmlAsc = renderToString(
-      <>{await renderListTable(runtime, resource, actor, [noIdRecord], new URLSearchParams({ sort: "email", direction: "asc" }))}</>
+      <>
+        {await renderListTable(
+          runtime,
+          resource,
+          actor,
+          [noIdRecord],
+          new URLSearchParams({ sort: "email", direction: "asc" }),
+        )}
+      </>
     );
-    
-    assert(tableHtmlAsc);
+
+    assertStringIncludes(
+      tableHtmlAsc,
+      "/admin/resources/users?sort=email&amp;direction=desc",
+    );
+    assertStringIncludes(tableHtmlAsc, 'data-active="true"');
   });
 });
 

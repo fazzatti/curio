@@ -580,7 +580,10 @@ describe("admin runtime detail extra edge cases", () => {
     hackedResource.model = {
       ...accountResource.model,
       relations: {
-        checks: relation.hasMany("AccountCheck") as unknown as typeof accountResource.model.relations.checks,
+        checks: {
+          ...accountResource.model.relations.checks,
+          foreignKey: undefined,
+        } as unknown as typeof accountResource.model.relations.checks,
       },
     } as typeof accountResource.model;
 
@@ -612,7 +615,10 @@ describe("admin runtime detail extra edge cases 2", () => {
     hackedResource.model = {
       ...accountCheckResource.model,
       relations: {
-        account: relation.belongsTo("Account") as unknown as typeof accountCheckResource.model.relations.account,
+        account: {
+          ...accountCheckResource.model.relations.account,
+          foreignKey: undefined,
+        } as unknown as typeof accountCheckResource.model.relations.account,
       },
     };
     

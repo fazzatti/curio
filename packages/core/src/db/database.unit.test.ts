@@ -617,15 +617,17 @@ Deno.test("Database relation loader gracefully handles undefined foreign keys", 
 
   const loaded = sessWithUser as ({ user: unknown } | null);
   assertEquals(loaded?.user, null);
-  assertEquals(loaded?.user, null);
 });
 
 Deno.test("Database missing branches explicitly covered", () => {
-  assertThrows(() => {
-    Database.create({
-      adapter: null as unknown as DatabaseAdapter,
-      schemaAdapter: null as never,
-      tables: {} as TableRegistry,
-    });
-  });
+  assertThrows(
+    () => {
+      Database.create({
+        adapter: null as unknown as DatabaseAdapter,
+        schemaAdapter: null as never,
+        tables: {} as TableRegistry,
+      });
+    },
+    TypeError,
+  );
 });

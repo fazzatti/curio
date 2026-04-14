@@ -345,38 +345,78 @@ Deno.test("Memory adapter deep coverage", async () => {
   }).bind([MEMORY_DEFINITION]);
 
   // Test various operators
-  await runtime.findMany("MemoryRecord", { where: where({ score: { gt: 0 } }) });
-  await runtime.findMany("MemoryRecord", {
-    where: where({ score: { gte: 10 } }),
-  });
-  await runtime.findMany("MemoryRecord", { where: where({ score: { lt: 0 } }) });
-  await runtime.findMany("MemoryRecord", {
-    where: where({ score: { lte: -10 } }),
-  });
-  await runtime.findMany("MemoryRecord", {
-    where: where({ name: { notIn: ["bar"] } }),
-  });
-  await runtime.findMany("MemoryRecord", {
-    where: where({ score: { isNull: true } }),
-  });
-  await runtime.findMany("MemoryRecord", {
-    where: where({ name: { contains: "f" } }),
-  });
-  await runtime.findMany("MemoryRecord", {
-    where: where({ note: { startsWith: "hel" } }),
-  });
-  await runtime.findMany("MemoryRecord", {
-    where: where({ note: { endsWith: "rld" } }),
-  });
-  await runtime.findMany("MemoryRecord", {
-    where: where({ AND: [{ score: 10 }, { name: "foo" }] }),
-  });
-  await runtime.findMany("MemoryRecord", {
-    where: where({ OR: [{ score: 99 }, { name: "bar" }] }),
-  });
-  await runtime.findMany("MemoryRecord", {
-    where: where({ NOT: [{ score: 10 }] }),
-  });
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ score: { gt: 0 } }),
+    })).map((record) => record.id),
+    ["x"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ score: { gte: 10 } }),
+    })).map((record) => record.id),
+    ["x"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ score: { lt: 0 } }),
+    })).map((record) => record.id),
+    ["y"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ score: { lte: -10 } }),
+    })).map((record) => record.id),
+    ["y"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ name: { notIn: ["bar"] } }),
+    })).map((record) => record.id),
+    ["x"],
+  );
+  assertEquals(
+    await runtime.findMany("MemoryRecord", {
+      where: where({ score: { isNull: true } }),
+    }),
+    [],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ name: { contains: "f" } }),
+    })).map((record) => record.id),
+    ["x"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ note: { startsWith: "hel" } }),
+    })).map((record) => record.id),
+    ["x"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ note: { endsWith: "rld" } }),
+    })).map((record) => record.id),
+    ["y"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ AND: [{ score: 10 }, { name: "foo" }] }),
+    })).map((record) => record.id),
+    ["x"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ OR: [{ score: 99 }, { name: "bar" }] }),
+    })).map((record) => record.id),
+    ["y"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ NOT: [{ score: 10 }] }),
+    })).map((record) => record.id),
+    ["y"],
+  );
 
   // Missing conditions covered!
   assertThrows(
