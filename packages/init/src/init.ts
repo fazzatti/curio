@@ -1,4 +1,12 @@
-import { basename, fromFileUrl, join, relative, resolve } from "@std/path";
+import { basename, dirname, join, relative, resolve } from "@std/path";
+import {
+  assertTemplateFileSupported,
+  INIT_PACKAGE_CONFIG_URL,
+  readScaffoldAssetBytes,
+  readScaffoldAssetText,
+  resolveTemplateFiles,
+  resolveTemplateFileUrl,
+} from "./scaffold-assets.ts";
 
 export const DEFAULT_TEMPLATE = "default" as const;
 
@@ -35,8 +43,7 @@ export type RunInitOptions = {
 };
 
 const DEFAULT_PROJECT_DIRECTORY = "curio-app";
-const INIT_PACKAGE_CONFIG_URL = new URL("../deno.json", import.meta.url);
-const TEMPLATE_ROOT_PATH = fromFileUrl(new URL("../template", import.meta.url));
+const UTF8_DECODER = new TextDecoder("utf-8", { fatal: true });
 
 const CORE_IMPORT_KEYS = [
   "@curio/core",
@@ -167,8 +174,10 @@ const renderTemplate = (
   return rendered;
 };
 
-const readCoreImports = (): Record<(typeof CORE_IMPORT_KEYS)[number], string> => {
-  const rawConfig = Deno.readTextFileSync(INIT_PACKAGE_CONFIG_URL);
+const readCoreImports = async (): Promise<
+  Record<(typeof CORE_IMPORT_KEYS)[number], string>
+> => {
+  const rawConfig = await readScaffoldAssetText(INIT_PACKAGE_CONFIG_URL);
   const parsedConfig = JSON.parse(rawConfig) as {
     imports?: Partial<Record<(typeof CORE_IMPORT_KEYS)[number], unknown>>;
   };
@@ -193,44 +202,35 @@ const readCoreImports = (): Record<(typeof CORE_IMPORT_KEYS)[number], string> =>
 };
 
 const copyTemplateDirectory = async (
-  sourceDir: string,
+  template: TemplateName,
   targetDir: string,
   context: TemplateContext,
 ): Promise<void> => {
   await Deno.mkdir(targetDir, { recursive: true });
 
-  for await (const entry of Deno.readDir(sourceDir)) {
-    const sourcePath = join(sourceDir, entry.name);
-    const targetPath = join(targetDir, entry.name);
+  for (const templateFile of resolveTemplateFiles(template)) {
+    const sourceUrl = resolveTemplateFileUrl(template, templateFile);
+    const targetPath = join(targetDir, templateFile);
 
-    if (entry.isDirectory) {
-      await copyTemplateDirectory(sourcePath, targetPath, context);
-      continue;
-    }
+    await assertTemplateFileSupported(sourceUrl);
+    await Deno.mkdir(dirname(targetPath), { recursive: true });
 
-    if (entry.isSymlink) {
-      throw new Error(`Template symlinks are not supported: ${sourcePath}`);
-    }
-
+    const fileBytes = await readScaffoldAssetBytes(sourceUrl);
     try {
-      const fileContent = await Deno.readTextFile(sourcePath);
+      const fileContent = UTF8_DECODER.decode(fileBytes);
       await Deno.writeTextFile(
         targetPath,
         renderTemplate(fileContent, context),
       );
     } catch (error) {
-      if (error instanceof Deno.errors.InvalidData) {
-        await Deno.copyFile(sourcePath, targetPath);
+      if (error instanceof TypeError) {
+        await Deno.writeFile(targetPath, fileBytes);
         continue;
       }
 
       throw error;
     }
   }
-};
-
-const resolveTemplatePath = (template: TemplateName): string => {
-  return join(TEMPLATE_ROOT_PATH, template);
 };
 
 const resolveScaffoldInput = (
@@ -351,7 +351,6 @@ export const scaffoldProject = async (
 
   const projectName = options.projectName?.trim() ||
     formatProjectName(projectSlug);
-  const templateDir = resolveTemplatePath(template);
 
   await ensureTargetDirectory(targetDir, options.force ?? false);
 
@@ -359,10 +358,10 @@ export const scaffoldProject = async (
     projectDatabaseIdentifier: toDatabaseIdentifier(projectSlug),
     projectName,
     projectSlug,
-    coreImports: readCoreImports(),
+    coreImports: await readCoreImports(),
   };
 
-  await copyTemplateDirectory(templateDir, targetDir, context);
+  await copyTemplateDirectory(template, targetDir, context);
 
   return {
     projectDir: targetDir,
@@ -379,7 +378,8 @@ export const runInit = async (
   const stdout = options.stdout ?? console.log;
   const stderr = options.stderr ?? console.error;
   const cwd = options.cwd ?? Deno.cwd();
-  const isInteractive = options.isInteractive ?? (() => Deno.stdin.isTerminal());
+  const isInteractive = options.isInteractive ??
+    (() => Deno.stdin.isTerminal());
   const prompt = options.prompt ?? globalThis.prompt;
 
   try {
