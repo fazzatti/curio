@@ -10,6 +10,10 @@ import {
 } from "./scaffold-assets.ts";
 
 const defaultTemplateDir = new URL("../template/default/", import.meta.url);
+const vscodeTemplateDir = new URL(
+  "../template/features/vscode/",
+  import.meta.url,
+);
 
 const listTemplateFiles = async (
   directory: URL,
@@ -51,6 +55,16 @@ Deno.test("default template bundle matches the editable template directory", asy
     right,
   ) => left.path.localeCompare(right.path));
   const sourceFiles = await listTemplateFiles(defaultTemplateDir);
+
+  assertEquals(bundledFiles, sourceFiles);
+});
+
+Deno.test("vscode template bundle matches the editable template directory", async () => {
+  const bundledFiles = [...resolveTemplateFiles("vscode")].sort((
+    left,
+    right,
+  ) => left.path.localeCompare(right.path));
+  const sourceFiles = await listTemplateFiles(vscodeTemplateDir);
 
   assertEquals(bundledFiles, sourceFiles);
 });

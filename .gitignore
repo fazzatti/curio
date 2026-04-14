@@ -25,6 +25,10 @@ node_modules/
 
 # IDE/Editor files
 .vscode/
+!packages/init/template/features/vscode/
+!packages/init/template/features/vscode/.vscode/
+!packages/init/template/features/vscode/.vscode/settings.json
+!packages/init/template/features/vscode/.vscode/extensions.json
 .idea/
 *.swp
 *.swo

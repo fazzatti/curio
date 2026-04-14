@@ -20,6 +20,12 @@ Run it like this:
 deno run -Ar jsr:@curio/init my-app
 ```
 
+When the command runs in an interactive terminal, it asks which IDE you use:
+
+- `VS Code`: adds `.vscode/settings.json`, `.vscode/extensions.json`, and a Deno
+  workspace note in the generated README
+- `Other`: skips editor-specific files and keeps the scaffold generic
+
 The package is intentionally separate from `@curio/core`:
 
 - `@curio/core` is the reusable framework
@@ -31,13 +37,15 @@ The package is intentionally separate from `@curio/core`:
 
 - `src/`: scaffold CLI code
 - `template/default/`: the canonical project template copied into new projects
+- `template/features/`: optional template fragments that the CLI can append
+  based on interactive choices
 
 The template is the source of truth for what newly generated projects look like.
 Changing files under `template/default/` changes the scaffold output.
 
-`template/default.bundle.json` is the publish-time artifact consumed by the
-runtime package on JSR. If you change the editable template directory,
-regenerate the bundle before publishing:
+`template/default.bundle.json` and `template/vscode.bundle.json` are the
+publish-time artifacts consumed by the runtime package on JSR. If you change the
+editable template directories, regenerate the bundles before publishing:
 
 ```sh
 deno run -A ./scripts/sync-template-bundle.ts
@@ -49,6 +57,7 @@ From `packages/init/`:
 
 ```sh
 deno task check
+deno task lint
 deno task test
 deno task init
 ```

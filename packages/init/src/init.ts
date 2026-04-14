@@ -5,21 +5,25 @@ import {
   readScaffoldAssetText,
   resolveTemplateFiles,
 } from "./scaffold-assets.ts";
+import { defaultSelectPrompt, type SelectPrompt } from "./select-prompt.ts";
 
 export const DEFAULT_TEMPLATE = "default" as const;
+export const DEFAULT_IDE = "other" as const;
+export const VSCODE_IDE = "vscode" as const;
 
 export type TemplateName = typeof DEFAULT_TEMPLATE;
+export type IdeChoice = typeof DEFAULT_IDE | typeof VSCODE_IDE;
 
 export type ParsedInitArgs = {
   directory?: string;
   force: boolean;
   help: boolean;
-  projectName?: string;
   template: TemplateName;
 };
 
 export type ScaffoldProjectOptions = {
   force?: boolean;
+  ide?: IdeChoice;
   projectName?: string;
   targetDir: string;
   template?: TemplateName;
@@ -27,6 +31,7 @@ export type ScaffoldProjectOptions = {
 
 export type ScaffoldProjectResult = {
   projectDir: string;
+  ide: IdeChoice;
   projectName: string;
   projectSlug: string;
   template: TemplateName;
@@ -35,12 +40,10 @@ export type ScaffoldProjectResult = {
 export type RunInitOptions = {
   cwd?: string;
   isInteractive?: () => boolean;
-  prompt?: (message?: string, defaultValue?: string) => string | null;
+  select?: SelectPrompt;
   stderr?: (message: string) => void;
   stdout?: (message: string) => void;
 };
-
-const DEFAULT_PROJECT_DIRECTORY = "curio-app";
 
 const CORE_IMPORT_KEYS = [
   "@curio/core",
@@ -69,22 +72,36 @@ const TEMPLATE_PLACEHOLDERS = {
     context.coreImports["@curio/core/drizzle"],
   "__CURIO_CORE_HTTP_OAK_IMPORT__": (context: TemplateContext) =>
     context.coreImports["@curio/core/http/oak"],
+  "CURIO_VSCODE_README_SECTION_PLACEHOLDER": (context: TemplateContext) =>
+    context.vscodeReadmeSection,
 } as const;
+
+const IDE_OPTIONS = [
+  { label: "VS Code", value: VSCODE_IDE },
+  { label: "Other", value: DEFAULT_IDE },
+] as const;
+
+const VSCODE_README_SECTION = `## VS Code
+
+If you use VS Code, install the official Deno extension.
+
+After opening the project, make sure Deno is enabled for this workspace. If
+VS Code prompts you, run "Deno: Initialize Workspace Configuration".`;
 
 type TemplateContext = {
   projectDatabaseIdentifier: string;
   projectName: string;
   projectSlug: string;
   coreImports: Record<(typeof CORE_IMPORT_KEYS)[number], string>;
+  vscodeReadmeSection: string;
 };
 
 export const helpText: string = `Create a new Curio project.
 
 Usage:
-  deno run -Ar jsr:@curio/init [directory]
+  deno run -Ar jsr:@curio/init <directory>
 
 Options:
-  --name <name>       Override the generated project display name.
   --template <name>   Template to scaffold. Currently supports only "default".
   --force             Allow scaffolding into an existing non-empty directory.
   -h, --help          Show this help message.
@@ -196,47 +213,41 @@ const readCoreImports = (): Record<
 
 const copyTemplateDirectory = async (
   template: TemplateName,
+  ide: IdeChoice,
   targetDir: string,
   context: TemplateContext,
 ): Promise<void> => {
   await Deno.mkdir(targetDir, { recursive: true });
 
-  for (const templateFile of resolveTemplateFiles(template)) {
-    const targetPath = join(targetDir, templateFile.path);
-    await Deno.mkdir(dirname(targetPath), { recursive: true });
+  const bundleNames: string[] = [template];
 
-    if (templateFile.encoding === "utf8") {
-      await Deno.writeTextFile(
-        targetPath,
-        renderTemplate(readScaffoldAssetText(templateFile), context),
-      );
-      continue;
+  if (ide === VSCODE_IDE) {
+    bundleNames.push(VSCODE_IDE);
+  }
+
+  for (const bundleName of bundleNames) {
+    for (const templateFile of resolveTemplateFiles(bundleName)) {
+      const targetPath = join(targetDir, templateFile.path);
+      await Deno.mkdir(dirname(targetPath), { recursive: true });
+
+      if (templateFile.encoding === "utf8") {
+        await Deno.writeTextFile(
+          targetPath,
+          renderTemplate(readScaffoldAssetText(templateFile), context),
+        );
+        continue;
+      }
+
+      await Deno.writeFile(targetPath, readScaffoldAssetBytes(templateFile));
     }
-
-    await Deno.writeFile(targetPath, readScaffoldAssetBytes(templateFile));
   }
 };
 
 const resolveScaffoldInput = (
   parsedArgs: ParsedInitArgs,
   cwd: string,
-  isInteractive: () => boolean,
-  prompt: (message?: string, defaultValue?: string) => string | null,
 ): ScaffoldProjectOptions => {
-  let directory = parsedArgs.directory?.trim();
-
-  if (!directory && isInteractive()) {
-    const promptedDirectory = prompt(
-      "Project directory:",
-      DEFAULT_PROJECT_DIRECTORY,
-    );
-
-    if (promptedDirectory === null) {
-      throw new Error("Project initialization cancelled.");
-    }
-
-    directory = promptedDirectory.trim();
-  }
+  const directory = parsedArgs.directory?.trim();
 
   if (!directory) {
     throw new Error("Project directory is required.");
@@ -244,7 +255,6 @@ const resolveScaffoldInput = (
 
   return {
     force: parsedArgs.force,
-    projectName: parsedArgs.projectName,
     targetDir: resolve(cwd, directory),
     template: parsedArgs.template,
   };
@@ -272,17 +282,6 @@ export const parseInitArgs = (args: string[]): ParsedInitArgs => {
       case "-h":
         parsedArgs.help = true;
         break;
-      case "--name": {
-        const value = args[index + 1];
-
-        if (!value) {
-          throw new Error("Missing value for --name.");
-        }
-
-        parsedArgs.projectName = value.trim();
-        index += 1;
-        break;
-      }
       case "--template": {
         const value = args[index + 1];
 
@@ -323,6 +322,7 @@ export const parseInitArgs = (args: string[]): ParsedInitArgs => {
 export const scaffoldProject = async (
   options: ScaffoldProjectOptions,
 ): Promise<ScaffoldProjectResult> => {
+  const ide = options.ide ?? DEFAULT_IDE;
   const template = options.template ?? DEFAULT_TEMPLATE;
   const targetDir = resolve(options.targetDir);
   const projectSlug = slugifyProjectName(basename(targetDir));
@@ -343,12 +343,14 @@ export const scaffoldProject = async (
     projectName,
     projectSlug,
     coreImports: readCoreImports(),
+    vscodeReadmeSection: ide === VSCODE_IDE ? VSCODE_README_SECTION : "",
   };
 
-  await copyTemplateDirectory(template, targetDir, context);
+  await copyTemplateDirectory(template, ide, targetDir, context);
 
   return {
     projectDir: targetDir,
+    ide,
     projectName,
     projectSlug,
     template,
@@ -364,7 +366,7 @@ export const runInit = async (
   const cwd = options.cwd ?? Deno.cwd();
   const isInteractive = options.isInteractive ??
     (() => Deno.stdin.isTerminal());
-  const prompt = options.prompt ?? globalThis.prompt;
+  const select = options.select ?? defaultSelectPrompt;
 
   try {
     const parsedArgs = parseInitArgs(args);
@@ -374,12 +376,19 @@ export const runInit = async (
       return 0;
     }
 
-    const scaffoldInput = resolveScaffoldInput(
-      parsedArgs,
-      cwd,
-      isInteractive,
-      prompt,
-    );
+    const scaffoldInput = resolveScaffoldInput(parsedArgs, cwd);
+    const ide = isInteractive()
+      ? await select({
+        message: "Which IDE are you using?",
+        options: IDE_OPTIONS,
+      })
+      : DEFAULT_IDE;
+
+    if (ide === null) {
+      throw new Error("Project initialization cancelled.");
+    }
+
+    scaffoldInput.ide = ide;
     const result = await scaffoldProject(scaffoldInput);
     const relativeProjectPath = relative(cwd, result.projectDir) || ".";
 
@@ -391,6 +400,9 @@ export const runInit = async (
       "  cp .env.example .env",
       "  deno task db:up",
       "  deno task start",
+      result.ide === VSCODE_IDE
+        ? "  Install the Deno VS Code extension and enable it for this workspace"
+        : undefined,
     ].filter((line): line is string => Boolean(line));
 
     stdout(nextSteps.join("\n"));

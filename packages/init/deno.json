@@ -1,12 +1,12 @@
 {
   "name": "@curio/init",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "exports": "./mod.ts",
   "license": "MIT",
   "tasks": {
     "init": "deno run -A mod.ts",
-    "lint": "deno lint mod.ts src",
-    "check": "deno check mod.ts src/mod.ts src/init.ts src/init_test.ts",
+    "lint": "deno lint mod.ts src scripts",
+    "check": "deno check mod.ts src/mod.ts src/init.ts src/scaffold-assets.ts src/select-prompt.ts scripts/sync-template-bundle.ts",
     "test": "deno test -A --clean src",
     "test:file": "deno test -A --clean"
   },
