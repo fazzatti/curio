@@ -6,6 +6,7 @@ import {
   assertThrows,
 } from "@std/assert";
 import { dirname, fromFileUrl, join, relative } from "@std/path";
+import { INIT_PACKAGE_CONFIG, TEMPLATE_BUNDLES } from "./scaffold-assets.ts";
 import { parseInitArgs, runInit, scaffoldProject } from "./init.ts";
 
 const localCoreImportMap = {
@@ -20,16 +21,8 @@ const localCoreImportMap = {
 const coreSourceRoot = fromFileUrl(
   new URL("../../../packages/core/src", import.meta.url),
 );
-const initPackageConfigPath = fromFileUrl(
-  new URL("../deno.json", import.meta.url),
-);
-const initPackageConfigUrl = new URL("../deno.json", import.meta.url).href;
 const corePackageConfigPath = fromFileUrl(
   new URL("../../../packages/core/deno.json", import.meta.url),
-);
-const defaultTemplateGitignoreUrl = new URL(
-  "../template/default/.gitignore",
-  import.meta.url,
 );
 
 const canRunScaffoldTests = await (async (): Promise<boolean> => {
@@ -483,22 +476,11 @@ Deno.test({
   ignore: !canRunScaffoldTests,
   async fn() {
     const tempRoot = await Deno.makeTempDir({ prefix: "curio-init-" });
-    const originalReadTextFile = Deno.readTextFile;
+    const originalImports = INIT_PACKAGE_CONFIG.imports;
 
-    Deno.readTextFile = ((path, options) => {
-      if (
-        String(path) === initPackageConfigPath ||
-        String(path) === initPackageConfigUrl
-      ) {
-        return Promise.resolve(JSON.stringify({
-          imports: {
-            "@curio/core": "",
-          },
-        }));
-      }
-
-      return originalReadTextFile(path, options);
-    }) as typeof Deno.readTextFile;
+    INIT_PACKAGE_CONFIG.imports = {
+      "@curio/core": "",
+    };
 
     try {
       await assertRejects(
@@ -511,7 +493,7 @@ Deno.test({
         "Missing scaffold import mapping for @curio/core.",
       );
     } finally {
-      Deno.readTextFile = originalReadTextFile;
+      INIT_PACKAGE_CONFIG.imports = originalImports;
       await Deno.remove(tempRoot, { recursive: true });
     }
   },
@@ -522,18 +504,9 @@ Deno.test({
   ignore: !canRunScaffoldTests,
   async fn() {
     const tempRoot = await Deno.makeTempDir({ prefix: "curio-init-" });
-    const originalReadTextFile = Deno.readTextFile;
+    const originalImports = INIT_PACKAGE_CONFIG.imports;
 
-    Deno.readTextFile = ((path, options) => {
-      if (
-        String(path) === initPackageConfigPath ||
-        String(path) === initPackageConfigUrl
-      ) {
-        return Promise.resolve(JSON.stringify({}));
-      }
-
-      return originalReadTextFile(path, options);
-    }) as typeof Deno.readTextFile;
+    INIT_PACKAGE_CONFIG.imports = undefined;
 
     try {
       await assertRejects(
@@ -546,30 +519,26 @@ Deno.test({
         "Missing scaffold import mapping for @curio/core.",
       );
     } finally {
-      Deno.readTextFile = originalReadTextFile;
+      INIT_PACKAGE_CONFIG.imports = originalImports;
       await Deno.remove(tempRoot, { recursive: true });
     }
   },
 });
 
 Deno.test({
-  name:
-    "scaffoldProject copies non-text template files when text decoding fails",
+  name: "scaffoldProject copies non-text template bundle files",
   ignore: !canRunScaffoldTests,
   async fn() {
     const tempRoot = await Deno.makeTempDir({ prefix: "curio-init-" });
     const projectDir = join(tempRoot, "binary-template");
-    const templateFileHref = defaultTemplateGitignoreUrl.href;
-    const originalReadFile = Deno.readFile;
+    const originalBundle = TEMPLATE_BUNDLES.default;
     const binaryTemplateContent = new Uint8Array([0xff, 0x00, 0xfe]);
 
-    Deno.readFile = ((path) => {
-      if (String(path) === templateFileHref) {
-        return Promise.resolve(binaryTemplateContent);
-      }
-
-      return originalReadFile(path);
-    }) as typeof Deno.readFile;
+    TEMPLATE_BUNDLES.default = [{
+      content: "/wD+",
+      encoding: "base64",
+      path: ".gitignore",
+    }];
 
     try {
       await scaffoldProject({
@@ -581,40 +550,7 @@ Deno.test({
         [...binaryTemplateContent],
       );
     } finally {
-      Deno.readFile = originalReadFile;
-      await Deno.remove(tempRoot, { recursive: true });
-    }
-  },
-});
-
-Deno.test({
-  name: "scaffoldProject rethrows unexpected template read errors",
-  ignore: !canRunScaffoldTests,
-  async fn() {
-    const tempRoot = await Deno.makeTempDir({ prefix: "curio-init-" });
-    const originalReadFile = Deno.readFile;
-    const templateFileHref = defaultTemplateGitignoreUrl.href;
-
-    Deno.readFile = ((path) => {
-      if (String(path) === templateFileHref) {
-        throw new Error("template read failed");
-      }
-
-      return originalReadFile(path);
-    }) as typeof Deno.readFile;
-
-    try {
-      await assertRejects(
-        async () => {
-          await scaffoldProject({
-            targetDir: join(tempRoot, "broken-template"),
-          });
-        },
-        Error,
-        "template read failed",
-      );
-    } finally {
-      Deno.readFile = originalReadFile;
+      TEMPLATE_BUNDLES.default = originalBundle;
       await Deno.remove(tempRoot, { recursive: true });
     }
   },
@@ -648,42 +584,6 @@ Deno.test({
       );
     } finally {
       Deno.writeTextFile = originalWriteTextFile;
-      await Deno.remove(tempRoot, { recursive: true });
-    }
-  },
-});
-
-Deno.test({
-  name: "scaffoldProject rejects symlink entries in the template",
-  ignore: !canRunScaffoldTests,
-  async fn() {
-    const tempRoot = await Deno.makeTempDir({ prefix: "curio-init-" });
-    const originalLstat = Deno.lstat;
-
-    Deno.lstat = ((path) => {
-      if (String(path) === defaultTemplateGitignoreUrl.href) {
-        return Promise.resolve({
-          isDirectory: false,
-          isFile: false,
-          isSymlink: true,
-        } as Deno.FileInfo);
-      }
-
-      return originalLstat(path);
-    }) as typeof Deno.lstat;
-
-    try {
-      await assertRejects(
-        async () => {
-          await scaffoldProject({
-            targetDir: join(tempRoot, "symlink-template"),
-          });
-        },
-        Error,
-        "Template symlinks are not supported",
-      );
-    } finally {
-      Deno.lstat = originalLstat;
       await Deno.remove(tempRoot, { recursive: true });
     }
   },

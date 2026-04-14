@@ -35,6 +35,14 @@ The package is intentionally separate from `@curio/core`:
 The template is the source of truth for what newly generated projects look like.
 Changing files under `template/default/` changes the scaffold output.
 
+`template/default.bundle.json` is the publish-time artifact consumed by the
+runtime package on JSR. If you change the editable template directory,
+regenerate the bundle before publishing:
+
+```sh
+deno run -A ./scripts/sync-template-bundle.ts
+```
+
 ## Local Development
 
 From `packages/init/`:
