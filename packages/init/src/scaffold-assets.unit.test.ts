@@ -1,46 +1,58 @@
+import { assertEquals, assertStringIncludes, assertThrows } from "@std/assert";
+import { join, relative } from "@std/path";
 import {
-  assertEquals,
-  assertRejects,
-  assertStringIncludes,
-  assertThrows,
-} from "@std/assert";
-import { fromFileUrl, join, relative } from "@std/path";
-import {
-  assertTemplateFileSupported,
-  INIT_PACKAGE_CONFIG_URL,
+  INIT_PACKAGE_CONFIG,
   readScaffoldAssetBytes,
   readScaffoldAssetText,
   resolveTemplateFiles,
-  resolveTemplateFileUrl,
+  TEMPLATE_BUNDLES,
+  type TemplateFile,
 } from "./scaffold-assets.ts";
 
-const defaultTemplateDir = fromFileUrl(
-  new URL("../template/default", import.meta.url),
-);
+const defaultTemplateDir = new URL("../template/default/", import.meta.url);
 
-const listFiles = async (directory: string): Promise<string[]> => {
-  const files: string[] = [];
+const listTemplateFiles = async (
+  directory: URL,
+  prefix = "",
+): Promise<TemplateFile[]> => {
+  const files: TemplateFile[] = [];
 
   for await (const entry of Deno.readDir(directory)) {
-    const entryPath = join(directory, entry.name);
+    const entryUrl = new URL(entry.name, directory);
+    const entryPath = prefix ? join(prefix, entry.name) : entry.name;
+
+    if (entry.isSymlink) {
+      throw new Error(`Template symlinks are not supported: ${entryPath}`);
+    }
 
     if (entry.isDirectory) {
       files.push(
-        ...(await listFiles(entryPath)).map((path) => join(entry.name, path)),
+        ...(await listTemplateFiles(
+          new URL(`${entry.name}/`, directory),
+          entryPath,
+        )),
       );
       continue;
     }
 
-    files.push(entry.name);
+    files.push({
+      content: await Deno.readTextFile(entryUrl),
+      encoding: "utf8",
+      path: entryPath.replaceAll("\\", "/"),
+    });
   }
 
-  return files.sort();
+  return files.sort((left, right) => left.path.localeCompare(right.path));
 };
 
-Deno.test("resolveTemplateFiles matches the default template contents", async () => {
-  const expectedFiles = await listFiles(defaultTemplateDir);
+Deno.test("default template bundle matches the editable template directory", async () => {
+  const bundledFiles = [...resolveTemplateFiles("default")].sort((
+    left,
+    right,
+  ) => left.path.localeCompare(right.path));
+  const sourceFiles = await listTemplateFiles(defaultTemplateDir);
 
-  assertEquals([...resolveTemplateFiles("default")].sort(), expectedFiles);
+  assertEquals(bundledFiles, sourceFiles);
 });
 
 Deno.test("resolveTemplateFiles rejects unknown templates", () => {
@@ -53,132 +65,84 @@ Deno.test("resolveTemplateFiles rejects unknown templates", () => {
   );
 });
 
-Deno.test("readScaffoldAssetText reads local and remote text assets", async () => {
-  const localConfig = await readScaffoldAssetText(INIT_PACKAGE_CONFIG_URL);
-  assertStringIncludes(localConfig, '"name": "@curio/init"');
-
-  const remoteText = await readScaffoldAssetText(
-    new URL("https://example.com/template.txt"),
-    (url) => {
-      assertEquals(String(url), "https://example.com/template.txt");
-
-      return Promise.resolve(new Response("remote template"));
-    },
+Deno.test("init package config exposes the expected JSR package metadata", () => {
+  assertStringIncludes(
+    String(INIT_PACKAGE_CONFIG.imports?.["@curio/core"] ?? ""),
+    "jsr:@curio/core",
   );
-
-  assertEquals(remoteText, "remote template");
 });
 
-Deno.test("readScaffoldAssetBytes reads remote scaffold assets", async () => {
-  const bytes = await readScaffoldAssetBytes(
-    new URL("https://example.com/template.bin"),
-    (url) => {
-      assertEquals(String(url), "https://example.com/template.bin");
-
-      return Promise.resolve(new Response(new Uint8Array([1, 2, 3])));
-    },
+Deno.test("readScaffoldAssetText returns text bundle entries", () => {
+  const readmeFile = resolveTemplateFiles("default").find((file) =>
+    file.path === "README.md"
   );
 
-  assertEquals([...bytes], [1, 2, 3]);
+  assertEquals(
+    readScaffoldAssetText(readmeFile as TemplateFile).startsWith("# "),
+    true,
+  );
 });
 
-Deno.test("scaffold asset readers reject failed remote requests", async () => {
-  await assertRejects(
-    async () => {
-      await readScaffoldAssetText(
-        new URL("https://example.com/missing.txt"),
-        () => Promise.resolve(new Response("missing", { status: 404 })),
-      );
+Deno.test("readScaffoldAssetText rejects binary bundle entries", () => {
+  assertThrows(
+    () => {
+      readScaffoldAssetText({
+        content: "AAE=",
+        encoding: "base64",
+        path: "favicon.ico",
+      });
     },
     Error,
-    "Failed to read scaffold asset: https://example.com/missing.txt",
-  );
-
-  await assertRejects(
-    async () => {
-      await readScaffoldAssetBytes(
-        new URL("https://example.com/missing.bin"),
-        () => Promise.resolve(new Response("missing", { status: 404 })),
-      );
-    },
-    Error,
-    "Failed to read scaffold asset: https://example.com/missing.bin",
+    "Template file is not text: favicon.ico",
   );
 });
 
-Deno.test("assertTemplateFileSupported rejects local symlinks", async () => {
-  const templateAssetUrl = resolveTemplateFileUrl("default", ".gitignore");
-  const originalLstat = Deno.lstat;
+Deno.test("readScaffoldAssetBytes encodes text bundle entries as utf8", () => {
+  const bytes = readScaffoldAssetBytes({
+    content: "Curio",
+    encoding: "utf8",
+    path: "README.md",
+  });
 
-  Deno.lstat = ((path) => {
-    if (String(path) === templateAssetUrl.href) {
-      return Promise.resolve({
-        isDirectory: false,
-        isFile: false,
-        isSymlink: true,
-      } as Deno.FileInfo);
-    }
-
-    return originalLstat(path);
-  }) as typeof Deno.lstat;
-
-  try {
-    await assertRejects(
-      async () => {
-        await assertTemplateFileSupported(templateAssetUrl);
-      },
-      Error,
-      "Template symlinks are not supported",
-    );
-  } finally {
-    Deno.lstat = originalLstat;
-  }
+  assertEquals([...bytes], [67, 117, 114, 105, 111]);
 });
 
-Deno.test("assertTemplateFileSupported skips filesystem checks for remote assets", async () => {
-  await assertTemplateFileSupported(
-    new URL("https://example.com/template.txt"),
+Deno.test("readScaffoldAssetBytes decodes base64 bundle entries", () => {
+  const bytes = readScaffoldAssetBytes({
+    content: "AAEC",
+    encoding: "base64",
+    path: "favicon.ico",
+  });
+
+  assertEquals([...bytes], [0, 1, 2]);
+});
+
+Deno.test("template bundle paths stay rooted under the default template", () => {
+  const serverFile = resolveTemplateFiles("default").find((file) =>
+    file.path === "src/http/server.ts"
   );
-});
 
-Deno.test("assertTemplateFileSupported rejects non-file local entries", async () => {
-  const templateAssetUrl = resolveTemplateFileUrl("default", ".gitignore");
-  const originalLstat = Deno.lstat;
-
-  Deno.lstat = ((path) => {
-    if (String(path) === templateAssetUrl.href) {
-      return Promise.resolve({
-        isDirectory: true,
-        isFile: false,
-        isSymlink: false,
-      } as Deno.FileInfo);
-    }
-
-    return originalLstat(path);
-  }) as typeof Deno.lstat;
-
-  try {
-    await assertRejects(
-      async () => {
-        await assertTemplateFileSupported(templateAssetUrl);
-      },
-      Error,
-      "Template entries must be files",
-    );
-  } finally {
-    Deno.lstat = originalLstat;
-  }
-});
-
-Deno.test("resolveTemplateFileUrl keeps manifest paths rooted under the template", () => {
-  const templateFileUrl = resolveTemplateFileUrl(
-    "default",
-    "src/http/server.ts",
-  );
   const relativePath = relative(
-    defaultTemplateDir,
-    fromFileUrl(templateFileUrl),
+    new URL("../template/default/", import.meta.url).pathname,
+    new URL(`../template/default/${serverFile?.path}`, import.meta.url)
+      .pathname,
   );
 
   assertEquals(relativePath.replaceAll("\\", "/"), "src/http/server.ts");
+});
+
+Deno.test("template bundle can be temporarily overridden in tests", () => {
+  const originalBundle = TEMPLATE_BUNDLES.default;
+
+  try {
+    TEMPLATE_BUNDLES.default = [{
+      content: "override",
+      encoding: "utf8",
+      path: "README.md",
+    }];
+
+    assertEquals(resolveTemplateFiles("default")[0]?.path, "README.md");
+  } finally {
+    TEMPLATE_BUNDLES.default = originalBundle;
+  }
 });
