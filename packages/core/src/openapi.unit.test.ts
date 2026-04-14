@@ -350,3 +350,45 @@ Deno.test("OpenAPI.from wraps Valibot conversion failures in OpenApiGenerationEr
     'GET /health: failed to convert Valibot schema to JSON Schema: The "custom" schema cannot be converted to JSON Schema.',
   );
 });
+
+
+Deno.test("OpenAPI.from forces path parameters to be required regardless of schema", () => {
+  const document = OpenAPI.from([
+    Route(":optId", {
+      GET: GET({
+        requestSchema: {
+          pathParams: v.object({
+            optId: v.optional(v.string()), // logically invalid but proves the branch
+          }),
+        },
+        handler: () => ({ payload: { ok: true } }),
+      }),
+    }),
+  ]);
+  
+  assertEquals(document.paths["/{optId}"]?.get?.parameters, [
+    {
+      name: "optId",
+      in: "path",
+      required: true,
+      schema: { type: "string" }
+    }
+  ]);
+});
+
+
+
+Deno.test("OpenAPI.from flags required query parameters correctly", () => {
+  const document = OpenAPI.from([
+    Route("search", {
+      GET: GET({
+        requestSchema: {
+          query: v.object({ reqStr: v.string() }),
+        },
+        handler: () => ({ payload: { ok: true } }),
+      }),
+    }),
+  ]);
+  assertEquals(document.paths["/search"]?.get?.parameters?.[0]?.required, true);
+});
+

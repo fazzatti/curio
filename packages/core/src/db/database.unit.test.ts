@@ -17,6 +17,7 @@ import { field } from "@/db/field.ts";
 import { memoryDatabaseAdapter } from "@/db/memory-adapter.ts";
 import { Model } from "@/db/model.ts";
 import { relation } from "@/db/relation.ts";
+import type { DatabaseAdapter, TableRegistry } from "@/db/types.ts";
 import { Timestamps, UuidPrimaryKey } from "@/db/variant.ts";
 
 const validationAdapter = {
@@ -571,4 +572,62 @@ Deno.test("Model-level validation adapter overrides the database default adapter
   });
 
   assertEquals(created.slug, "allowed");
+});
+
+
+Deno.test("Database relation loader gracefully handles inherently null foreign keys", async () => {
+  const OptionalModel = new Model({
+    name: "OptSession",
+    table: "opt_sessions",
+    uses: [UuidPrimaryKey],
+    fields: { userId: field.uuid().nullable() },
+    relations: { user: relation.belongsTo("OptSession").foreignKey("userId") },
+  });
+
+  const db = Database.create({
+    adapter: memoryDatabaseAdapter(),
+    schemaAdapter: validationAdapter,
+    tables: { OptSession: OptionalModel },
+  });
+
+  const sess = await db.OptSession.create({ userId: null }, { validate: false });
+  const sessWithUser = await db.OptSession.findById(sess.id, { include: { user: true } });
+
+  const loaded = sessWithUser as ({ user: unknown } | null);
+  assertEquals(loaded?.user, null);
+});
+
+Deno.test("Database relation loader gracefully handles undefined foreign keys", async () => {
+  const OptionalModel = new Model({
+    name: "OptSession2",
+    table: "opt_sessions2",
+    uses: [UuidPrimaryKey],
+    fields: { userId: field.uuid().nullable() },
+    relations: { user: relation.belongsTo("OptSession2").foreignKey("userId") },
+  });
+
+  const db = Database.create({
+    adapter: memoryDatabaseAdapter(),
+    schemaAdapter: validationAdapter,
+    tables: { OptSession2: OptionalModel },
+  });
+
+  const sess = await db.OptSession2.create({ }, { validate: false });
+  const sessWithUser = await db.OptSession2.findById(sess.id, { include: { user: true } });
+
+  const loaded = sessWithUser as ({ user: unknown } | null);
+  assertEquals(loaded?.user, null);
+});
+
+Deno.test("Database missing branches explicitly covered", () => {
+  assertThrows(
+    () => {
+      Database.create({
+        adapter: null as unknown as DatabaseAdapter,
+        schemaAdapter: null as never,
+        tables: {} as TableRegistry,
+      });
+    },
+    TypeError,
+  );
 });

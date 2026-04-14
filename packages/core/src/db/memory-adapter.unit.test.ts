@@ -8,7 +8,11 @@ import { Entity } from "@/db/entity.ts";
 import { field } from "@/db/field.ts";
 import { memoryDatabaseAdapter } from "@/db/memory-adapter.ts";
 import { Model } from "@/db/model.ts";
-import type { ResolvedTableDefinition } from "@/db/types.ts";
+import type {
+  RawRecord,
+  ResolvedTableDefinition,
+  WhereClause,
+} from "@/db/types.ts";
 
 const MemoryRecordModel = new Model({
   name: "MemoryRecord",
@@ -313,4 +317,111 @@ describe("memoryDatabaseAdapter", () => {
       ["b"],
     );
   });
+});
+
+
+
+
+Deno.test("Memory adapter deep coverage", async () => {
+  type MemoryCoverageRecord = {
+    id: string;
+    name: string;
+    score: number;
+    active: boolean;
+    note: string | null;
+  };
+
+  const where = (
+    clause: WhereClause<MemoryCoverageRecord>,
+  ): WhereClause<RawRecord> => clause as unknown as WhereClause<RawRecord>;
+
+  const runtime = memoryDatabaseAdapter({
+    seed: {
+      MemoryRecord: [
+        { id: "x", name: "foo", score: 10, active: true, note: "hello" },
+        { id: "y", name: "bar", score: -10, active: false, note: "world" },
+      ],
+    },
+  }).bind([MEMORY_DEFINITION]);
+
+  // Test various operators
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ score: { gt: 0 } }),
+    })).map((record) => record.id),
+    ["x"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ score: { gte: 10 } }),
+    })).map((record) => record.id),
+    ["x"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ score: { lt: 0 } }),
+    })).map((record) => record.id),
+    ["y"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ score: { lte: -10 } }),
+    })).map((record) => record.id),
+    ["y"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ name: { notIn: ["bar"] } }),
+    })).map((record) => record.id),
+    ["x"],
+  );
+  assertEquals(
+    await runtime.findMany("MemoryRecord", {
+      where: where({ score: { isNull: true } }),
+    }),
+    [],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ name: { contains: "f" } }),
+    })).map((record) => record.id),
+    ["x"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ note: { startsWith: "hel" } }),
+    })).map((record) => record.id),
+    ["x"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ note: { endsWith: "rld" } }),
+    })).map((record) => record.id),
+    ["y"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ AND: [{ score: 10 }, { name: "foo" }] }),
+    })).map((record) => record.id),
+    ["x"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ OR: [{ score: 99 }, { name: "bar" }] }),
+    })).map((record) => record.id),
+    ["y"],
+  );
+  assertEquals(
+    (await runtime.findMany("MemoryRecord", {
+      where: where({ NOT: [{ score: 10 }] }),
+    })).map((record) => record.id),
+    ["y"],
+  );
+
+  // Missing conditions covered!
+  assertThrows(
+    () => runtime.findMany("non-existent-table"),
+    TypeError,
+    'Unknown bound table "non-existent-table" in memory adapter.',
+  );
 });

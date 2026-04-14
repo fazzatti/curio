@@ -525,3 +525,119 @@ describe("admin runtime detail helpers", () => {
     assertEquals(emptyHtml, "");
   });
 });
+
+
+describe("admin runtime detail extra edge cases", () => {
+  it("skips belongsTo if target record is missing from database", async () => {
+    const { db, admin, runtime } = createDetailsAdmin();
+    const accountCheckResource = admin.findResource("account-checks");
+    assert(accountCheckResource);
+    
+    const check = await db.AccountCheck.create({
+      accountPublicKey: "MISSING_KEY",
+      status: "healthy",
+    });
+
+    const html = renderToString(
+      <>
+        {await renderRelationSummaryCard(
+          runtime,
+          accountCheckResource,
+          createActor(["accounts:view"]),
+          check as unknown as RawRecord,
+        )}
+      </>,
+    );
+    
+    assertEquals(html, "");
+  });
+
+  it("skips hasMany iteration if list permission is denied, and handles omitted foreignKey definitions safely", async () => {
+    const { db, admin, runtime } = createDetailsAdmin();
+    const accountResource = admin.findResource("accounts");
+    assert(accountResource);
+
+    const account = await db.Account.create({
+      publicKey: "GACCOUNT_2",
+      kind: "opex",
+    });
+    
+    const actorWithoutList = createActor(["accounts:view"], false); 
+
+    const html = renderToString(
+      <>
+        {await renderRelationSummaryCard(
+          runtime,
+          accountResource,
+          actorWithoutList,
+          account as unknown as RawRecord,
+        )}
+      </>,
+    );
+    assert(!html.includes("View account checks"));
+    
+    const hackedResource = { ...accountResource };
+    hackedResource.model = {
+      ...accountResource.model,
+      relations: {
+        checks: {
+          ...accountResource.model.relations.checks,
+          foreignKey: undefined,
+        } as unknown as typeof accountResource.model.relations.checks,
+      },
+    } as typeof accountResource.model;
+
+    const hackedHtml = renderToString(
+      <>
+        {await renderRelationSummaryCard(
+          runtime,
+          hackedResource,
+          createActor(["accounts:view", "accountChecks:list"], true),
+          account as unknown as RawRecord,
+        )}
+      </>,
+    );
+    
+    assert(!hackedHtml.includes("View account checks"));
+  });
+});
+
+
+
+describe("admin runtime detail extra edge cases 2", () => {
+  it("skips belongsTo if foreignKey is completely omitted in definition", async () => {
+    const { db, admin, runtime } = createDetailsAdmin();
+    const accountCheckResource = admin.findResource("account-checks");
+    assert(accountCheckResource);
+
+    // Create hacked definition
+    const hackedResource = { ...accountCheckResource };
+    hackedResource.model = {
+      ...accountCheckResource.model,
+      relations: {
+        account: {
+          ...accountCheckResource.model.relations.account,
+          foreignKey: undefined,
+        } as unknown as typeof accountCheckResource.model.relations.account,
+      },
+    };
+    
+    const check = await db.AccountCheck.create({
+      accountPublicKey: "MISSING_KEY",
+      status: "healthy",
+    });
+
+    const html = renderToString(
+      <>
+        {await renderRelationSummaryCard(
+          runtime,
+          hackedResource,
+          createActor(["accounts:view"]),
+          check as unknown as RawRecord,
+        )}
+      </>,
+    );
+    
+    assertEquals(html, "");
+  });
+});

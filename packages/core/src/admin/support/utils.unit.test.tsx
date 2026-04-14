@@ -33,7 +33,11 @@ import {
   toQueryString,
 } from "@/admin/support/utils.tsx";
 import { Entity } from "@/db/entity.ts";
-import { field, resolveFieldDefinition } from "@/db/field.ts";
+import {
+  field,
+  resolveFieldDefinition,
+  type FieldDefinition,
+} from "@/db/field.ts";
 import { Model } from "@/db/model.ts";
 import { Timestamps, UuidPrimaryKey } from "@/db/variant.ts";
 
@@ -461,3 +465,28 @@ Deno.test("admin runtime utils honor create and edit field access overrides", ()
     "publishedAt",
   ]);
 });
+
+
+Deno.test("defaultFormWidget handles explicitly required enum without optional label", () => {
+  const requiredEnumField = resolveFieldDefinition(
+    field.enum(["one", "two"] as const).required(),
+    "reqEnum"
+  );
+  const widgetHtml = renderToString(
+    <>{defaultFormWidget("reqEnum", requiredEnumField, "one")}</>
+  );
+  assert(!widgetHtml.includes("Select one"));
+});
+
+
+
+Deno.test("defaultFormWidget handles enum missing values array", () => {
+  const badEnumField: FieldDefinition<string, "enum"> = {
+    ...field.string().definition,
+    kind: "enum",
+  };
+  const widgetHtml = renderToString(<>{defaultFormWidget("bad", badEnumField, "")}</>);
+  assertStringIncludes(widgetHtml, "<select");
+});
+
+

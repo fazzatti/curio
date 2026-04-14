@@ -14,6 +14,7 @@ import {
   Timestamps,
   UuidPrimaryKey,
 } from "@/mod.ts";
+import type { FieldDefinition } from "@/db/field.ts";
 import {
   createFixtureBuilder,
   type FixtureBuildContext,
@@ -239,5 +240,32 @@ Deno.test("createFixtureBuilder surfaces generator and enum edge cases explicitl
     () => brokenEnumFixtures.build(),
     Error,
     'Enum field "BrokenEnum.state" has no registered values.',
+  );
+});
+
+
+Deno.test("fixtures handles missing values property on enum fields by defaulting to empty array", () => {
+  const ModelWithoutValues = new Model({
+    name: "NoValues",
+    table: "novalues",
+    fields: { 
+      id: field.id(),
+    }
+  });
+  const mutableFields = ModelWithoutValues.fields as unknown as Record<
+    string,
+    FieldDefinition
+  >;
+  mutableFields["badEnum"] = {
+    ...field.string().definition,
+    kind: "enum",
+  };
+
+  const b = createFixtureBuilder(ModelWithoutValues);
+  
+  assertThrows(
+    () => b.build(),
+    Error,
+    'Enum field "NoValues.badEnum" has no registered values.'
   );
 });
