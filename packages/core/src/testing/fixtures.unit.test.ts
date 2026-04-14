@@ -14,6 +14,7 @@ import {
   Timestamps,
   UuidPrimaryKey,
 } from "@/mod.ts";
+import type { FieldDefinition } from "@/db/field.ts";
 import {
   createFixtureBuilder,
   type FixtureBuildContext,
@@ -251,10 +252,14 @@ Deno.test("fixtures handles missing values property on enum fields by defaulting
       id: field.id(),
     }
   });
-  ModelWithoutValues.fields["badEnum"] = {
+  const mutableFields = ModelWithoutValues.fields as unknown as Record<
+    string,
+    FieldDefinition
+  >;
+  mutableFields["badEnum"] = {
     ...field.string().definition,
     kind: "enum",
-  } as any;
+  };
 
   const b = createFixtureBuilder(ModelWithoutValues);
   
@@ -264,4 +269,3 @@ Deno.test("fixtures handles missing values property on enum fields by defaulting
     'Enum field "NoValues.badEnum" has no registered values.'
   );
 });
-

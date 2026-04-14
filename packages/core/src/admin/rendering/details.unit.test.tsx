@@ -580,9 +580,9 @@ describe("admin runtime detail extra edge cases", () => {
     hackedResource.model = {
       ...accountResource.model,
       relations: {
-        checks: relation.hasMany("AccountCheck") as any
-      }
-    } as any;
+        checks: relation.hasMany("AccountCheck") as unknown as typeof accountResource.model.relations.checks,
+      },
+    } as typeof accountResource.model;
 
     const hackedHtml = renderToString(
       <>
@@ -605,14 +605,15 @@ describe("admin runtime detail extra edge cases 2", () => {
   it("skips belongsTo if foreignKey is completely omitted in definition", async () => {
     const { db, admin, runtime } = createDetailsAdmin();
     const accountCheckResource = admin.findResource("account-checks");
-    
+    assert(accountCheckResource);
+
     // Create hacked definition
-    const hackedResource = { ...accountCheckResource } as any;
+    const hackedResource = { ...accountCheckResource };
     hackedResource.model = {
-      ...accountCheckResource!.model,
+      ...accountCheckResource.model,
       relations: {
-        account: relation.belongsTo("Account") as any
-      }
+        account: relation.belongsTo("Account") as unknown as typeof accountCheckResource.model.relations.account,
+      },
     };
     
     const check = await db.AccountCheck.create({
@@ -634,4 +635,3 @@ describe("admin runtime detail extra edge cases 2", () => {
     assertEquals(html, "");
   });
 });
-

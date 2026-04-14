@@ -33,7 +33,11 @@ import {
   toQueryString,
 } from "@/admin/support/utils.tsx";
 import { Entity } from "@/db/entity.ts";
-import { field, resolveFieldDefinition } from "@/db/field.ts";
+import {
+  field,
+  resolveFieldDefinition,
+  type FieldDefinition,
+} from "@/db/field.ts";
 import { Model } from "@/db/model.ts";
 import { Timestamps, UuidPrimaryKey } from "@/db/variant.ts";
 
@@ -477,10 +481,12 @@ Deno.test("defaultFormWidget handles explicitly required enum without optional l
 
 
 Deno.test("defaultFormWidget handles enum missing values array", () => {
-  const badEnumField = { ...field.string().definition, kind: "enum" } as any;
+  const badEnumField: FieldDefinition<string, "enum"> = {
+    ...field.string().definition,
+    kind: "enum",
+  };
   const widgetHtml = renderToString(<>{defaultFormWidget("bad", badEnumField, "")}</>);
   assertStringIncludes(widgetHtml, "<select");
 });
-
 
 

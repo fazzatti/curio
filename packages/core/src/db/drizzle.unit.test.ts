@@ -693,24 +693,30 @@ Deno.test("Drizzle internals falls back to object fieldName if column is undefin
       weirdField: field.string(),
     },
   });
-  
-  const hackedField = { ...ModelWithoutColumn.fields.weirdField };
-  delete (hackedField as any).column;
-  
+
+  const {
+    column: _column,
+    ...hackedField
+  } = ModelWithoutColumn.fields.weirdField;
+
   const def = {
     key: "MissingCol",
     model: {
       ...ModelWithoutColumn,
       fields: {
         weirdField: hackedField,
-      }
+      },
     },
     entity: Entity.from(ModelWithoutColumn),
     primaryKey: "id",
     relations: {},
-  } as any;
+  } as unknown as ResolvedTableDefinition;
 
-  const predicate = DRIZZLE_INTERNALS.buildFieldPredicate(def, "weirdField", { eq: "value" });
+  const predicate = DRIZZLE_INTERNALS.buildFieldPredicate(
+    def,
+    "weirdField",
+    { eq: "value" },
+  );
   assert(predicate);
   const sql = flattenSql(predicate);
   assertStringIncludes(sql.text, '"weirdField" = ?');
@@ -725,7 +731,7 @@ Deno.test("Drizzle internals falls back to the requested field name when the fie
         id: USER_DEFINITION.model.fields.id,
       },
     },
-  } as any;
+  } as unknown as ResolvedTableDefinition;
 
   const predicate = DRIZZLE_INTERNALS.buildFieldPredicate(
     definition,

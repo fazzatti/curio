@@ -17,6 +17,7 @@ import { field } from "@/db/field.ts";
 import { memoryDatabaseAdapter } from "@/db/memory-adapter.ts";
 import { Model } from "@/db/model.ts";
 import { relation } from "@/db/relation.ts";
+import type { DatabaseAdapter, TableRegistry } from "@/db/types.ts";
 import { Timestamps, UuidPrimaryKey } from "@/db/variant.ts";
 
 const validationAdapter = {
@@ -591,8 +592,9 @@ Deno.test("Database relation loader gracefully handles inherently null foreign k
 
   const sess = await db.OptSession.create({ userId: null }, { validate: false });
   const sessWithUser = await db.OptSession.findById(sess.id, { include: { user: true } });
-  
-  assertEquals((sessWithUser as any)?.user, null);
+
+  const loaded = sessWithUser as ({ user: unknown } | null);
+  assertEquals(loaded?.user, null);
 });
 
 Deno.test("Database relation loader gracefully handles undefined foreign keys", async () => {
@@ -612,21 +614,18 @@ Deno.test("Database relation loader gracefully handles undefined foreign keys", 
 
   const sess = await db.OptSession2.create({ }, { validate: false });
   const sessWithUser = await db.OptSession2.findById(sess.id, { include: { user: true } });
-  
-  assertEquals((sessWithUser as any)?.user, null);
-  
-  assertEquals((sessWithUser as any)?.user, null);
+
+  const loaded = sessWithUser as ({ user: unknown } | null);
+  assertEquals(loaded?.user, null);
+  assertEquals(loaded?.user, null);
 });
 
-
-
-
-
-Deno.test("Database missing branches explicitly covered", async () => {
-  assertThrows(() => { Database.create({
-    adapter: null as any,
-    schemaAdapter: null as any,
-    tables: {} as any,
-  }) });
+Deno.test("Database missing branches explicitly covered", () => {
+  assertThrows(() => {
+    Database.create({
+      adapter: null as unknown as DatabaseAdapter,
+      schemaAdapter: null as never,
+      tables: {} as TableRegistry,
+    });
+  });
 });
-
