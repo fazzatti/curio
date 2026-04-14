@@ -1,11 +1,9 @@
 import { basename, dirname, join, relative, resolve } from "@std/path";
 import {
-  assertTemplateFileSupported,
-  INIT_PACKAGE_CONFIG_URL,
+  INIT_PACKAGE_CONFIG,
   readScaffoldAssetBytes,
   readScaffoldAssetText,
   resolveTemplateFiles,
-  resolveTemplateFileUrl,
 } from "./scaffold-assets.ts";
 
 export const DEFAULT_TEMPLATE = "default" as const;
@@ -43,7 +41,6 @@ export type RunInitOptions = {
 };
 
 const DEFAULT_PROJECT_DIRECTORY = "curio-app";
-const UTF8_DECODER = new TextDecoder("utf-8", { fatal: true });
 
 const CORE_IMPORT_KEYS = [
   "@curio/core",
@@ -174,15 +171,11 @@ const renderTemplate = (
   return rendered;
 };
 
-const readCoreImports = async (): Promise<
-  Record<(typeof CORE_IMPORT_KEYS)[number], string>
+const readCoreImports = (): Record<
+  (typeof CORE_IMPORT_KEYS)[number],
+  string
 > => {
-  const rawConfig = await readScaffoldAssetText(INIT_PACKAGE_CONFIG_URL);
-  const parsedConfig = JSON.parse(rawConfig) as {
-    imports?: Partial<Record<(typeof CORE_IMPORT_KEYS)[number], unknown>>;
-  };
-
-  const imports = parsedConfig.imports ?? {};
+  const imports = INIT_PACKAGE_CONFIG.imports ?? {};
   const resolvedImports = {} as Record<
     (typeof CORE_IMPORT_KEYS)[number],
     string
@@ -209,27 +202,18 @@ const copyTemplateDirectory = async (
   await Deno.mkdir(targetDir, { recursive: true });
 
   for (const templateFile of resolveTemplateFiles(template)) {
-    const sourceUrl = resolveTemplateFileUrl(template, templateFile);
-    const targetPath = join(targetDir, templateFile);
-
-    await assertTemplateFileSupported(sourceUrl);
+    const targetPath = join(targetDir, templateFile.path);
     await Deno.mkdir(dirname(targetPath), { recursive: true });
 
-    const fileBytes = await readScaffoldAssetBytes(sourceUrl);
-    try {
-      const fileContent = UTF8_DECODER.decode(fileBytes);
+    if (templateFile.encoding === "utf8") {
       await Deno.writeTextFile(
         targetPath,
-        renderTemplate(fileContent, context),
+        renderTemplate(readScaffoldAssetText(templateFile), context),
       );
-    } catch (error) {
-      if (error instanceof TypeError) {
-        await Deno.writeFile(targetPath, fileBytes);
-        continue;
-      }
-
-      throw error;
+      continue;
     }
+
+    await Deno.writeFile(targetPath, readScaffoldAssetBytes(templateFile));
   }
 };
 
@@ -358,7 +342,7 @@ export const scaffoldProject = async (
     projectDatabaseIdentifier: toDatabaseIdentifier(projectSlug),
     projectName,
     projectSlug,
-    coreImports: await readCoreImports(),
+    coreImports: readCoreImports(),
   };
 
   await copyTemplateDirectory(template, targetDir, context);
