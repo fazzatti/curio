@@ -13,9 +13,11 @@ available on your `PATH`.
 The fastest way to start with Curio is:
 
 1. scaffold a new project with `@curio/init`
-2. bring up the local database
-3. start the server
-4. extend the generated API and admin from there
+2. choose any interactive scaffold options you want
+3. bring up the local database
+4. bootstrap the first `superadmin`
+5. start the server
+6. extend the generated API and admin from there
 
 ## Recommended Path
 

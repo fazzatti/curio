@@ -20,16 +20,29 @@ Run it like this:
 deno run -Ar jsr:@curio/init my-app
 ```
 
+The target directory is the required positional argument.
+
 When the command runs in an interactive terminal, it asks which IDE you use:
 
 - `VS Code`: adds `.vscode/settings.json`, `.vscode/extensions.json`, and a Deno
   workspace note in the generated README
 - `Other`: skips editor-specific files and keeps the scaffold generic
 
+The generated project README also includes a first-time configuration section
+that highlights `deno task admin:create` for bootstrapping the first
+`superadmin`.
+
 The package is intentionally separate from `@curio/core`:
 
 - `@curio/core` is the reusable framework
 - `@curio/init` assembles a new app from the default template
+
+## Supported Inputs
+
+- `<directory>`: required target directory for the new project
+- `--template <name>`: select a template, currently only `default`
+- `--force`: allow scaffolding into an existing non-empty directory
+- `-h`, `--help`: show the help output
 
 ## Package Layout
 

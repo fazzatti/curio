@@ -38,6 +38,8 @@ Inside `packages/init`, the template is a separate concern from the CLI code.
 
 - `src/`: code that generates a project
 - `template/default/`: the generated project itself
+- `template/features/`: optional scaffold fragments layered on top of the
+  canonical template
 
 When deciding where a file belongs, use this rule:
 

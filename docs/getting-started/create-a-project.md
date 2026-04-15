@@ -21,6 +21,13 @@ Use the published `@curio/init` package:
 deno run -Ar jsr:@curio/init my-app
 ```
 
+The target directory is required. During interactive runs, Curio also asks which
+IDE you use:
+
+- `VS Code`: adds `.vscode/settings.json`, `.vscode/extensions.json`, and a Deno
+  workspace note in the generated README
+- `Other`: skips editor-specific files
+
 Local workspace equivalent:
 
 ```sh
@@ -49,9 +56,10 @@ Static validation:
 deno task check
 ```
 
-## Bootstrap the First Superadmin
+## First-Time Configuration
 
-The default template includes an interactive bootstrap command:
+Before using the admin for the first time, run the interactive bootstrap
+command:
 
 ```sh
 deno task admin:create

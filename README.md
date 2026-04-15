@@ -53,8 +53,8 @@ deno add jsr:@curio/core
 ### [@curio/init](./packages/init) <a href="https://jsr.io/@curio/init"><img src="https://jsr.io/badges/@curio/init" alt="JSR @curio/init" /></a>
 
 The bootstrap CLI. It scaffolds a fresh Curio project from the canonical
-template and keeps the generated app shape aligned with the framework's happy
-path.
+template, supports editor-aware setup during interactive runs, and keeps the
+generated app shape aligned with the framework's happy path.
 
 ```sh
 deno run -Ar jsr:@curio/init my-app
@@ -66,8 +66,8 @@ deno run -Ar jsr:@curio/init my-app
 
 ## Core Concepts & Standards
 
-Curio is designed around a few standards that keep the happy path strong
-without forcing advanced users into a rigid box.
+Curio is designed around a few standards that keep the happy path strong without
+forcing advanced users into a rigid box.
 
 ### 1. One framework package, one bootstrap package
 
@@ -104,8 +104,7 @@ Curio is organized in layers:
 - **Layer 2: Core runtime**
   - HTTP, DB, admin, auth, and Drizzle integration
 - **Layer 1: Advanced tooling**
-  - OpenAPI, testing fixtures, value objects, and adapter-level extension
-    points
+  - OpenAPI, testing fixtures, value objects, and adapter-level extension points
 
 ## Development
 
