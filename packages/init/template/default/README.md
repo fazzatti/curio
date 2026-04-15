@@ -24,6 +24,18 @@ deno task check
 
 CURIO_VSCODE_README_SECTION_PLACEHOLDER
 
+## First-Time Configuration
+
+Before using the admin for the first time, bootstrap the first `superadmin`:
+
+```sh
+deno task admin:create
+```
+
+The command prepares the schema if needed, seeds built-in admin data, prompts
+for credentials, creates the first `superadmin`, and refuses to create a second
+one.
+
 ## Current Routes
 
 - `GET /health`
@@ -58,15 +70,3 @@ Important admin design rules:
 - `superadmin` is a bypass role
 - the default admin preset is mounted with `presets: ["default"]`
 - password resets revoke the target user's active admin sessions
-
-## Superadmin Bootstrap
-
-Run the interactive command:
-
-```sh
-deno task admin:create
-```
-
-The command prepares the schema if needed, seeds built-in admin data, prompts
-for credentials, creates the first `superadmin`, and refuses to create a second
-one.

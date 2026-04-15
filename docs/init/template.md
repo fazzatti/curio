@@ -1,6 +1,10 @@
 # Template
 
-The default template lives at `packages/init/template/default/`.
+The canonical project template lives at `packages/init/template/default/`.
+
+Optional scaffold fragments live under `packages/init/template/features/` and
+are appended when the CLI selects them during an interactive run. The current
+feature fragment is `template/features/vscode/`.
 
 It is the canonical reference for the generated Curio project shape.
 
@@ -25,10 +29,25 @@ During scaffolding, init replaces placeholders such as:
 - project slug
 - database identifier
 - core package import specifiers
+- editor-specific README guidance
 
 The generated app should point at published JSR import paths by default. In the
 workspace, scaffold tests patch those imports to the local core source so the
 template can be validated before publish.
+
+## Publish Artifacts
+
+The published init package consumes JSON template bundles generated from the
+editable template directories:
+
+- `template/default.bundle.json`
+- `template/vscode.bundle.json`
+
+Regenerate them with:
+
+```sh
+deno run -A ./packages/init/scripts/sync-template-bundle.ts
+```
 
 ## Generated App Layout
 
@@ -51,6 +70,9 @@ The generated `deno.json` also includes tasks for:
 - `db:reset`
 - `db:logs`
 - `admin:create`
+
+The generated README also includes a first-time configuration section that
+highlights the `admin:create` bootstrap flow for the first `superadmin`.
 
 ## Current Runtime Choices
 
