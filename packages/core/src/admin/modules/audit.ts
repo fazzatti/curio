@@ -1,3 +1,12 @@
+/**
+ * Built-in admin audit module helpers.
+ *
+ * @module
+ *
+ * @remarks
+ * This entrypoint exposes the persistence helpers Curio ships for recording
+ * and querying admin audit activity.
+ */
 // deno-coverage-ignore-start
 import { getAuditRepo } from "@/admin/modules/repositories.ts";
 import type {

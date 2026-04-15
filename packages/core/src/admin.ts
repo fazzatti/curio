@@ -1,6 +1,8 @@
 /**
  * Server-rendered Curio admin entrypoint.
  *
+ * @module
+ *
  * @remarks
  * Import from `@curio/core/admin` when you want the admin runtime, its config
  * types, and the built-in admin models. Curio-shipped modules that layer on

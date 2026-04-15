@@ -1,3 +1,13 @@
+/**
+ * Oak-bound HTTP authoring helpers.
+ *
+ * @module
+ *
+ * @remarks
+ * Import from this entrypoint when your Curio application uses Oak as the
+ * HTTP server and you want route, middleware, and API builders typed against
+ * Oak's router context.
+ */
 import type { RouterContext as OakRouterContext } from "@oak/oak";
 import type { ApiBuildResult } from "@/api/api.ts";
 import { API as CoreAPI } from "@/api/api.ts";

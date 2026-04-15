@@ -1,8 +1,16 @@
+/**
+ * Built-in admin session module helpers.
+ *
+ * @module
+ *
+ * @remarks
+ * This entrypoint exposes Curio's default session settings plus the helpers
+ * used to authenticate, resolve, and revoke admin sessions.
+ */
 import { verifyPassword } from "@/auth/password.ts";
-export { DEFAULT_SESSION_SETTINGS } from "@/admin/modules/constants.ts";
 import {
-  DEFAULT_SESSION_SETTINGS,
   DEFAULT_ROLE_KEYS,
+  DEFAULT_SESSION_SETTINGS as CORE_DEFAULT_SESSION_SETTINGS,
 } from "@/admin/modules/constants.ts";
 import { createOpaqueToken, sha256Hex } from "@/admin/modules/crypto.ts";
 import {
@@ -21,6 +29,13 @@ import type {
   AdminSessionSettings,
   AdminUserRecord,
 } from "@/admin/modules/types.ts";
+
+/** Session settings shape used by Curio's admin session helpers. */
+export type { AdminSessionSettings } from "@/admin/modules/types.ts";
+
+/** Built-in session defaults shipped with Curio's admin session module. */
+export const DEFAULT_SESSION_SETTINGS: AdminSessionSettings =
+  CORE_DEFAULT_SESSION_SETTINGS;
 
 /** Merges session overrides with Curio's built-in admin session defaults. */
 export const resolveAdminSessionSettings = (

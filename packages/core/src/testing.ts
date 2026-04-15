@@ -1,6 +1,8 @@
 /**
  * Curio testing utilities entrypoint.
  *
+ * @module
+ *
  * @remarks
  * Import from `@curio/core/testing` when you want deterministic, model-aware
  * fixture builders without pulling test helpers into the runtime core surface.

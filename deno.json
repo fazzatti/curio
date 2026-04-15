@@ -3,6 +3,7 @@
 
   "tasks": {
     "check": "deno check packages/core/src/mod.ts packages/core/src/admin.ts packages/core/src/admin/modules/audit.ts packages/core/src/admin/modules/rbac.ts packages/core/src/admin/modules/sessions.ts packages/core/src/auth.ts packages/core/src/drizzle.ts packages/core/src/http/oak-api.ts packages/core/src/openapi.ts packages/core/src/testing.ts packages/core/src/value-object.ts packages/init/mod.ts",
+    "check:jsr": "deno doc --lint packages/init/mod.ts && deno run --allow-read ./scripts/check-jsr-entrypoints.ts",
     "test": "deno test -A --parallel --clean --ignore='_*/' --ignore='packages/core/src/OLD-reference/' --ignore='**/*.integration.test.ts' --ignore='**/*.integration.test.tsx' --coverage=.coverage packages/core/src packages/init/src",
     "test:unit": "deno test -A --parallel --clean --ignore='_*/' --ignore='packages/core/src/OLD-reference/' --ignore='**/*.integration.test.ts' --ignore='**/*.integration.test.tsx' --coverage=.coverage packages/core/src packages/init/src",
     "test:integration": "sh -c 'files=$(find packages/core/src packages/init/src -type f \\( -name \"*.integration.test.ts\" -o -name \"*.integration.test.tsx\" \\)); if [ -z \"$files\" ]; then echo \"No integration tests found\"; else deno test -A --parallel --clean --ignore=\"_*/\" --coverage=.coverage $files; fi'",

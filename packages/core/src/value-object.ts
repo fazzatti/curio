@@ -1,6 +1,8 @@
 /**
  * Curio value-object entrypoint.
  *
+ * @module
+ *
  * @remarks
  * Import from `@curio/core/value-object` when you want Valibot-backed,
  * class-based value objects without expanding the root core happy path.

@@ -1,6 +1,8 @@
 /**
  * Shared Curio auth entrypoint.
  *
+ * @module
+ *
  * @remarks
  * This entrypoint intentionally stays narrow: it exposes only password hashing
  * helpers and the password-hasher contract used by Curio-generated apps.

@@ -6,16 +6,31 @@ const ENTER_BYTES = new Set([10, 13]);
 const ESCAPE_BYTE = 27;
 const UP_BYTE = 107;
 
+/**
+ * @internal
+ *
+ * Option accepted by the internal terminal select prompt.
+ */
 export type SelectPromptOption<T extends string> = {
   label: string;
   value: T;
 };
 
+/**
+ * @internal
+ *
+ * Input accepted by the internal terminal select prompt.
+ */
 export type SelectPromptInput<T extends string> = {
   message: string;
   options: readonly SelectPromptOption<T>[];
 };
 
+/**
+ * @internal
+ *
+ * Function signature for the internal terminal select prompt.
+ */
 export type SelectPrompt = <T extends string>(
   input: SelectPromptInput<T>,
 ) => Promise<T | null>;
@@ -50,6 +65,11 @@ const matchesSequence = (
     sequence.every((value, index) => bytes[index] === value);
 };
 
+/**
+ * @internal
+ *
+ * Renders the current terminal prompt frame for a select interaction.
+ */
 export const renderSelectPrompt = <T extends string>(
   input: SelectPromptInput<T>,
   selectedIndex: number,
@@ -65,6 +85,11 @@ export const renderSelectPrompt = <T extends string>(
   return lines.join("\n");
 };
 
+/**
+ * @internal
+ *
+ * Converts raw terminal bytes into a select-prompt action.
+ */
 export const parseSelectPromptAction = (
   bytes: Uint8Array,
 ): SelectPromptAction => {
@@ -93,6 +118,11 @@ export const parseSelectPromptAction = (
   return "noop";
 };
 
+/**
+ * @internal
+ *
+ * Creates a terminal-backed select prompt from the provided runtime hooks.
+ */
 export const createSelectPrompt = (
   runtime: SelectPromptRuntime,
 ): SelectPrompt => {
@@ -166,6 +196,11 @@ export const createSelectPrompt = (
   };
 };
 
+/**
+ * @internal
+ *
+ * Creates the default select prompt bound to `Deno.stdin` and `Deno.stdout`.
+ */
 export const createDefaultSelectPrompt = (
   input: SelectPromptInputDevice = Deno.stdin,
   output: SelectPromptOutputDevice = Deno.stdout,
@@ -191,4 +226,9 @@ export const createDefaultSelectPrompt = (
   });
 };
 
+/**
+ * @internal
+ *
+ * Default terminal-backed select prompt used by `runInit(...)`.
+ */
 export const defaultSelectPrompt = createDefaultSelectPrompt();

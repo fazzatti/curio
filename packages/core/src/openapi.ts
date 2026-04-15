@@ -1,3 +1,12 @@
+/**
+ * OpenAPI document generation helpers.
+ *
+ * @module
+ *
+ * @remarks
+ * This entrypoint derives OpenAPI documents from Curio route definitions and
+ * their Valibot-backed request and response schemas.
+ */
 import { INTERNALS } from "@/api/api.ts";
 import type {
   EndpointMethod,
@@ -9,19 +18,23 @@ import type { ValibotSchema } from "@/schema/valibot.ts";
 import { formatUnknownError } from "@/support/errors.ts";
 import { toJsonSchema } from "@valibot/to-json-schema";
 
+/** Basic OpenAPI document metadata. */
 export type OpenApiInfo = {
   title: string;
   version: string;
   description?: string;
 };
 
+/** Server entry included in the generated OpenAPI document. */
 export type OpenApiServer = {
   url: string;
   description?: string;
 };
 
+/** JSON Schema fragment embedded in the OpenAPI output. */
 export type OpenApiSchema = Record<string, unknown>;
 
+/** Path or query parameter definition emitted for a route operation. */
 export type OpenApiParameter = {
   name: string;
   in: "path" | "query";
@@ -29,10 +42,12 @@ export type OpenApiParameter = {
   schema: OpenApiSchema;
 };
 
+/** Media type wrapper used in request and response bodies. */
 export type OpenApiMediaType = {
   schema: OpenApiSchema;
 };
 
+/** Request body description emitted for JSON request payloads. */
 export type OpenApiRequestBody = {
   required: boolean;
   content: {
@@ -40,6 +55,7 @@ export type OpenApiRequestBody = {
   };
 };
 
+/** Response description emitted for a route operation. */
 export type OpenApiResponse = {
   description: string;
   content?: {
@@ -47,6 +63,7 @@ export type OpenApiResponse = {
   };
 };
 
+/** Operation object emitted for a single HTTP method on a route path. */
 export type OpenApiOperation = {
   summary?: string;
   description?: string;
@@ -58,10 +75,12 @@ export type OpenApiOperation = {
   responses: Record<string, OpenApiResponse>;
 };
 
+/** Supported OpenAPI operation slots for a single route path. */
 export type OpenApiPathItem = Partial<
-  Record<Lowercase<EndpointMethod>, OpenApiOperation>
+  Record<"delete" | "get" | "patch" | "post" | "put", OpenApiOperation>
 >;
 
+/** OpenAPI 3.1 document generated from a Curio route tree. */
 export type OpenApiDocument = {
   openapi: "3.1.0";
   info: OpenApiInfo;
@@ -69,12 +88,14 @@ export type OpenApiDocument = {
   paths: Record<string, OpenApiPathItem>;
 };
 
+/** Options that customize OpenAPI document generation. */
 export type OpenApiOptions = {
   info?: OpenApiInfo;
   servers?: OpenApiServer[];
   defaultResponseDescription?: string;
 };
 
+/** Namespace contract exposed by Curio's OpenAPI entrypoint. */
 export type OpenApiNamespace = {
   from<TContext extends CurioHttpContext>(
     routes: RouteSegment<TContext>[],
@@ -104,7 +125,13 @@ const normalizeRequiredKeys = (value: unknown): string[] => {
   ): entry is string => typeof entry === "string");
 };
 
+/** Error thrown when Curio cannot derive a valid OpenAPI document. */
 export class OpenApiGenerationError extends Error {
+  /**
+   * Creates an OpenAPI generation error with a descriptive message.
+   *
+   * @param message Human-readable explanation of the generation failure.
+   */
   constructor(message: string) {
     super(message);
     this.name = "OpenApiGenerationError";
@@ -163,7 +190,7 @@ const toOpenApiParameters = (
     if (location === "path") {
       isRequired = true;
     }
-    
+
     return {
       name,
       in: location,
@@ -272,10 +299,9 @@ const toOpenApiOperation = (
  * OpenAPI document generation helpers.
  *
  * @remarks
- * This advanced entrypoint derives an OpenAPI document from the same Curio
- * route tree consumed by `API.withHttp(...).from(...)` or
- * `@curio/core/http/oak`.
- * Built-in Curio operations contribute Valibot request/response schemas
+ * This advanced helper derives an OpenAPI document from the same Curio route
+ * tree consumed by `API.withHttp(...).from(...)` or `@curio/core/http/oak`.
+ * Built-in Curio operations contribute Valibot request and response schemas
  * automatically, while custom handlers can opt in through `withSchemas(...)`.
  */
 export const OpenAPI: OpenApiNamespace = {
