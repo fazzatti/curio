@@ -1,6 +1,8 @@
 /**
  * Drizzle/Postgres integration entrypoint.
  *
+ * @module
+ *
  * @remarks
  * Import from `@curio/core/drizzle` when you want the SQL-backed adapter
  * without pulling the Drizzle/Postgres dependency graph into the root core

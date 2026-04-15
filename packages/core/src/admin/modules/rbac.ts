@@ -1,13 +1,17 @@
+/**
+ * Built-in admin RBAC module helpers.
+ *
+ * @module
+ *
+ * @remarks
+ * This entrypoint exposes Curio's opinionated roles, permissions, and
+ * assignment helpers that plug into the admin runtime.
+ */
 // deno-coverage-ignore-start
-export {
-  DEFAULT_ADMIN_ROLE_PERMISSION_KEYS,
-  DEFAULT_PERMISSION_DEFINITIONS,
-  DEFAULT_ROLE_KEYS,
-} from "@/admin/modules/constants.ts";
 import {
-  DEFAULT_ADMIN_ROLE_PERMISSION_KEYS,
-  DEFAULT_PERMISSION_DEFINITIONS,
-  DEFAULT_ROLE_KEYS,
+  DEFAULT_ADMIN_ROLE_PERMISSION_KEYS as CORE_DEFAULT_ADMIN_ROLE_PERMISSION_KEYS,
+  DEFAULT_PERMISSION_DEFINITIONS as CORE_DEFAULT_PERMISSION_DEFINITIONS,
+  DEFAULT_ROLE_KEYS as CORE_DEFAULT_ROLE_KEYS,
 } from "@/admin/modules/constants.ts";
 import {
   getPermissionRepo,
@@ -26,6 +30,26 @@ import type {
   RegisteredAdminPermissionSource,
 } from "@/admin/modules/types.ts";
 // deno-coverage-ignore-stop
+
+/**
+ * Permission definition shape used by Curio's admin RBAC helpers.
+ */
+export type { AdminPermissionDefinition } from "@/admin/modules/types.ts";
+
+/** Built-in role keys shipped with Curio's admin RBAC module. */
+export const DEFAULT_ROLE_KEYS = CORE_DEFAULT_ROLE_KEYS;
+
+/**
+ * Built-in permission definitions seeded by Curio's admin RBAC module.
+ */
+export const DEFAULT_PERMISSION_DEFINITIONS:
+  readonly AdminPermissionDefinition[] = CORE_DEFAULT_PERMISSION_DEFINITIONS;
+
+/**
+ * Permission keys granted to the built-in `admin` role by default.
+ */
+export const DEFAULT_ADMIN_ROLE_PERMISSION_KEYS =
+  CORE_DEFAULT_ADMIN_ROLE_PERMISSION_KEYS;
 
 /**
  * Upserts permission records and returns the resolved IDs keyed by permission key.
@@ -182,7 +206,7 @@ export const loadUserRoles = async (
     where: {
       id: { in: roleIds },
     },
-      orderBy: [{ key: "asc" }],
+    orderBy: [{ key: "asc" }],
   });
 };
 
@@ -214,7 +238,7 @@ export const loadRolePermissions = async (
     where: {
       id: { in: permissionIds },
     },
-      orderBy: [{ key: "asc" }],
+    orderBy: [{ key: "asc" }],
   });
 };
 

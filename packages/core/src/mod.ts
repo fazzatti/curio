@@ -1,6 +1,8 @@
 /**
  * Root Curio core entrypoint.
  *
+ * @module
+ *
  * @remarks
  * This barrel exports the framework-agnostic HTTP helpers, DB layer, schema
  * adapters, and shared primitives used across Curio backends.

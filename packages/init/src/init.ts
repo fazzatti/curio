@@ -5,15 +5,26 @@ import {
   readScaffoldAssetText,
   resolveTemplateFiles,
 } from "./scaffold-assets.ts";
-import { defaultSelectPrompt, type SelectPrompt } from "./select-prompt.ts";
+import { defaultSelectPrompt } from "./select-prompt.ts";
 
+/** Default scaffold template name used by Curio init. */
 export const DEFAULT_TEMPLATE = "default" as const;
-export const DEFAULT_IDE = "other" as const;
-export const VSCODE_IDE = "vscode" as const;
+const DEFAULT_IDE = "other" as const;
+const VSCODE_IDE = "vscode" as const;
 
+/** Supported scaffold template names. */
 export type TemplateName = typeof DEFAULT_TEMPLATE;
-export type IdeChoice = typeof DEFAULT_IDE | typeof VSCODE_IDE;
 
+type IdeChoice = typeof DEFAULT_IDE | typeof VSCODE_IDE;
+
+/**
+ * Parsed Curio init CLI arguments.
+ *
+ * @property directory Target directory for the generated project, when provided.
+ * @property force Whether scaffolding into a non-empty directory is allowed.
+ * @property help Whether the help output was requested.
+ * @property template Selected scaffold template name.
+ */
 export type ParsedInitArgs = {
   directory?: string;
   force: boolean;
@@ -21,26 +32,61 @@ export type ParsedInitArgs = {
   template: TemplateName;
 };
 
+/**
+ * Options accepted by `scaffoldProject(...)`.
+ *
+ * @property force Allows writing into a non-empty target directory.
+ * @property ide IDE choice used to append optional scaffold features.
+ * @property projectName Optional display name override for the generated app.
+ * @property targetDir Absolute or relative target directory for the project.
+ * @property template Scaffold template name. Defaults to `"default"`.
+ */
 export type ScaffoldProjectOptions = {
   force?: boolean;
-  ide?: IdeChoice;
+  ide?: "other" | "vscode";
   projectName?: string;
   targetDir: string;
   template?: TemplateName;
 };
 
+/**
+ * Result returned by `scaffoldProject(...)`.
+ *
+ * @property projectDir Absolute generated project directory.
+ * @property ide Resolved IDE choice used during scaffolding.
+ * @property projectName Human-friendly generated project name.
+ * @property projectSlug Filesystem-safe project slug derived from the directory.
+ * @property template Scaffold template used to assemble the project.
+ */
 export type ScaffoldProjectResult = {
   projectDir: string;
-  ide: IdeChoice;
+  ide: "other" | "vscode";
   projectName: string;
   projectSlug: string;
   template: TemplateName;
 };
 
+/**
+ * Runtime hooks accepted by `runInit(...)`.
+ *
+ * @property cwd Working directory used to resolve the target path.
+ * @property isInteractive Detects whether init should ask interactive questions.
+ * @property select Optional interactive select implementation for testing or customization.
+ * @property stderr Writer used for error output.
+ * @property stdout Writer used for normal output.
+ */
 export type RunInitOptions = {
   cwd?: string;
   isInteractive?: () => boolean;
-  select?: SelectPrompt;
+  select?: (
+    input: {
+      message: string;
+      options: readonly {
+        label: string;
+        value: "other" | "vscode";
+      }[];
+    },
+  ) => Promise<"other" | "vscode" | null>;
   stderr?: (message: string) => void;
   stdout?: (message: string) => void;
 };
@@ -96,6 +142,12 @@ type TemplateContext = {
   vscodeReadmeSection: string;
 };
 
+/**
+ * Curio init help output.
+ *
+ * @remarks
+ * This string is printed when `runInit(...)` receives `--help` or `-h`.
+ */
 export const helpText: string = `Create a new Curio project.
 
 Usage:
@@ -260,6 +312,16 @@ const resolveScaffoldInput = (
   };
 };
 
+/**
+ * Parses Curio init CLI arguments into a normalized options object.
+ *
+ * @param args Raw CLI arguments passed to the init command.
+ * @returns Parsed scaffold arguments ready for validation and execution.
+ *
+ * @throws {Error}
+ * Throws when an option is unknown, a flag value is missing, or more than one
+ * target directory is provided.
+ */
 export const parseInitArgs = (args: string[]): ParsedInitArgs => {
   const parsedArgs: ParsedInitArgs = {
     force: false,
@@ -319,6 +381,17 @@ export const parseInitArgs = (args: string[]): ParsedInitArgs => {
   return parsedArgs;
 };
 
+/**
+ * Scaffolds a Curio project into the target directory.
+ *
+ * @param options Scaffold options controlling the target directory, template,
+ * and optional IDE-specific files.
+ * @returns Metadata describing the generated project.
+ *
+ * @throws {Error}
+ * Throws when the target path is invalid, non-empty without `force`, or when
+ * required scaffold assets or import mappings are missing.
+ */
 export const scaffoldProject = async (
   options: ScaffoldProjectOptions,
 ): Promise<ScaffoldProjectResult> => {
@@ -357,6 +430,17 @@ export const scaffoldProject = async (
   };
 };
 
+/**
+ * Runs the Curio init CLI flow.
+ *
+ * @param args Raw CLI arguments received by the process.
+ * @param options Optional runtime hooks used by the CLI and by tests.
+ * @returns `0` on success and `1` when argument parsing or scaffolding fails.
+ *
+ * @remarks
+ * In interactive terminals, init asks which IDE the generated project will
+ * use. Non-interactive runs default to the generic scaffold path.
+ */
 export const runInit = async (
   args: string[],
   options: RunInitOptions = {},
