@@ -41,6 +41,7 @@ the pieces they need.
   - Valibot-backed, class-based value object base
 - `@curio/core/admin`
   - server-rendered admin runtime
+  - small client-hydrated admin islands
   - built-in RBAC/session/audit models
 - `@curio/core/admin/modules/rbac`
   - built-in admin roles, permissions, and role-assignment helpers
@@ -566,6 +567,57 @@ const admin = Admin.create({
   },
 });
 ```
+
+### Admin Islands
+
+Use `island(...)` when you want a small reusable admin component to stay
+server-rendered by default and hydrate only its own interaction on the client.
+
+```tsx
+/** @jsxImportSource preact */
+
+import { island, useState } from "@curio/core/admin";
+
+export const InputField = island(function InputField(props: {
+  id: string;
+  name: string;
+  label: string;
+  sensitive?: boolean;
+}) {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <div data-curio-admin-field>
+      <label htmlFor={props.id}>{props.label}</label>
+      <div>
+        <input
+          id={props.id}
+          name={props.name}
+          type={props.sensitive && !visible ? "password" : "text"}
+        />
+        {props.sensitive ? (
+          <button
+            type="button"
+            onClick={() => setVisible((current) => !current)}
+          >
+            {visible ? "Hide" : "Show"}
+          </button>
+        ) : null}
+      </div>
+    </div>
+  );
+});
+```
+
+Current island constraints:
+
+- props must be plain JSON-compatible values
+- keep island logic self-contained inside the island component
+- use islands for focused widgets and fields, not full-page admin shells
+- avoid JSX children unless they are themselves JSON-serializable
+
+This keeps the DX close to a component-driven model without forcing every admin
+surface through a separate SPA runtime.
 
 ### Live Views
 

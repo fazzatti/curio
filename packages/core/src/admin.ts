@@ -5,11 +5,14 @@
  *
  * @remarks
  * Import from `@curio/core/admin` when you want the admin runtime, its config
- * types, and the built-in admin models. Curio-shipped modules that layer on
- * top of the runtime live under `@curio/core/admin/modules/*`.
+ * types, admin islands, and the built-in admin models. Curio-shipped modules
+ * that layer on top of the runtime live under
+ * `@curio/core/admin/modules/*`.
  */
 export { Admin } from "@/admin/core/admin.tsx";
 export type {
+  AdminBrandColors,
+  AdminBranding,
   AdminComponentOverrides,
   AdminCreateInput,
   AdminDashboardWidgetConfig,
@@ -30,6 +33,17 @@ export type {
   AdminViewRegistration,
   AdminWidgetRendererProps,
 } from "@/admin/core/types.ts";
+export {
+  island,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "@/admin/islands.tsx";
+export type {
+  AdminIslandComponent,
+  AdminIslandSerializable,
+} from "@/admin/islands.tsx";
 export {
   AuditEvent,
   AuditEventEntity,

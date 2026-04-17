@@ -1,3 +1,109 @@
+import type { AdminBrandColors, AdminBranding } from "@/admin/core/types.ts";
+
+type RgbTriplet = [number, number, number];
+
+const DEFAULT_ADMIN_BRAND_COLORS: AdminBrandColors = {
+  primary: "#c65a3e",
+  secondary: "#568c6e",
+};
+
+const HEX_COLOR_PATTERN = /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
+
+const normalizeHexColor = (
+  value: string,
+  key: keyof AdminBrandColors,
+): string => {
+  const trimmed = value.trim();
+
+  if (!HEX_COLOR_PATTERN.test(trimmed)) {
+    throw new Error(
+      `Admin branding color "${key}" must be a hex color like "#c65a3e".`,
+    );
+  }
+
+  if (trimmed.length === 4) {
+    const [, red, green, blue] = trimmed;
+    return `#${red}${red}${green}${green}${blue}${blue}`.toLowerCase();
+  }
+
+  return trimmed.toLowerCase();
+};
+
+const hexToRgb = (value: string): RgbTriplet => {
+  const normalized = value.slice(1);
+
+  return [
+    Number.parseInt(normalized.slice(0, 2), 16),
+    Number.parseInt(normalized.slice(2, 4), 16),
+    Number.parseInt(normalized.slice(4, 6), 16),
+  ];
+};
+
+const rgbToHex = ([red, green, blue]: RgbTriplet): string => {
+  return `#${
+    [red, green, blue].map((channel) => channel.toString(16).padStart(2, "0"))
+      .join("")
+  }`;
+};
+
+const rgbToTriplet = ([red, green, blue]: RgbTriplet): string => {
+  return `${red}, ${green}, ${blue}`;
+};
+
+const mixRgb = (
+  source: RgbTriplet,
+  target: RgbTriplet,
+  ratio: number,
+): RgbTriplet => {
+  return source.map((channel, index) =>
+    Math.round(channel + (target[index] - channel) * ratio)
+  ) as RgbTriplet;
+};
+
+const DEFAULT_PRIMARY_RGB = hexToRgb(DEFAULT_ADMIN_BRAND_COLORS.primary);
+const DEFAULT_SECONDARY_RGB = hexToRgb(DEFAULT_ADMIN_BRAND_COLORS.secondary);
+
+export const resolveAdminBrandingColors = (
+  colors?: Partial<AdminBrandColors>,
+): AdminBrandColors | undefined => {
+  if (!colors?.primary && !colors?.secondary) {
+    return undefined;
+  }
+
+  return {
+    primary: normalizeHexColor(
+      colors.primary ?? DEFAULT_ADMIN_BRAND_COLORS.primary,
+      "primary",
+    ),
+    secondary: normalizeHexColor(
+      colors.secondary ?? DEFAULT_ADMIN_BRAND_COLORS.secondary,
+      "secondary",
+    ),
+  };
+};
+
+export const renderAdminBrandingThemeStyles = (
+  branding: Pick<AdminBranding, "colors">,
+): string => {
+  const colors = resolveAdminBrandingColors(branding.colors);
+
+  if (!colors) {
+    return "";
+  }
+
+  const primaryRgb = hexToRgb(colors.primary);
+  const secondaryRgb = hexToRgb(colors.secondary);
+
+  return `:root {
+  --curio-accent: ${colors.primary};
+  --curio-secondary: ${colors.secondary};
+  --curio-accent-strong: ${rgbToHex(mixRgb(primaryRgb, [0, 0, 0], 0.22))};
+  --curio-accent-tint: ${rgbToHex(mixRgb(primaryRgb, [255, 255, 255], 0.66))};
+  --curio-accent-rgb: ${rgbToTriplet(primaryRgb)};
+  --curio-secondary-rgb: ${rgbToTriplet(secondaryRgb)};
+}`;
+};
+
 /** Bundled stylesheet served by the default Curio admin renderer. */
 export const ADMIN_STYLESHEET = `
 :root {
@@ -7,8 +113,16 @@ export const ADMIN_STYLESHEET = `
   --curio-ink: #1f1f24;
   --curio-muted: #6d6864;
   --curio-border: rgba(50, 36, 26, 0.12);
-  --curio-accent: #c65a3e;
-  --curio-accent-strong: #9a3c23;
+  --curio-accent: ${DEFAULT_ADMIN_BRAND_COLORS.primary};
+  --curio-secondary: ${DEFAULT_ADMIN_BRAND_COLORS.secondary};
+  --curio-accent-strong: ${
+  rgbToHex(mixRgb(DEFAULT_PRIMARY_RGB, [0, 0, 0], 0.22))
+};
+  --curio-accent-tint: ${
+  rgbToHex(mixRgb(DEFAULT_PRIMARY_RGB, [255, 255, 255], 0.66))
+};
+  --curio-accent-rgb: ${rgbToTriplet(DEFAULT_PRIMARY_RGB)};
+  --curio-secondary-rgb: ${rgbToTriplet(DEFAULT_SECONDARY_RGB)};
   --curio-success: #2f7a57;
   --curio-danger: #a23b3b;
   --curio-warning: #9f6c16;
@@ -30,8 +144,8 @@ export const ADMIN_STYLESHEET = `
 html {
   min-height: 100%;
   background:
-    radial-gradient(circle at top right, rgba(198, 90, 62, 0.14), transparent 25%),
-    radial-gradient(circle at left center, rgba(86, 140, 110, 0.12), transparent 24%),
+    radial-gradient(circle at top right, rgba(var(--curio-accent-rgb), 0.14), transparent 25%),
+    radial-gradient(circle at left center, rgba(var(--curio-secondary-rgb), 0.12), transparent 24%),
     linear-gradient(180deg, #f7f2eb 0%, #f1ebe4 100%);
 }
 
@@ -68,7 +182,7 @@ textarea {
   padding: 28px 22px;
   background:
     linear-gradient(180deg, rgba(33, 29, 28, 0.96), rgba(29, 24, 24, 0.98)),
-    radial-gradient(circle at top, rgba(198, 90, 62, 0.16), transparent 34%);
+    radial-gradient(circle at top, rgba(var(--curio-accent-rgb), 0.16), transparent 34%);
   color: #f5ece3;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   overflow: hidden;
@@ -152,7 +266,7 @@ textarea {
 
 [data-curio-admin-nav-group][open] [data-curio-admin-nav-group-toggle] {
   transform: rotate(90deg);
-  color: rgba(247, 193, 177, 0.82);
+  color: rgba(var(--curio-accent-rgb), 0.82);
 }
 
 [data-curio-admin-nav-group-items] {
@@ -203,7 +317,7 @@ textarea {
 
 [data-curio-admin-nav-link]:hover [data-curio-admin-nav-icon],
 [data-curio-admin-nav-link][data-active="true"] [data-curio-admin-nav-icon] {
-  color: #f7c1b1;
+  color: var(--curio-accent-tint);
 }
 
 [data-curio-admin-main] {
@@ -464,7 +578,7 @@ html[data-curio-admin-navigation-pending="true"] [data-curio-admin-frame] {
   width: 140px;
   height: 140px;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(198, 90, 62, 0.18), transparent 70%);
+  background: radial-gradient(circle, rgba(var(--curio-accent-rgb), 0.18), transparent 70%);
 }
 
 [data-curio-admin-metrics-label] {
@@ -564,7 +678,11 @@ html[data-curio-admin-navigation-pending="true"] [data-curio-admin-frame] {
 }
 
 [data-curio-admin-button][data-variant="primary"] {
-  background: linear-gradient(135deg, #cb6548, #9f432a);
+  background: linear-gradient(
+    135deg,
+    var(--curio-accent),
+    var(--curio-accent-strong)
+  );
   color: #fff8f2;
 }
 
@@ -661,8 +779,8 @@ html[data-curio-admin-navigation-pending="true"] [data-curio-admin-frame] {
 [data-curio-admin-select]:focus,
 [data-curio-admin-textarea]:focus {
   outline: none;
-  border-color: rgba(198, 90, 62, 0.52);
-  box-shadow: 0 0 0 4px rgba(198, 90, 62, 0.12);
+  border-color: rgba(var(--curio-accent-rgb), 0.52);
+  box-shadow: 0 0 0 4px rgba(var(--curio-accent-rgb), 0.12);
 }
 
 [data-curio-admin-field][data-invalid="true"] [data-curio-admin-input],
@@ -695,7 +813,7 @@ html[data-curio-admin-navigation-pending="true"] [data-curio-admin-frame] {
   border-radius: 24px;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 251, 247, 0.86)),
-    radial-gradient(circle at top right, rgba(198, 90, 62, 0.08), transparent 32%);
+    radial-gradient(circle at top right, rgba(var(--curio-accent-rgb), 0.08), transparent 32%);
 }
 
 [data-curio-admin-assignment-header] {
@@ -752,15 +870,15 @@ html[data-curio-admin-navigation-pending="true"] [data-curio-admin-frame] {
 
 [data-curio-admin-assignment-option]:hover {
   transform: translateY(-1px);
-  border-color: rgba(198, 90, 62, 0.24);
+  border-color: rgba(var(--curio-accent-rgb), 0.24);
   background: rgba(255, 255, 255, 0.9);
 }
 
 [data-curio-admin-assignment-option][data-selected="true"] {
-  border-color: rgba(198, 90, 62, 0.36);
+  border-color: rgba(var(--curio-accent-rgb), 0.36);
   background:
-    linear-gradient(135deg, rgba(198, 90, 62, 0.12), rgba(255, 250, 245, 0.96));
-  box-shadow: inset 0 0 0 1px rgba(198, 90, 62, 0.08);
+    linear-gradient(135deg, rgba(var(--curio-accent-rgb), 0.12), rgba(255, 250, 245, 0.96));
+  box-shadow: inset 0 0 0 1px rgba(var(--curio-accent-rgb), 0.08);
 }
 
 [data-curio-admin-assignment-option][hidden] {
@@ -814,7 +932,7 @@ html[data-curio-admin-navigation-pending="true"] [data-curio-admin-frame] {
 }
 
 [data-curio-admin-assignment-option][data-selected="true"] [data-curio-admin-assignment-state] {
-  background: rgba(198, 90, 62, 0.14);
+  background: rgba(var(--curio-accent-rgb), 0.14);
   color: var(--curio-accent-strong);
 }
 
@@ -895,11 +1013,15 @@ html[data-curio-admin-navigation-pending="true"] [data-curio-admin-frame] {
 }
 
 [data-curio-admin-toggle-input]:focus-visible + [data-curio-admin-toggle-track] {
-  box-shadow: 0 0 0 4px rgba(198, 90, 62, 0.12);
+  box-shadow: 0 0 0 4px rgba(var(--curio-accent-rgb), 0.12);
 }
 
 [data-curio-admin-toggle-input]:checked + [data-curio-admin-toggle-track] {
-  background: linear-gradient(135deg, #cb6548, #9f432a);
+  background: linear-gradient(
+    135deg,
+    var(--curio-accent),
+    var(--curio-accent-strong)
+  );
 }
 
 [data-curio-admin-toggle-input]:checked + [data-curio-admin-toggle-track]::after {
@@ -1106,7 +1228,7 @@ html[data-curio-admin-navigation-pending="true"] [data-curio-admin-frame] {
 [data-curio-admin-inline-action]:hover {
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(198, 90, 62, 0.18);
+  border-color: rgba(var(--curio-accent-rgb), 0.18);
 }
 
 [data-curio-admin-inline-action][data-tone="danger"] {
@@ -1127,7 +1249,7 @@ html[data-curio-admin-navigation-pending="true"] [data-curio-admin-frame] {
   min-height: 30px;
   padding: 0 12px;
   border-radius: 999px;
-  background: rgba(198, 90, 62, 0.12);
+  background: rgba(var(--curio-accent-rgb), 0.12);
   color: var(--curio-accent-strong);
   font-size: 13px;
   font-weight: 600;
@@ -1216,8 +1338,8 @@ html[data-curio-admin-navigation-pending="true"] [data-curio-admin-frame] {
 [data-curio-admin-flash] {
   padding: 14px 16px;
   border-radius: 16px;
-  border: 1px solid rgba(198, 90, 62, 0.18);
-  background: rgba(198, 90, 62, 0.08);
+  border: 1px solid rgba(var(--curio-accent-rgb), 0.18);
+  background: rgba(var(--curio-accent-rgb), 0.08);
 }
 
 [data-curio-admin-flash][data-tone="error"] {
@@ -1610,7 +1732,7 @@ html[data-curio-admin-navigation-pending="true"] [data-curio-admin-frame] {
 [data-curio-admin-pipeline-band][data-stage="queued"] {
   background:
     linear-gradient(180deg, rgba(255, 253, 250, 0.9), rgba(255, 244, 236, 0.86)),
-    radial-gradient(circle at top right, rgba(198, 90, 62, 0.08), transparent 48%);
+    radial-gradient(circle at top right, rgba(var(--curio-accent-rgb), 0.08), transparent 48%);
 }
 
 [data-curio-admin-pipeline-band][data-stage="held"] {
@@ -1818,8 +1940,8 @@ html[data-curio-admin-navigation-pending="true"] [data-curio-admin-frame] {
 }
 
 [data-curio-admin-pipeline-stat-card][data-tone="queue"] {
-  --curio-pipeline-tone: rgba(198, 90, 62, 0.88);
-  --curio-pipeline-tone-soft: rgba(198, 90, 62, 0.22);
+  --curio-pipeline-tone: rgba(var(--curio-accent-rgb), 0.88);
+  --curio-pipeline-tone-soft: rgba(var(--curio-accent-rgb), 0.22);
 }
 
 [data-curio-admin-pipeline-stat-card][data-tone="reservation"] {
@@ -2256,7 +2378,544 @@ document.addEventListener("DOMContentLoaded", () => {
     dialog.removeAttribute("open");
   };
 
+  const islandSelector = "[data-curio-admin-island][data-curio-admin-island-payload]";
+  const islandFragment = Symbol.for("curio.admin.island.fragment");
+  const islandComponentCache = new Map();
+  let activeIslandRuntime = null;
+
+  const decodeIslandPayload = (encoded) => {
+    const binary = window.atob(encoded);
+    const bytes = Uint8Array.from(binary, (character) => character.charCodeAt(0));
+    return JSON.parse(new TextDecoder().decode(bytes));
+  };
+
+  const createIslandJsxNode = (type, props) => {
+    return {
+      type,
+      props: props || {},
+    };
+  };
+
+  const getActiveIslandRuntime = (hookName) => {
+    if (!activeIslandRuntime) {
+      throw new Error(
+        "Curio admin island hook \"" + hookName + "\" must run while an island is rendering.",
+      );
+    }
+
+    return activeIslandRuntime;
+  };
+
+  const resolveIslandComponent = (payload) => {
+    if (islandComponentCache.has(payload.source)) {
+      return islandComponentCache.get(payload.source);
+    }
+
+    const componentFactory = new Function(
+      "__curio",
+      "const { jsx: _jsx, jsxs: _jsxs, Fragment: _Fragment, useEffect, useMemo, useRef, useState } = __curio;" +
+        " return (" + payload.source + ");",
+    );
+
+    const component = componentFactory({
+      Fragment: islandFragment,
+      jsx: createIslandJsxNode,
+      jsxs: createIslandJsxNode,
+      useEffect: (...args) => getActiveIslandRuntime("useEffect").useEffect(...args),
+      useMemo: (...args) => getActiveIslandRuntime("useMemo").useMemo(...args),
+      useRef: (...args) => getActiveIslandRuntime("useRef").useRef(...args),
+      useState: (...args) => getActiveIslandRuntime("useState").useState(...args),
+    });
+
+    if (typeof component !== "function") {
+      throw new Error(
+        "Curio admin island \"" + (payload.name || "AnonymousIsland") + "\" did not compile to a function.",
+      );
+    }
+
+    islandComponentCache.set(payload.source, component);
+    return component;
+  };
+
+  const islandDepsEqual = (left, right) => {
+    if (!Array.isArray(left) || !Array.isArray(right)) {
+      return false;
+    }
+
+    if (left.length !== right.length) {
+      return false;
+    }
+
+    for (let index = 0; index < left.length; index += 1) {
+      if (!Object.is(left[index], right[index])) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+  const readIslandControlKey = (control, index) => {
+    const id = control.getAttribute("id");
+
+    if (id) {
+      return "id:" + id;
+    }
+
+    const name = control.getAttribute("name");
+
+    if (name) {
+      return (
+        "name:" +
+        control.tagName.toLowerCase() +
+        ":" +
+        (control.getAttribute("type") || "") +
+        ":" +
+        name +
+        ":" +
+        index
+      );
+    }
+
+    return "index:" + index;
+  };
+
+  const snapshotIslandFormState = (root) => {
+    return [...root.querySelectorAll("input, textarea, select")].map((control, index) => {
+      const supportsSelection =
+        control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement;
+
+      return {
+        active: control === document.activeElement,
+        checked: "checked" in control ? control.checked : undefined,
+        key: readIslandControlKey(control, index),
+        selectionEnd: supportsSelection ? control.selectionEnd : null,
+        selectionStart: supportsSelection ? control.selectionStart : null,
+        value: "value" in control ? control.value : undefined,
+      };
+    });
+  };
+
+  const restoreIslandFormState = (root, snapshot) => {
+    if (snapshot.length === 0) {
+      return;
+    }
+
+    const restoredControls = [...root.querySelectorAll("input, textarea, select")];
+    const controlMap = new Map(
+      restoredControls.map((control, index) => [readIslandControlKey(control, index), control]),
+    );
+    let activeControl = null;
+
+    for (const previous of snapshot) {
+      const control = controlMap.get(previous.key);
+
+      if (!control) {
+        continue;
+      }
+
+      if (
+        previous.value !== undefined &&
+        "value" in control &&
+        control.dataset.curioIslandControlledValue !== "true"
+      ) {
+        control.value = previous.value;
+      }
+
+      if (
+        previous.checked !== undefined &&
+        "checked" in control &&
+        control.dataset.curioIslandControlledChecked !== "true"
+      ) {
+        control.checked = previous.checked;
+      }
+
+      if (previous.active) {
+        activeControl = {
+          control,
+          selectionEnd: previous.selectionEnd,
+          selectionStart: previous.selectionStart,
+        };
+      }
+    }
+
+    if (!activeControl) {
+      return;
+    }
+
+    try {
+      activeControl.control.focus({ preventScroll: true });
+    } catch {
+      try {
+        activeControl.control.focus();
+      } catch {
+        // Ignore focus restoration failures.
+      }
+    }
+
+    if (
+      (activeControl.control instanceof HTMLInputElement ||
+        activeControl.control instanceof HTMLTextAreaElement) &&
+      activeControl.selectionStart !== null &&
+      activeControl.selectionEnd !== null
+    ) {
+      try {
+        activeControl.control.setSelectionRange(
+          activeControl.selectionStart,
+          activeControl.selectionEnd,
+        );
+      } catch {
+        // Ignore selection restoration failures.
+      }
+    }
+  };
+
+  const appendIslandChild = (parent, child) => {
+    if (
+      child === null ||
+      typeof child === "undefined" ||
+      typeof child === "boolean"
+    ) {
+      return;
+    }
+
+    if (Array.isArray(child)) {
+      for (const nestedChild of child) {
+        appendIslandChild(parent, nestedChild);
+      }
+
+      return;
+    }
+
+    if (typeof child === "string" || typeof child === "number") {
+      parent.appendChild(document.createTextNode(String(child)));
+      return;
+    }
+
+    parent.appendChild(renderIslandNode(child));
+  };
+
+  const applyIslandProps = (element, props) => {
+    if (!props || typeof props !== "object") {
+      return;
+    }
+
+    for (const [name, value] of Object.entries(props)) {
+      if (name === "children" || name === "key") {
+        continue;
+      }
+
+      if (name === "className") {
+        if (value) {
+          element.setAttribute("class", String(value));
+        }
+        continue;
+      }
+
+      if (name === "htmlFor") {
+        if (value) {
+          element.setAttribute("for", String(value));
+        }
+        continue;
+      }
+
+      if (name === "style") {
+        if (typeof value === "string") {
+          element.setAttribute("style", value);
+        } else if (value && typeof value === "object") {
+          for (const [styleName, styleValue] of Object.entries(value)) {
+            if (styleValue === null || typeof styleValue === "undefined") {
+              continue;
+            }
+
+            const cssProperty = styleName.replaceAll(/[A-Z]/g, (character) => {
+              return "-" + character.toLowerCase();
+            });
+            element.style.setProperty(cssProperty, String(styleValue));
+          }
+        }
+        continue;
+      }
+
+      if (name === "dangerouslySetInnerHTML") {
+        if (value && typeof value === "object" && "__html" in value) {
+          element.innerHTML = value.__html || "";
+        }
+        continue;
+      }
+
+      if (name === "ref") {
+        if (typeof value === "function") {
+          value(element);
+        } else if (value && typeof value === "object") {
+          value.current = element;
+        }
+        continue;
+      }
+
+      if (name === "value") {
+        if ("value" in element) {
+          element.value = value === null || typeof value === "undefined"
+            ? ""
+            : String(value);
+          element.dataset.curioIslandControlledValue = "true";
+        }
+        continue;
+      }
+
+      if (name === "defaultValue") {
+        if ("value" in element && value !== null && typeof value !== "undefined") {
+          element.value = String(value);
+        }
+        continue;
+      }
+
+      if (name === "checked") {
+        if ("checked" in element) {
+          element.checked = Boolean(value);
+          element.dataset.curioIslandControlledChecked = "true";
+        }
+        continue;
+      }
+
+      if (name === "defaultChecked") {
+        if ("checked" in element) {
+          element.checked = Boolean(value);
+        }
+        continue;
+      }
+
+      if (
+        name.startsWith("on") &&
+        name.length > 2 &&
+        typeof value === "function"
+      ) {
+        element.addEventListener(name.slice(2).toLowerCase(), value);
+        continue;
+      }
+
+      if (value === false || value === null || typeof value === "undefined") {
+        continue;
+      }
+
+      if (value === true) {
+        element.setAttribute(name, "");
+        continue;
+      }
+
+      element.setAttribute(name, String(value));
+    }
+  };
+
+  const renderIslandNode = (node) => {
+    if (
+      node === null ||
+      typeof node === "undefined" ||
+      typeof node === "boolean"
+    ) {
+      return document.createComment("curio-island");
+    }
+
+    if (Array.isArray(node)) {
+      const fragment = document.createDocumentFragment();
+
+      for (const child of node) {
+        appendIslandChild(fragment, child);
+      }
+
+      return fragment;
+    }
+
+    if (typeof node === "string" || typeof node === "number") {
+      return document.createTextNode(String(node));
+    }
+
+    if (!node || typeof node !== "object") {
+      return document.createComment("curio-island");
+    }
+
+    if (node.type === islandFragment) {
+      const fragment = document.createDocumentFragment();
+      appendIslandChild(fragment, node.props?.children);
+      return fragment;
+    }
+
+    if (typeof node.type === "function") {
+      return renderIslandNode(node.type(node.props || {}));
+    }
+
+    const element = document.createElement(String(node.type));
+    applyIslandProps(element, node.props || {});
+
+    if (!(node.props && "dangerouslySetInnerHTML" in node.props)) {
+      appendIslandChild(element, node.props?.children);
+    }
+
+    return element;
+  };
+
+  const createIslandInstance = (root, component, props, name) => {
+    const hookState = [];
+    const memoState = [];
+    const effectState = [];
+    let hookIndex = 0;
+    let pendingEffects = [];
+
+    const runtime = {
+      useEffect(effect, deps) {
+        const currentIndex = hookIndex;
+        const previous = effectState[currentIndex];
+        const normalizedDeps = Array.isArray(deps) ? [...deps] : null;
+
+        hookIndex += 1;
+
+        if (previous && islandDepsEqual(previous.deps, normalizedDeps)) {
+          return;
+        }
+
+        pendingEffects.push(() => {
+          try {
+            previous?.cleanup?.();
+          } catch (error) {
+            console.error(
+              "Curio admin island \"" + name + "\" cleanup failed.",
+              error,
+            );
+          }
+
+          const cleanup = effect();
+          effectState[currentIndex] = {
+            cleanup: typeof cleanup === "function" ? cleanup : null,
+            deps: normalizedDeps,
+          };
+        });
+      },
+      useMemo(factory, deps) {
+        const currentIndex = hookIndex;
+        const previous = memoState[currentIndex];
+        const normalizedDeps = Array.isArray(deps) ? [...deps] : null;
+
+        hookIndex += 1;
+
+        if (previous && islandDepsEqual(previous.deps, normalizedDeps)) {
+          return previous.value;
+        }
+
+        const value = factory();
+        memoState[currentIndex] = {
+          deps: normalizedDeps,
+          value,
+        };
+
+        return value;
+      },
+      useRef(initialValue) {
+        const currentIndex = hookIndex;
+
+        hookIndex += 1;
+
+        if (!hookState[currentIndex]) {
+          hookState[currentIndex] = { current: initialValue };
+        }
+
+        return hookState[currentIndex];
+      },
+      useState(initialValue) {
+        const currentIndex = hookIndex;
+
+        hookIndex += 1;
+
+        if (!(currentIndex in hookState)) {
+          hookState[currentIndex] = typeof initialValue === "function"
+            ? initialValue()
+            : initialValue;
+        }
+
+        return [
+          hookState[currentIndex],
+          (nextValue) => {
+            const resolved = typeof nextValue === "function"
+              ? nextValue(hookState[currentIndex])
+              : nextValue;
+
+            if (Object.is(resolved, hookState[currentIndex])) {
+              return;
+            }
+
+            hookState[currentIndex] = resolved;
+            render();
+          },
+        ];
+      },
+    };
+
+    const render = () => {
+      const snapshot = snapshotIslandFormState(root);
+      hookIndex = 0;
+      pendingEffects = [];
+
+      let output;
+
+      activeIslandRuntime = runtime;
+
+      try {
+        output = component(props || {});
+      } finally {
+        activeIslandRuntime = null;
+      }
+
+      const nextContent = renderIslandNode(output);
+      const nextNodes = nextContent instanceof DocumentFragment
+        ? [...nextContent.childNodes]
+        : [nextContent];
+
+      root.replaceChildren(...nextNodes);
+      restoreIslandFormState(root, snapshot);
+
+      for (const effect of pendingEffects) {
+        effect();
+      }
+    };
+
+    render();
+    root.dataset.curioAdminIslandMounted = "true";
+  };
+
+  const initializeIslands = (root) => {
+    for (const islandRoot of root.querySelectorAll(islandSelector)) {
+      if (islandRoot.dataset.curioAdminIslandMounted === "true") {
+        continue;
+      }
+
+      const encodedPayload = islandRoot.getAttribute("data-curio-admin-island-payload");
+
+      if (!encodedPayload) {
+        continue;
+      }
+
+      try {
+        const payload = decodeIslandPayload(encodedPayload);
+        const component = resolveIslandComponent(payload);
+        createIslandInstance(
+          islandRoot,
+          component,
+          payload.props,
+          payload.name || islandRoot.getAttribute("data-curio-admin-island") || "AdminIsland",
+        );
+      } catch (error) {
+        console.error(
+          "Failed to initialize Curio admin island \"" +
+            (islandRoot.getAttribute("data-curio-admin-island") || "AdminIsland") +
+            "\".",
+          error,
+        );
+      }
+    }
+  };
+
   const initializeDynamicContent = (root) => {
+    initializeIslands(root);
+
     for (const wrapper of root.querySelectorAll("[data-curio-confirm]")) {
       const checkbox = wrapper.querySelector("input[type=checkbox]");
       const submit = wrapper.querySelector("[data-curio-confirm-submit]");

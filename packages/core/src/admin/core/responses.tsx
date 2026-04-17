@@ -39,6 +39,7 @@ export function renderAdminForbidden(
     ),
     admin.basePath,
     403,
+    admin.branding,
   );
 }
 
@@ -56,6 +57,7 @@ export function renderMissingAdminResource(
     </div>,
     admin.basePath,
     404,
+    admin.branding,
   );
 }
 
@@ -73,6 +75,7 @@ export function renderMissingAdminView(
     </div>,
     admin.basePath,
     404,
+    admin.branding,
   );
 }
 
@@ -90,6 +93,7 @@ export function renderMissingAdminFlow(
     </div>,
     admin.basePath,
     404,
+    admin.branding,
   );
 }
 
@@ -128,5 +132,6 @@ export function renderMissingAdminRecord(
     ),
     admin.basePath,
     404,
+    admin.branding,
   );
 }

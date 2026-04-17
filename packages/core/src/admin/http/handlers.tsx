@@ -76,6 +76,8 @@ export const handleLoginPage = async (
       />
     ),
     admin.basePath,
+    200,
+    admin.branding,
   );
 };
 
@@ -221,6 +223,8 @@ export const handleDashboard = async (
       />
     ),
     admin.basePath,
+    200,
+    admin.branding,
   );
 };
 
@@ -288,6 +292,8 @@ export const handleList = async (
       />
     ),
     admin.basePath,
+    200,
+    admin.branding,
   );
 };
 
@@ -369,6 +375,8 @@ export const handleDetail = async (
       />
     ),
     admin.basePath,
+    200,
+    admin.branding,
   );
 };
 
@@ -607,6 +615,8 @@ export const handleResetPasswordForm = async (
       />
     ),
     admin.basePath,
+    200,
+    admin.branding,
   );
 };
 
@@ -742,6 +752,8 @@ export const handleDeleteForm = async (
       />
     ),
     admin.basePath,
+    200,
+    admin.branding,
   );
 };
 
@@ -843,5 +855,7 @@ export const handleView = async (
       />
     ),
     admin.basePath,
+    200,
+    admin.branding,
   );
 };

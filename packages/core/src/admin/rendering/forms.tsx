@@ -3,9 +3,7 @@
 // deno-coverage-ignore-start
 import type { ComponentChildren } from "preact";
 import { hashPassword } from "@/auth/password.ts";
-import {
-  DefaultAdminAssignmentField,
-} from "@/admin/components.tsx";
+import { DefaultAdminAssignmentField } from "@/admin/components.tsx";
 import {
   loadRolePermissions,
   loadUserRoles,
@@ -32,9 +30,9 @@ import type {
 } from "@/admin/core/types.ts";
 import {
   defaultFormWidget,
+  getEditableFieldNames,
   getFieldDescription,
   getFieldLabel,
-  getEditableFieldNames,
   getFormValue,
   getFormValues,
   getRecordId,
@@ -72,7 +70,8 @@ export const renderCreateForm = async (
           currentUserEmail: (actor.user as AdminUserRecord).email,
           title: `New ${resource.model.labels.singular}`,
           kicker: resource.label,
-          subtitle: `Create a new ${resource.model.labels.singular.toLowerCase()}.`,
+          subtitle:
+            `Create a new ${resource.model.labels.singular.toLowerCase()}.`,
           logoutAction: admin.getLogoutPath(),
           flashes: error ? [{ tone: "error", message: error }] : undefined,
         }}
@@ -87,6 +86,8 @@ export const renderCreateForm = async (
       />
     ),
     admin.basePath,
+    200,
+    admin.branding,
   );
 };
 
@@ -115,7 +116,8 @@ export const renderEditForm = async (
           currentUserEmail: (actor.user as AdminUserRecord).email,
           title: `Edit ${admin.getRecordTitle(resource, record)}`,
           kicker: resource.label,
-          subtitle: `Update this ${resource.model.labels.singular.toLowerCase()}.`,
+          subtitle:
+            `Update this ${resource.model.labels.singular.toLowerCase()}.`,
           logoutAction: admin.getLogoutPath(),
           flashes: error ? [{ tone: "error", message: error }] : undefined,
         }}
@@ -130,6 +132,8 @@ export const renderEditForm = async (
       />
     ),
     admin.basePath,
+    200,
+    admin.branding,
   );
 };
 
@@ -582,8 +586,9 @@ export const createRecord = async (
         form,
         input,
       });
-      const record = await admin.getRepository(resource).findById(createdId) as
-        unknown as
+      const record = await admin.getRepository(resource).findById(
+        createdId,
+      ) as unknown as
         | RawRecord
         | null;
 
@@ -595,8 +600,9 @@ export const createRecord = async (
 
       return record;
     })()
-    : await admin.getRepository(resource).create(input as RawRecord) as
-      unknown as RawRecord;
+    : await admin.getRepository(resource).create(
+      input as RawRecord,
+    ) as unknown as RawRecord;
   const resolvedCreatedId = getRecordId(resource, created);
 
   await recordAdminAuditEvent(admin.db as unknown as AdminDatabase, {
@@ -604,10 +610,9 @@ export const createRecord = async (
     eventType: `admin.${resource.slug}.create`,
     resource: resource.slug,
     recordId: resolvedCreatedId,
-    summary:
-      `Created ${resource.model.labels.singular.toLowerCase()} ${
-        admin.getRecordTitle(resource, created)
-      }.`,
+    summary: `Created ${resource.model.labels.singular.toLowerCase()} ${
+      admin.getRecordTitle(resource, created)
+    }.`,
     ipAddress: getRequestIpAddress(ctx),
     userAgent: getRequestUserAgent(ctx),
   });

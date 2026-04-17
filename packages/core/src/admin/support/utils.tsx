@@ -3,8 +3,10 @@
 // deno-coverage-ignore-start
 import { renderToString } from "preact-render-to-string";
 import type { ComponentChildren } from "preact";
+import { renderAdminBrandingThemeStyles } from "@/admin/assets.ts";
 import type { AdminFlashMessage } from "@/admin/components/types.ts";
 import type {
+  AdminBranding,
   AdminComponentOverrides,
   AdminFieldAccessConfig,
   AdminFieldWidgetOverride,
@@ -129,7 +131,10 @@ export const renderDocument = (
   title: string,
   body: ComponentChildren,
   basePath: string,
+  branding?: AdminBranding,
 ): string => {
+  const themeStyles = branding ? renderAdminBrandingThemeStyles(branding) : "";
+
   return "<!DOCTYPE html>" + renderToString(
     <html lang="en">
       <head>
@@ -140,6 +145,7 @@ export const renderDocument = (
         />
         <title>{title}</title>
         <link rel="stylesheet" href={`${basePath}/assets/admin.css`} />
+        {themeStyles ? <style>{themeStyles}</style> : null}
         <script defer src={`${basePath}/assets/admin.js`}></script>
       </head>
       <body>{body}</body>
@@ -153,10 +159,11 @@ export const sendHtml = (
   body: ComponentChildren,
   basePath: string,
   status = 200,
+  branding?: AdminBranding,
 ): void => {
   ctx.response.status = status;
   ctx.response.headers.set("content-type", "text/html; charset=utf-8");
-  ctx.response.body = renderDocument(title, body, basePath);
+  ctx.response.body = renderDocument(title, body, basePath, branding);
 };
 
 export const redirect = (

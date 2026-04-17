@@ -35,8 +35,8 @@ import {
 import { Entity } from "@/db/entity.ts";
 import {
   field,
-  resolveFieldDefinition,
   type FieldDefinition,
+  resolveFieldDefinition,
 } from "@/db/field.ts";
 import { Model } from "@/db/model.ts";
 import { Timestamps, UuidPrimaryKey } from "@/db/variant.ts";
@@ -270,7 +270,10 @@ Deno.test("admin runtime utils resolve field access, titles, flashes, and reques
   uploadForm.append("attachment", new Blob(["payload"]), "note.txt");
   assertEquals(getFormValue(uploadForm, "attachment"), "");
   assertEquals(getFormValues(uploadForm, "attachment"), []);
-  assertEquals(getFormValue({} as Parameters<typeof getFormValue>[0], "missing"), "");
+  assertEquals(
+    getFormValue({} as Parameters<typeof getFormValue>[0], "missing"),
+    "",
+  );
   assertEquals(
     getFormValues({} as Parameters<typeof getFormValues>[0], "missing"),
     [],
@@ -294,6 +297,22 @@ Deno.test("admin runtime utils render the document, values, and default widgets"
   assertStringIncludes(rendered, "<!DOCTYPE html>");
   assertStringIncludes(rendered, 'href="/admin/assets/admin.css"');
   assertStringIncludes(rendered, "Body");
+
+  const themedDocument = renderDocument(
+    "Admin",
+    <div>Body</div>,
+    "/admin",
+    {
+      name: "Curio",
+      tagline: "Control room.",
+      colors: {
+        primary: "#336699",
+        secondary: "#cc8844",
+      },
+    },
+  );
+  assertStringIncludes(themedDocument, "--curio-accent: #336699");
+  assertStringIncludes(themedDocument, "--curio-secondary: #cc8844");
 
   const emptyValue = renderToString(<>{formatRecordValue(undefined, null)}</>);
   assertStringIncludes(emptyValue, "Empty");
@@ -466,27 +485,24 @@ Deno.test("admin runtime utils honor create and edit field access overrides", ()
   ]);
 });
 
-
 Deno.test("defaultFormWidget handles explicitly required enum without optional label", () => {
   const requiredEnumField = resolveFieldDefinition(
     field.enum(["one", "two"] as const).required(),
-    "reqEnum"
+    "reqEnum",
   );
   const widgetHtml = renderToString(
-    <>{defaultFormWidget("reqEnum", requiredEnumField, "one")}</>
+    <>{defaultFormWidget("reqEnum", requiredEnumField, "one")}</>,
   );
   assert(!widgetHtml.includes("Select one"));
 });
-
-
 
 Deno.test("defaultFormWidget handles enum missing values array", () => {
   const badEnumField: FieldDefinition<string, "enum"> = {
     ...field.string().definition,
     kind: "enum",
   };
-  const widgetHtml = renderToString(<>{defaultFormWidget("bad", badEnumField, "")}</>);
+  const widgetHtml = renderToString(
+    <>{defaultFormWidget("bad", badEnumField, "")}</>,
+  );
   assertStringIncludes(widgetHtml, "<select");
 });
-
-
