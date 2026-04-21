@@ -73,6 +73,20 @@ The build artifact gives you:
 
 This is the shared foundation for advanced tooling such as OpenAPI generation.
 
+Oak build artifacts also expose `runtime.telemetry()` for route-aware
+OpenTelemetry middleware:
+
+```ts
+const runtime = API.build([healthRoute]);
+
+app.use(runtime.telemetry());
+app.use(runtime.router.routes());
+app.use(runtime.router.allowedMethods());
+```
+
+Use `@curio/core/http/oak/telemetry` directly when you want the same middleware
+through an explicit advanced entrypoint with options.
+
 ## Route Model
 
 Curio routes are defined as a tree of single relative path segments:
@@ -216,6 +230,49 @@ const meRoute = Route("me", {
   }),
 });
 ```
+
+## Telemetry
+
+Curio's telemetry integration is explicit and Oak-specific. Deno still owns
+OpenTelemetry bootstrap, providers, exporters, and environment configuration.
+Curio only adds the route-aware metadata the runtime cannot derive from Oak by
+itself.
+
+```ts
+import { API, GET, Route } from "@curio/core/http/oak";
+
+const runtime = API.build([
+  Route("users", {
+    children: [
+      Route(":id", {
+        GET: GET({
+          docs: {
+            operationId: "getUser",
+          },
+          handler: () => ({
+            payload: { ok: true },
+          }),
+        }),
+      }),
+    ],
+  }),
+]);
+
+app.use(runtime.telemetry());
+app.use(runtime.router.routes());
+app.use(runtime.router.allowedMethods());
+```
+
+The middleware:
+
+- reuses an already-active request span when one exists
+- creates a fallback server span when no active span exists
+- sets `http.route` from Curio route metadata
+- renames the span to `METHOD /route/:params`
+- adds `curio.route.operation_id` when `docs.operationId` exists
+
+For Deno runtime setup, keep using the
+[Deno OpenTelemetry docs](https://docs.deno.com/runtime/fundamentals/open_telemetry/).
 
 ## Advanced Documentation Metadata
 

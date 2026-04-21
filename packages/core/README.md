@@ -35,6 +35,8 @@ the pieces they need.
   - DB primitives
 - `@curio/core/http/oak`
   - Oak-bound route helpers and API factory
+- `@curio/core/http/oak/telemetry`
+  - route-aware OpenTelemetry middleware for Oak runtimes
 - `@curio/core/testing`
   - deterministic, model-aware fixture builders
 - `@curio/core/value-object`
@@ -89,6 +91,20 @@ const runtime = API.build([healthRoute]);
 runtime.router;
 runtime.routes;
 ```
+
+Oak runtimes built through `API.build(routes)` also expose a telemetry
+convenience for route-aware OpenTelemetry middleware:
+
+```ts
+const runtime = API.build([healthRoute]);
+
+app.use(runtime.telemetry());
+app.use(runtime.router.routes());
+app.use(runtime.router.allowedMethods());
+```
+
+Import `@curio/core/http/oak/telemetry` directly when you want the same
+middleware as an explicit advanced entrypoint with options.
 
 ## HTTP Authoring Model
 
@@ -260,6 +276,49 @@ const meRoute = Route("me", {
 });
 ```
 
+### Route-Aware Telemetry
+
+Curio keeps OpenTelemetry explicit and Oak-specific. Deno still owns provider,
+exporter, and environment-driven runtime setup. Curio only adds the route-aware
+metadata the runtime cannot infer by itself.
+
+```ts
+import { API, GET, Route } from "@curio/core/http/oak";
+
+const runtime = API.build([
+  Route("users", {
+    children: [
+      Route(":id", {
+        GET: GET({
+          docs: {
+            operationId: "getUser",
+          },
+          handler: () => ({
+            payload: { ok: true },
+          }),
+        }),
+      }),
+    ],
+  }),
+]);
+
+app.use(runtime.telemetry());
+app.use(runtime.router.routes());
+app.use(runtime.router.allowedMethods());
+```
+
+The middleware:
+
+- reuses an already-active request span when one exists
+- creates a fallback server span when no active span exists
+- sets `http.route` from Curio's normalized route metadata
+- renames the span to `METHOD /route/:params`
+- adds `curio.route.operation_id` when `docs.operationId` is present
+
+For Deno runtime setup, keep using the platform OpenTelemetry support described
+in the
+[Deno OpenTelemetry docs](https://docs.deno.com/runtime/fundamentals/open_telemetry/).
+
 ## HTTP Context
 
 Built-in Curio helpers run against a Curio-owned HTTP context:
@@ -311,8 +370,8 @@ class Email extends ValueObject.define({
 }) {}
 ```
 
-This is the intended place for schema-backed domain primitives that need
-runtime behavior without expanding the root core happy path.
+This is the intended place for schema-backed domain primitives that need runtime
+behavior without expanding the root core happy path.
 
 ## DB Layer
 
@@ -595,14 +654,16 @@ export const InputField = island(function InputField(props: {
           name={props.name}
           type={props.sensitive && !visible ? "password" : "text"}
         />
-        {props.sensitive ? (
-          <button
-            type="button"
-            onClick={() => setVisible((current) => !current)}
-          >
-            {visible ? "Hide" : "Show"}
-          </button>
-        ) : null}
+        {props.sensitive
+          ? (
+            <button
+              type="button"
+              onClick={() => setVisible((current) => !current)}
+            >
+              {visible ? "Hide" : "Show"}
+            </button>
+          )
+          : null}
       </div>
     </div>
   );

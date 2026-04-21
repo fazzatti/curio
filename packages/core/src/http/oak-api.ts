@@ -18,6 +18,11 @@ import { createMiddlewareFactory } from "@/api/middleware.ts";
 import { createRouteFactory } from "@/api/route.ts";
 import type { RouteOptions, RouteSegment } from "@/api/types.ts";
 import { oakHttpAdapter } from "@/http/oak.ts";
+import {
+  type OakTelemetryMiddleware,
+  type OakTelemetryOptions,
+  telemetry as buildTelemetryMiddleware,
+} from "@/http/oak-telemetry.ts";
 import type { CurioHttpContext } from "@/http/types.ts";
 
 /**
@@ -34,10 +39,31 @@ type OakRouteFactory = (
   options?: RouteOptions<OakHttpContext>,
 ) => RouteSegment<OakHttpContext>;
 
+/**
+ * Oak route build artifact with telemetry convenience helpers.
+ *
+ * @remarks
+ * This extends the generic `ApiBuildResult` with `runtime.telemetry(...)` so
+ * Oak apps can attach Curio's route-aware OpenTelemetry middleware without
+ * importing additional assembly helpers into the normal happy path.
+ */
+export type OakApiBuildResult<
+  TContext extends OakHttpContext = OakHttpContext,
+> = ApiBuildResult<ReturnType<typeof oakHttpAdapter.createRouter>, TContext> & {
+  /**
+   * Builds Oak middleware that enriches request spans with Curio route
+   * metadata.
+   *
+   * @param options Optional tracer overrides for advanced integrations.
+   * @returns Oak middleware that should run before `runtime.router.routes()`.
+   */
+  telemetry(options?: OakTelemetryOptions): OakTelemetryMiddleware;
+};
+
 type OakApiNamespace = {
   build<TContext extends OakHttpContext>(
     routes: RouteSegment<TContext>[],
-  ): ApiBuildResult<ReturnType<typeof oakHttpAdapter.createRouter>, TContext>;
+  ): OakApiBuildResult<TContext>;
   from<TContext extends OakHttpContext>(
     routes: RouteSegment<TContext>[],
   ): ReturnType<typeof oakHttpAdapter.createRouter>;
@@ -97,7 +123,14 @@ export const DELETE: EndpointOperations<OakHttpContext>["DELETE"] =
  */
 export const API: OakApiNamespace = {
   build<TContext extends OakHttpContext>(routes: RouteSegment<TContext>[]) {
-    return apiFactory.build(routes);
+    const runtime = apiFactory.build(routes);
+
+    return {
+      ...runtime,
+      telemetry(options?: OakTelemetryOptions) {
+        return buildTelemetryMiddleware(runtime, options);
+      },
+    };
   },
   from<TContext extends OakHttpContext>(routes: RouteSegment<TContext>[]) {
     return apiFactory.from(routes);

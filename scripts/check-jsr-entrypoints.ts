@@ -7,6 +7,7 @@ const ENTRYPOINTS = [
   "packages/core/src/auth.ts",
   "packages/core/src/drizzle.ts",
   "packages/core/src/http/oak-api.ts",
+  "packages/core/src/http/oak-telemetry.ts",
   "packages/core/src/openapi.ts",
   "packages/core/src/testing.ts",
   "packages/core/src/value-object.ts",
