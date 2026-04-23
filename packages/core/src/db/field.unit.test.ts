@@ -1,6 +1,10 @@
 import { assertEquals } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
-import { field, resolveFieldDefault, resolveFieldDefinition } from "@/db/field.ts";
+import {
+  field,
+  resolveFieldDefault,
+  resolveFieldDefinition,
+} from "@/db/field.ts";
 
 describe("db fields", () => {
   it("lets chained modifiers toggle metadata and custom columns", () => {
@@ -9,7 +13,9 @@ describe("db fields", () => {
       "email",
     );
     const hiddenField = resolveFieldDefinition(
-      field.string().hidden(false).obfuscate(true).searchable(false).sortable(true)
+      field.string().hidden(false).obfuscate(true).searchable(false).sortable(
+        true,
+      )
         .column("password_hash"),
       "passwordHash",
     );

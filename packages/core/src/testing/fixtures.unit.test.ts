@@ -15,10 +15,7 @@ import {
   UuidPrimaryKey,
 } from "@/mod.ts";
 import type { FieldDefinition } from "@/db/field.ts";
-import {
-  createFixtureBuilder,
-  type FixtureBuildContext,
-} from "@/testing.ts";
+import { createFixtureBuilder, type FixtureBuildContext } from "@/testing.ts";
 
 const UserModel = new Model({
   name: "User",
@@ -243,14 +240,13 @@ Deno.test("createFixtureBuilder surfaces generator and enum edge cases explicitl
   );
 });
 
-
 Deno.test("fixtures handles missing values property on enum fields by defaulting to empty array", () => {
   const ModelWithoutValues = new Model({
     name: "NoValues",
     table: "novalues",
-    fields: { 
+    fields: {
       id: field.id(),
-    }
+    },
   });
   const mutableFields = ModelWithoutValues.fields as unknown as Record<
     string,
@@ -262,10 +258,10 @@ Deno.test("fixtures handles missing values property on enum fields by defaulting
   };
 
   const b = createFixtureBuilder(ModelWithoutValues);
-  
+
   assertThrows(
     () => b.build(),
     Error,
-    'Enum field "NoValues.badEnum" has no registered values.'
+    'Enum field "NoValues.badEnum" has no registered values.',
   );
 });

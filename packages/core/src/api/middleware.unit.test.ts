@@ -64,15 +64,16 @@ describe("route middleware", () => {
     const wrappedHandler = INTERNALS.composeRouteHandler(
       (ctx) => {
         seenAccountId =
-          ((ctx.middlewareData as Record<string, { account: { id: string } }>)
-            .auth).account.id;
+          (ctx.middlewareData as Record<string, { account: { id: string } }>)
+            .auth.account.id;
       },
       [
-        middleware("auth", () => Promise.resolve({
-          account: {
-            id: "acc_123",
-          },
-        })),
+        middleware("auth", () =>
+          Promise.resolve({
+            account: {
+              id: "acc_123",
+            },
+          })),
       ],
     );
 
@@ -149,7 +150,10 @@ describe("route middleware", () => {
       ok: true,
     });
 
-    await INTERNALS.composeRouteHandler(operation.handler, operation.middlewares)(
+    await INTERNALS.composeRouteHandler(
+      operation.handler,
+      operation.middlewares,
+    )(
       ctx,
     );
 
@@ -169,14 +173,16 @@ describe("route middleware", () => {
   });
 
   it("allows built-in operations to infer middleware data in the handler context", () => {
-    const auth = middleware("auth", () => Promise.resolve({
-      account: {
-        id: "acc_123",
-      },
-    }));
-    const request = middleware("request", () => Promise.resolve({
-      requestId: "req_123",
-    }));
+    const auth = middleware("auth", () =>
+      Promise.resolve({
+        account: {
+          id: "acc_123",
+        },
+      }));
+    const request = middleware("request", () =>
+      Promise.resolve({
+        requestId: "req_123",
+      }));
 
     POST({
       middlewares: [auth, request] as const,
@@ -195,11 +201,12 @@ describe("route middleware", () => {
   });
 
   it("type-checks duplicate middleware keys as an error for built-in operations", () => {
-    const auth = middleware("auth", () => Promise.resolve({
-      account: {
-        id: "acc_123",
-      },
-    }));
+    const auth = middleware("auth", () =>
+      Promise.resolve({
+        account: {
+          id: "acc_123",
+        },
+      }));
 
     GET({
       // @ts-expect-error Duplicate keyed middleware data must be rejected.
@@ -213,11 +220,12 @@ describe("route middleware", () => {
   });
 
   it("throws for duplicate keyed middleware data during route assembly", () => {
-    const auth = middleware("auth", () => Promise.resolve({
-      account: {
-        id: "acc_123",
-      },
-    }));
+    const auth = middleware("auth", () =>
+      Promise.resolve({
+        account: {
+          id: "acc_123",
+        },
+      }));
 
     assertThrows(
       () => INTERNALS.validateMiddlewareDataKeys([auth, auth], "GET", "/test"),
@@ -235,14 +243,20 @@ describe("route middleware", () => {
       await next();
       calls.push("after");
     });
-    const keyed = factory("auth", () => Promise.resolve({
-      accountId: "acc_123",
-    }));
+    const keyed = factory("auth", () =>
+      Promise.resolve({
+        accountId: "acc_123",
+      }));
 
     const wrappedHandler = INTERNALS.composeRouteHandler(
       (ctx) => {
         calls.push(
-          `handler:${String((ctx.middlewareData as { auth: { accountId: string } }).auth.accountId)}`,
+          `handler:${
+            String(
+              (ctx.middlewareData as { auth: { accountId: string } }).auth
+                .accountId,
+            )
+          }`,
         );
       },
       [passThrough, keyed],

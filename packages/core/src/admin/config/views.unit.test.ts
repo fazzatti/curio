@@ -50,7 +50,12 @@ describe("admin runtime views", () => {
           permission: "views:ops",
           permissionLabel: "Open Ops",
           permissionDescription: "Open operations.",
-          nav: { visible: false, group: "Operations", order: 5, groupOrder: 20 },
+          nav: {
+            visible: false,
+            group: "Operations",
+            order: 5,
+            groupOrder: 20,
+          },
           live: { mode: "poll", intervalMs: 5000 },
           load,
           render,

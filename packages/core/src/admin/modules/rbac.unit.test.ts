@@ -13,9 +13,9 @@ import {
   hasAdminPermission,
   loadRolePermissions,
   loadUserRoles,
+  seedDefaultAdminData,
   seedPermissionDefinitions,
   seedRegisteredAdminPermissions,
-  seedDefaultAdminData,
   syncRolePermissions,
   syncUserRoles,
 } from "@/admin/modules.ts";

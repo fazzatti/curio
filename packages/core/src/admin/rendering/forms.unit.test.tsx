@@ -20,10 +20,7 @@ import {
   renderResetPasswordForm,
   updateRecord,
 } from "@/admin/rendering/forms.tsx";
-import type {
-  AdminRuntimeLike,
-  OakRouterContext,
-} from "@/admin/core/types.ts";
+import type { AdminRuntimeLike, OakRouterContext } from "@/admin/core/types.ts";
 import type {
   AdminActorContext,
   AdminUserRecord,
@@ -833,7 +830,10 @@ describe("admin runtime form helpers", () => {
 
     const createContext = createMockContext();
     await renderCreateForm(runtime, createContext, actor, hookResource);
-    assertStringIncludes(String(createContext.response.body), 'data-form-page="resource"');
+    assertStringIncludes(
+      String(createContext.response.body),
+      'data-form-page="resource"',
+    );
 
     const adminCreateContext = createMockContext();
     await renderCreateForm(runtime, adminCreateContext, actor, noteResource);
@@ -854,7 +854,10 @@ describe("admin runtime form helpers", () => {
       noteResource,
       existingNote as unknown as RawRecord,
     );
-    assertStringIncludes(String(editContext.response.body), 'data-form-page="admin"');
+    assertStringIncludes(
+      String(editContext.response.body),
+      'data-form-page="admin"',
+    );
 
     const hookRecordForEdit = await db.HookNote.create({
       id: "hook-note-edit",

@@ -526,13 +526,12 @@ describe("admin runtime detail helpers", () => {
   });
 });
 
-
 describe("admin runtime detail extra edge cases", () => {
   it("skips belongsTo if target record is missing from database", async () => {
     const { db, admin, runtime } = createDetailsAdmin();
     const accountCheckResource = admin.findResource("account-checks");
     assert(accountCheckResource);
-    
+
     const check = await db.AccountCheck.create({
       accountPublicKey: "MISSING_KEY",
       status: "healthy",
@@ -548,7 +547,7 @@ describe("admin runtime detail extra edge cases", () => {
         )}
       </>,
     );
-    
+
     assertEquals(html, "");
   });
 
@@ -561,8 +560,8 @@ describe("admin runtime detail extra edge cases", () => {
       publicKey: "GACCOUNT_2",
       kind: "opex",
     });
-    
-    const actorWithoutList = createActor(["accounts:view"], false); 
+
+    const actorWithoutList = createActor(["accounts:view"], false);
 
     const html = renderToString(
       <>
@@ -575,7 +574,7 @@ describe("admin runtime detail extra edge cases", () => {
       </>,
     );
     assert(!html.includes("View account checks"));
-    
+
     const hackedResource = { ...accountResource };
     hackedResource.model = {
       ...accountResource.model,
@@ -597,12 +596,10 @@ describe("admin runtime detail extra edge cases", () => {
         )}
       </>,
     );
-    
+
     assert(!hackedHtml.includes("View account checks"));
   });
 });
-
-
 
 describe("admin runtime detail extra edge cases 2", () => {
   it("skips belongsTo if foreignKey is completely omitted in definition", async () => {
@@ -621,7 +618,7 @@ describe("admin runtime detail extra edge cases 2", () => {
         } as unknown as typeof accountCheckResource.model.relations.account,
       },
     };
-    
+
     const check = await db.AccountCheck.create({
       accountPublicKey: "MISSING_KEY",
       status: "healthy",
@@ -637,7 +634,7 @@ describe("admin runtime detail extra edge cases 2", () => {
         )}
       </>,
     );
-    
+
     assertEquals(html, "");
   });
 });

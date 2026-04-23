@@ -34,7 +34,7 @@ import { API, GET, Route } from "@curio/core/http/oak";
 ### Database
 
 ```ts
-import { Database, Model, field } from "@curio/core";
+import { Database, field, Model } from "@curio/core";
 ```
 
 ### Admin

@@ -528,6 +528,34 @@ const admin = Admin.create({
 admin.mount(app);
 ```
 
+### Admin Branding
+
+Use `branding` when you want to customize the built-in admin shell without
+replacing Curio's shipped renderer.
+
+- `branding.name`: product name shown in the shell
+- `branding.tagline`: short supporting copy
+- `branding.colors.primary`: primary hex accent color
+- `branding.colors.secondary`: secondary hex accent color
+
+Curio expects hexadecimal colors so it can derive the stronger and softer accent
+tones used by the bundled stylesheet.
+
+```ts
+const admin = Admin.create({
+  db,
+  presets: ["default"],
+  branding: {
+    name: "My App Admin",
+    tagline: "Control room.",
+    colors: {
+      primary: "#2563eb",
+      secondary: "#1d4ed8",
+    },
+  },
+});
+```
+
 ### Default Preset
 
 The default preset:

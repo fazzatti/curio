@@ -1,6 +1,13 @@
 import { assertEquals, assertNotEquals } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
-import { AuditEvent, Permission, Role, RolePermission, Session, UserRole } from "@/admin/models.ts";
+import {
+  AuditEvent,
+  Permission,
+  Role,
+  RolePermission,
+  Session,
+  UserRole,
+} from "@/admin/models.ts";
 import {
   loadRecentAuditEventsForRecord,
   recordAdminAuditEvent,
@@ -89,7 +96,12 @@ describe("admin audit helpers", () => {
     assertEquals(third.resource, null);
     assertEquals(third.recordId, null);
 
-    const recent = await loadRecentAuditEventsForRecord(db, "users", "user-1", 1);
+    const recent = await loadRecentAuditEventsForRecord(
+      db,
+      "users",
+      "user-1",
+      1,
+    );
     assertEquals(recent.length, 1);
     assertEquals(recent[0]?.eventType, "admin.users.update");
 

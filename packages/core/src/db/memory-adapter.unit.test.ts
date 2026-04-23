@@ -1,8 +1,4 @@
-import {
-  assertEquals,
-  assertThrows,
-  assertRejects,
-} from "@std/assert";
+import { assertEquals, assertRejects, assertThrows } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { Entity } from "@/db/entity.ts";
 import { field } from "@/db/field.ts";
@@ -318,9 +314,6 @@ describe("memoryDatabaseAdapter", () => {
     );
   });
 });
-
-
-
 
 Deno.test("Memory adapter deep coverage", async () => {
   type MemoryCoverageRecord = {

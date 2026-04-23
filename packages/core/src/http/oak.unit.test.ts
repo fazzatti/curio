@@ -8,7 +8,12 @@ const createAppResponse = async (
   request: Request,
 ) => {
   const router = oakHttpAdapter.createRouter();
-  oakHttpAdapter.registerRoute(router, request.method as "GET" | "POST", "/test", setup);
+  oakHttpAdapter.registerRoute(
+    router,
+    request.method as "GET" | "POST",
+    "/test",
+    setup,
+  );
 
   const app = new Application();
   app.use(router.routes());
@@ -77,92 +82,92 @@ describe("oakHttpAdapter", () => {
     });
   });
 
-const createRawContext = (
-  bodyType: "text" | "form" | "form-data" | "binary" | "unknown",
-  bodyValue: unknown,
-) => {
-  const responseHeaders = new Headers();
+  const createRawContext = (
+    bodyType: "text" | "form" | "form-data" | "binary" | "unknown",
+    bodyValue: unknown,
+  ) => {
+    const responseHeaders = new Headers();
 
-  return {
-    params: {
-      id: "42",
-    },
-    request: {
-      method: "POST",
-      url: new URL("http://localhost/test/42?verbose=true"),
-      headers: new Headers({
-        "x-test": "ok",
-      }),
-      hasBody: true,
-      body: {
-        type: () => bodyType,
-        json: () => Promise.resolve(bodyValue),
-        text: () => Promise.resolve(bodyValue),
-        form: () => Promise.resolve(bodyValue),
-        formData: () => Promise.resolve(bodyValue),
-        blob: () => Promise.resolve(bodyValue),
+    return {
+      params: {
+        id: "42",
       },
-    },
-    response: {
-      status: 200,
-      headers: responseHeaders,
-      body: undefined as unknown,
-    },
-  };
-};
-
-const createCountedRawContext = (
-  bodyType: "json" | "text" | "form" | "form-data" | "binary" | "unknown",
-  bodyValue: unknown,
-) => {
-  const counters = {
-    json: 0,
-    text: 0,
-    form: 0,
-    formData: 0,
-    blob: 0,
-  };
-
-  const rawContext = {
-    params: {},
-    request: {
-      method: "POST",
-      url: new URL("http://localhost/test"),
-      headers: new Headers(),
-      hasBody: true,
-      body: {
-        type: () => bodyType,
-        json: () => {
-          counters.json += 1;
-          return Promise.resolve(bodyValue);
-        },
-        text: () => {
-          counters.text += 1;
-          return Promise.resolve(bodyValue);
-        },
-        form: () => {
-          counters.form += 1;
-          return Promise.resolve(bodyValue);
-        },
-        formData: () => {
-          counters.formData += 1;
-          return Promise.resolve(bodyValue);
-        },
-        blob: () => {
-          counters.blob += 1;
-          return Promise.resolve(bodyValue);
+      request: {
+        method: "POST",
+        url: new URL("http://localhost/test/42?verbose=true"),
+        headers: new Headers({
+          "x-test": "ok",
+        }),
+        hasBody: true,
+        body: {
+          type: () => bodyType,
+          json: () => Promise.resolve(bodyValue),
+          text: () => Promise.resolve(bodyValue),
+          form: () => Promise.resolve(bodyValue),
+          formData: () => Promise.resolve(bodyValue),
+          blob: () => Promise.resolve(bodyValue),
         },
       },
-    },
-    response: {
-      status: 200,
-      headers: new Headers(),
-      body: undefined as unknown,
-    },
+      response: {
+        status: 200,
+        headers: responseHeaders,
+        body: undefined as unknown,
+      },
+    };
   };
 
-  return { rawContext, counters };
-};
+  const createCountedRawContext = (
+    bodyType: "json" | "text" | "form" | "form-data" | "binary" | "unknown",
+    bodyValue: unknown,
+  ) => {
+    const counters = {
+      json: 0,
+      text: 0,
+      form: 0,
+      formData: 0,
+      blob: 0,
+    };
+
+    const rawContext = {
+      params: {},
+      request: {
+        method: "POST",
+        url: new URL("http://localhost/test"),
+        headers: new Headers(),
+        hasBody: true,
+        body: {
+          type: () => bodyType,
+          json: () => {
+            counters.json += 1;
+            return Promise.resolve(bodyValue);
+          },
+          text: () => {
+            counters.text += 1;
+            return Promise.resolve(bodyValue);
+          },
+          form: () => {
+            counters.form += 1;
+            return Promise.resolve(bodyValue);
+          },
+          formData: () => {
+            counters.formData += 1;
+            return Promise.resolve(bodyValue);
+          },
+          blob: () => {
+            counters.blob += 1;
+            return Promise.resolve(bodyValue);
+          },
+        },
+      },
+      response: {
+        status: 200,
+        headers: new Headers(),
+        body: undefined as unknown,
+      },
+    };
+
+    return { rawContext, counters };
+  };
 
   it("createContext reads non-JSON body types and writes responses", async () => {
     const formData = new FormData();

@@ -1,23 +1,23 @@
 # Entrypoints
 
-Curio publishes focused core entrypoints so consumers only pull in the parts they
-intend to use.
+Curio publishes focused core entrypoints so consumers only pull in the parts
+they intend to use.
 
 ## Public Entrypoints
 
-| Import path | Purpose |
-| --- | --- |
-| `@curio/core` | Adapter-agnostic HTTP primitives, schema adapters, DB primitives |
-| `@curio/core/http/oak` | Oak-first route authoring and API assembly |
-| `@curio/core/testing` | Deterministic, model-aware fixture builders |
-| `@curio/core/value-object` | Valibot-backed, class-based value object base |
-| `@curio/core/admin` | Server-rendered admin runtime, config types, built-in admin models |
-| `@curio/core/admin/modules/rbac` | Built-in admin roles, permissions, grants, and permission seeding |
-| `@curio/core/admin/modules/sessions` | Built-in admin session and auth helpers |
-| `@curio/core/admin/modules/audit` | Built-in admin audit helpers |
-| `@curio/core/auth` | Password hashing helpers |
-| `@curio/core/drizzle` | Drizzle/Postgres adapter |
-| `@curio/core/openapi` | Advanced route-tree to OpenAPI generation |
+| Import path                          | Purpose                                                            |
+| ------------------------------------ | ------------------------------------------------------------------ |
+| `@curio/core`                        | Adapter-agnostic HTTP primitives, schema adapters, DB primitives   |
+| `@curio/core/http/oak`               | Oak-first route authoring and API assembly                         |
+| `@curio/core/testing`                | Deterministic, model-aware fixture builders                        |
+| `@curio/core/value-object`           | Valibot-backed, class-based value object base                      |
+| `@curio/core/admin`                  | Server-rendered admin runtime, config types, built-in admin models |
+| `@curio/core/admin/modules/rbac`     | Built-in admin roles, permissions, grants, and permission seeding  |
+| `@curio/core/admin/modules/sessions` | Built-in admin session and auth helpers                            |
+| `@curio/core/admin/modules/audit`    | Built-in admin audit helpers                                       |
+| `@curio/core/auth`                   | Password hashing helpers                                           |
+| `@curio/core/drizzle`                | Drizzle/Postgres adapter                                           |
+| `@curio/core/openapi`                | Advanced route-tree to OpenAPI generation                          |
 
 ## Why The Root Barrel Is Narrow
 

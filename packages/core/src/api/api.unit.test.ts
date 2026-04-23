@@ -1,8 +1,4 @@
-import {
-  assertEquals,
-  assertInstanceOf,
-  assertThrows,
-} from "@std/assert";
+import { assertEquals, assertInstanceOf, assertThrows } from "@std/assert";
 import { middleware } from "@/api/middleware.ts";
 import {
   API,
@@ -48,11 +44,12 @@ Deno.test("API.withHttp(oakHttpAdapter) accepts root routes and pass-through mid
           middleware(async (_ctx, next) => {
             await next();
           }),
-          middleware("auth", () => Promise.resolve({
-            account: {
-              id: "acc_123",
-            },
-          })),
+          middleware("auth", () =>
+            Promise.resolve({
+              account: {
+                id: "acc_123",
+              },
+            })),
         ],
         handler: noop,
       },
@@ -140,11 +137,12 @@ Deno.test("API.withHttp(oakHttpAdapter) accepts object-form method config entrie
 });
 
 Deno.test("INTERNALS.normalizeRouteMethodEntry preserves method-level middlewares", () => {
-  const authMiddleware = middleware("auth", () => Promise.resolve({
-    account: {
-      id: "acc_123",
-    },
-  }));
+  const authMiddleware = middleware("auth", () =>
+    Promise.resolve({
+      account: {
+        id: "acc_123",
+      },
+    }));
   const normalized = INTERNALS.normalizeRouteMethodEntry("GET", {
     docs: {
       summary: "Health check",
@@ -198,11 +196,12 @@ Deno.test("INTERNALS validation errors are concrete error instances", () => {
 });
 
 Deno.test("API.withHttp(oakHttpAdapter) rejects duplicate keyed middleware data on one route", () => {
-  const auth = middleware("auth", () => Promise.resolve({
-    account: {
-      id: "acc_123",
-    },
-  }));
+  const auth = middleware("auth", () =>
+    Promise.resolve({
+      account: {
+        id: "acc_123",
+      },
+    }));
 
   assertThrows(
     () =>
@@ -218,13 +217,14 @@ Deno.test("API.withHttp(oakHttpAdapter) rejects duplicate keyed middleware data 
   );
 });
 
-
 Deno.test("validateMiddlewareDataKeys allows middlewares without data keys", () => {
   const router = oakApi.from([
     Route("unkeyed", {
       GET: {
         middlewares: [
-          middleware(async (_ctx, next) => { await next(); }),
+          middleware(async (_ctx, next) => {
+            await next();
+          }),
         ],
         handler: noop,
       },
@@ -232,4 +232,3 @@ Deno.test("validateMiddlewareDataKeys allows middlewares without data keys", () 
   ]);
   assertEquals(typeof router.routes, "function");
 });
-

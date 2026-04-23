@@ -19,7 +19,9 @@ export const DefaultAdminCountWidget: FunctionComponent<
         <div data-curio-admin-kicker>Dashboard</div>
         <div data-curio-admin-widget-title>{title}</div>
         <div data-curio-admin-metrics-value>{data.value}</div>
-        {data.copy ? <div data-curio-admin-metrics-copy>{data.copy}</div> : null}
+        {data.copy
+          ? <div data-curio-admin-metrics-copy>{data.copy}</div>
+          : null}
       </div>
     </section>
   );

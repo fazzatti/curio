@@ -198,7 +198,10 @@ Deno.test("Drizzle internals serialize and deserialize datetime and json field v
     DRIZZLE_INTERNALS.serializeFieldValue(createdAtField, undefined),
     undefined,
   );
-  assertEquals(DRIZZLE_INTERNALS.deserializeFieldValue(createdAtField, null), null);
+  assertEquals(
+    DRIZZLE_INTERNALS.deserializeFieldValue(createdAtField, null),
+    null,
+  );
   assertEquals(
     DRIZZLE_INTERNALS.deserializeFieldValue(undefined, "value"),
     "value",
@@ -224,9 +227,18 @@ Deno.test("Drizzle internals generate the expected create table statement", () =
     'alter table if exists "users" add column if not exists "email" text unique',
   );
   assertEquals(DRIZZLE_INTERNALS.fieldSqlType(field.id().definition), "uuid");
-  assertEquals(DRIZZLE_INTERNALS.fieldSqlType(USER_DEFINITION.model.fields.id), "uuid");
-  assertEquals(DRIZZLE_INTERNALS.fieldSqlType(USER_DEFINITION.model.fields.age), "integer");
-  assertEquals(DRIZZLE_INTERNALS.fieldSqlType(field.number().definition), "double precision");
+  assertEquals(
+    DRIZZLE_INTERNALS.fieldSqlType(USER_DEFINITION.model.fields.id),
+    "uuid",
+  );
+  assertEquals(
+    DRIZZLE_INTERNALS.fieldSqlType(USER_DEFINITION.model.fields.age),
+    "integer",
+  );
+  assertEquals(
+    DRIZZLE_INTERNALS.fieldSqlType(field.number().definition),
+    "double precision",
+  );
   assertEquals(DRIZZLE_INTERNALS.asRows("no-rows"), []);
 
   const customColumnPredicate = DRIZZLE_INTERNALS.buildFieldPredicate(
@@ -541,9 +553,12 @@ Deno.test("Drizzle runtime executes CRUD statements, normalizes rows, and reuses
   assertStringIncludes(deleteSql.text, 'delete from "users"');
 
   results.push([]);
-  assertEquals(await runtime.updateById("User", "missing", {
-    email: "missing@example.com",
-  }), null);
+  assertEquals(
+    await runtime.updateById("User", "missing", {
+      email: "missing@example.com",
+    }),
+    null,
+  );
 
   results.push([]);
   assertEquals(await runtime.deleteById("User", "missing"), null);
@@ -682,7 +697,6 @@ Deno.test("Drizzle runtime throws for unknown table registrations and unsupporte
   }).bind([USER_DEFINITION]);
   assertEquals(typeof postgresRuntime.prepare, "function");
 });
-
 
 Deno.test("Drizzle internals falls back to object fieldName if column is undefined", () => {
   const ModelWithoutColumn = new Model({

@@ -10,8 +10,8 @@ import {
   NotFoundError,
   ReservedTableKeyError,
   TableRegistrationNameMismatchError,
-  UnknownRelationTargetError,
   UniqueConstraintViolationError,
+  UnknownRelationTargetError,
 } from "@/db/errors.ts";
 import { field } from "@/db/field.ts";
 import { memoryDatabaseAdapter } from "@/db/memory-adapter.ts";
@@ -574,7 +574,6 @@ Deno.test("Model-level validation adapter overrides the database default adapter
   assertEquals(created.slug, "allowed");
 });
 
-
 Deno.test("Database relation loader gracefully handles inherently null foreign keys", async () => {
   const OptionalModel = new Model({
     name: "OptSession",
@@ -590,8 +589,12 @@ Deno.test("Database relation loader gracefully handles inherently null foreign k
     tables: { OptSession: OptionalModel },
   });
 
-  const sess = await db.OptSession.create({ userId: null }, { validate: false });
-  const sessWithUser = await db.OptSession.findById(sess.id, { include: { user: true } });
+  const sess = await db.OptSession.create({ userId: null }, {
+    validate: false,
+  });
+  const sessWithUser = await db.OptSession.findById(sess.id, {
+    include: { user: true },
+  });
 
   const loaded = sessWithUser as ({ user: unknown } | null);
   assertEquals(loaded?.user, null);
@@ -612,8 +615,10 @@ Deno.test("Database relation loader gracefully handles undefined foreign keys", 
     tables: { OptSession2: OptionalModel },
   });
 
-  const sess = await db.OptSession2.create({ }, { validate: false });
-  const sessWithUser = await db.OptSession2.findById(sess.id, { include: { user: true } });
+  const sess = await db.OptSession2.create({}, { validate: false });
+  const sessWithUser = await db.OptSession2.findById(sess.id, {
+    include: { user: true },
+  });
 
   const loaded = sessWithUser as ({ user: unknown } | null);
   assertEquals(loaded?.user, null);

@@ -43,7 +43,7 @@ export const Route = <TContext = unknown>(
  * @typeParam TContext The context type passed to handlers and middlewares.
  */
 export const createRouteFactory = <TContext = unknown>() =>
-  (
-    pathSegment: string,
-    options: RouteOptions<TContext> = {},
-  ): RouteSegment<TContext> => Route<TContext>(pathSegment, options);
+(
+  pathSegment: string,
+  options: RouteOptions<TContext> = {},
+): RouteSegment<TContext> => Route<TContext>(pathSegment, options);

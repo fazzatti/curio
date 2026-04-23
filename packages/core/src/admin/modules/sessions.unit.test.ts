@@ -12,11 +12,11 @@ import {
 import {
   authenticateAdminUser,
   createAdminSession,
+  DEFAULT_ROLE_KEYS,
   destroyAdminSession,
   resolveAdminActor,
   resolveAdminSessionSettings,
   seedDefaultAdminData,
-  DEFAULT_ROLE_KEYS,
   syncUserRoles,
 } from "@/admin/modules.ts";
 import { Database } from "@/db/database.ts";
@@ -141,7 +141,11 @@ describe("admin sessions module", () => {
     });
     await new Promise((resolve) => setTimeout(resolve, 5));
 
-    const rollingActor = await resolveAdminActor(db, rollingToken, rollingSettings);
+    const rollingActor = await resolveAdminActor(
+      db,
+      rollingToken,
+      rollingSettings,
+    );
     assert(rollingActor);
     assertEquals(rollingActor.user.email, "admin@example.com");
     assertEquals(rollingActor.bypass, false);
@@ -151,11 +155,12 @@ describe("admin sessions module", () => {
       rollingSessionBefore.expiresAt.getTime(),
     );
 
-    const { token: fixedToken, session: fixedSessionBefore } = await createAdminSession(
-      db,
-      { userId: adminUser.id },
-      fixedSettings,
-    );
+    const { token: fixedToken, session: fixedSessionBefore } =
+      await createAdminSession(
+        db,
+        { userId: adminUser.id },
+        fixedSettings,
+      );
     const fixedActor = await resolveAdminActor(db, fixedToken, fixedSettings);
     assert(fixedActor);
     assertEquals(
@@ -188,11 +193,17 @@ describe("admin sessions module", () => {
         { userId: adminUser.id },
         rollingSettings,
       );
-    const expiredSession = await db.Session.updateById(createdExpiredSession.id, {
-      expiresAt: new Date(Date.now() - 1000),
-      lastSeenAt: new Date(Date.now() - 2000),
-    });
-    assertEquals(await resolveAdminActor(db, expiredToken, rollingSettings), null);
+    const expiredSession = await db.Session.updateById(
+      createdExpiredSession.id,
+      {
+        expiresAt: new Date(Date.now() - 1000),
+        lastSeenAt: new Date(Date.now() - 2000),
+      },
+    );
+    assertEquals(
+      await resolveAdminActor(db, expiredToken, rollingSettings),
+      null,
+    );
     assertEquals(
       await db.Session.findOne({ where: { id: expiredSession.id } }),
       null,
@@ -202,13 +213,17 @@ describe("admin sessions module", () => {
       email: "orphan@example.com",
       passwordHash: await hashPassword("s3cret"),
     });
-    const { token: orphanToken, session: orphanSession } = await createAdminSession(
-      db,
-      { userId: orphanUser.id },
-      rollingSettings,
-    );
+    const { token: orphanToken, session: orphanSession } =
+      await createAdminSession(
+        db,
+        { userId: orphanUser.id },
+        rollingSettings,
+      );
     await db.User.deleteById(orphanUser.id);
-    assertEquals(await resolveAdminActor(db, orphanToken, rollingSettings), null);
+    assertEquals(
+      await resolveAdminActor(db, orphanToken, rollingSettings),
+      null,
+    );
     assertEquals(
       await db.Session.findOne({ where: { id: orphanSession.id } }),
       null,
@@ -229,7 +244,12 @@ describe("admin sessions module", () => {
       null,
     );
     assertEquals(
-      await authenticateAdminUser(db, "missing@example.com", "s3cret", settings),
+      await authenticateAdminUser(
+        db,
+        "missing@example.com",
+        "s3cret",
+        settings,
+      ),
       null,
     );
 

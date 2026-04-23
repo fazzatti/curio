@@ -1,6 +1,6 @@
 import {
-  findExistingSuperadmin,
   DEFAULT_ROLE_KEYS,
+  findExistingSuperadmin,
   syncUserRoles,
 } from "@curio/core/admin/modules/rbac";
 import { hashPassword } from "@curio/core/auth";

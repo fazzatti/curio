@@ -1,8 +1,4 @@
-import {
-  assert,
-  assertNotEquals,
-  assertRejects,
-} from "@std/assert";
+import { assert, assertNotEquals, assertRejects } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { hashPassword, verifyPassword } from "@/auth/password.ts";
 

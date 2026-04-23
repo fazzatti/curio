@@ -1,10 +1,7 @@
 import type { Application } from "@oak/oak";
 import { Router } from "@oak/oak";
 import { ADMIN_CLIENT_SCRIPT, ADMIN_STYLESHEET } from "@/admin/assets.ts";
-import {
-  handleFlow,
-  handleFlowSubmit,
-} from "@/admin/http/flow-handlers.tsx";
+import { handleFlow, handleFlowSubmit } from "@/admin/http/flow-handlers.tsx";
 import {
   handleCreate,
   handleDashboard,

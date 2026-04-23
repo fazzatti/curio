@@ -12,8 +12,8 @@ import type {
 import {
   formatDateTime,
   formatRecordValue,
-  getFieldLabel,
   getDisplayFieldNames,
+  getFieldLabel,
   getRecordId,
   humanize,
   resolveWidgetOverride,

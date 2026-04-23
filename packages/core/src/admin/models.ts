@@ -12,26 +12,27 @@ import { Timestamps, UuidPrimaryKey } from "@/db/variant.ts";
  * `bypass` marks roles such as `superadmin` that skip granular permission
  * checks in the admin authorization layer.
  */
-const createRoleModel = (): Model => new Model({
-  name: "Role",
-  table: "roles",
-  uses: [UuidPrimaryKey, Timestamps],
-  fields: {
-    key: field.string().required().unique().searchable().sortable(),
-    label: field.string().required().searchable().sortable(),
-    description: field.text().nullable().default(null),
-    bypass: field.boolean().required().default(false).sortable(),
-  },
-  relations: {
-    userRoles: relation.hasMany("UserRole").foreignKey("roleId"),
-    rolePermissions: relation.hasMany("RolePermission").foreignKey("roleId"),
-  },
-  defaultOrder: [{ key: "asc" }],
-  labels: {
-    singular: "Role",
-    plural: "Roles",
-  },
-});
+const createRoleModel = (): Model =>
+  new Model({
+    name: "Role",
+    table: "roles",
+    uses: [UuidPrimaryKey, Timestamps],
+    fields: {
+      key: field.string().required().unique().searchable().sortable(),
+      label: field.string().required().searchable().sortable(),
+      description: field.text().nullable().default(null),
+      bypass: field.boolean().required().default(false).sortable(),
+    },
+    relations: {
+      userRoles: relation.hasMany("UserRole").foreignKey("roleId"),
+      rolePermissions: relation.hasMany("RolePermission").foreignKey("roleId"),
+    },
+    defaultOrder: [{ key: "asc" }],
+    labels: {
+      singular: "Role",
+      plural: "Roles",
+    },
+  });
 
 /** Role persistence model used by Curio admin RBAC. */
 export const RoleModel: ReturnType<typeof createRoleModel> = createRoleModel();
@@ -48,11 +49,12 @@ export class RoleEntity extends Entity {
 }
 
 /** Bound role entity registration for `Database.create(...)`. */
-export const Role: BoundEntityClass<typeof RoleModel, RoleEntity> =
-  Entity.from(RoleModel) as unknown as BoundEntityClass<
-    typeof RoleModel,
-    RoleEntity
-  >;
+export const Role: BoundEntityClass<typeof RoleModel, RoleEntity> = Entity.from(
+  RoleModel,
+) as unknown as BoundEntityClass<
+  typeof RoleModel,
+  RoleEntity
+>;
 
 /**
  * Permission persistence model used by Curio admin RBAC.
@@ -61,28 +63,29 @@ export const Role: BoundEntityClass<typeof RoleModel, RoleEntity> =
  * Permissions are stored explicitly rather than inferred at runtime so the
  * admin layer has an auditable source of truth for role grants.
  */
-const createPermissionModel = (): Model => new Model({
-  name: "Permission",
-  table: "permissions",
-  uses: [UuidPrimaryKey, Timestamps],
-  fields: {
-    key: field.string().required().unique().searchable().sortable(),
-    label: field.string().required().searchable().sortable(),
-    resource: field.string().required().searchable().sortable(),
-    action: field.string().required().searchable().sortable(),
-    description: field.text().nullable().default(null),
-  },
-  relations: {
-    rolePermissions: relation.hasMany("RolePermission").foreignKey(
-      "permissionId",
-    ),
-  },
-  defaultOrder: [{ key: "asc" }],
-  labels: {
-    singular: "Permission",
-    plural: "Permissions",
-  },
-});
+const createPermissionModel = (): Model =>
+  new Model({
+    name: "Permission",
+    table: "permissions",
+    uses: [UuidPrimaryKey, Timestamps],
+    fields: {
+      key: field.string().required().unique().searchable().sortable(),
+      label: field.string().required().searchable().sortable(),
+      resource: field.string().required().searchable().sortable(),
+      action: field.string().required().searchable().sortable(),
+      description: field.text().nullable().default(null),
+    },
+    relations: {
+      rolePermissions: relation.hasMany("RolePermission").foreignKey(
+        "permissionId",
+      ),
+    },
+    defaultOrder: [{ key: "asc" }],
+    labels: {
+      singular: "Permission",
+      plural: "Permissions",
+    },
+  });
 
 /** Permission persistence model used by Curio admin RBAC. */
 export const PermissionModel: ReturnType<typeof createPermissionModel> =
@@ -116,24 +119,25 @@ export const Permission: BoundEntityClass<
  * The first admin slice uses normalized joins rather than a single role enum
  * on the user row so users can hold multiple roles.
  */
-const createUserRoleModel = (): Model => new Model({
-  name: "UserRole",
-  table: "user_roles",
-  uses: [UuidPrimaryKey, Timestamps],
-  fields: {
-    userId: field.uuid().required().sortable(),
-    roleId: field.uuid().required().sortable(),
-  },
-  relations: {
-    user: relation.belongsTo("User").foreignKey("userId"),
-    role: relation.belongsTo("Role").foreignKey("roleId"),
-  },
-  defaultOrder: [{ createdAt: "desc" }],
-  labels: {
-    singular: "User role",
-    plural: "User roles",
-  },
-});
+const createUserRoleModel = (): Model =>
+  new Model({
+    name: "UserRole",
+    table: "user_roles",
+    uses: [UuidPrimaryKey, Timestamps],
+    fields: {
+      userId: field.uuid().required().sortable(),
+      roleId: field.uuid().required().sortable(),
+    },
+    relations: {
+      user: relation.belongsTo("User").foreignKey("userId"),
+      role: relation.belongsTo("Role").foreignKey("roleId"),
+    },
+    defaultOrder: [{ createdAt: "desc" }],
+    labels: {
+      singular: "User role",
+      plural: "User roles",
+    },
+  });
 
 /** User-role join model used by Curio admin RBAC. */
 export const UserRoleModel: ReturnType<typeof createUserRoleModel> =
@@ -156,24 +160,25 @@ export const UserRole: BoundEntityClass<typeof UserRoleModel, UserRoleEntity> =
   >;
 
 /** Role-permission join model used by Curio admin RBAC. */
-const createRolePermissionModel = (): Model => new Model({
-  name: "RolePermission",
-  table: "role_permissions",
-  uses: [UuidPrimaryKey, Timestamps],
-  fields: {
-    roleId: field.uuid().required().sortable(),
-    permissionId: field.uuid().required().sortable(),
-  },
-  relations: {
-    role: relation.belongsTo("Role").foreignKey("roleId"),
-    permission: relation.belongsTo("Permission").foreignKey("permissionId"),
-  },
-  defaultOrder: [{ createdAt: "desc" }],
-  labels: {
-    singular: "Role permission",
-    plural: "Role permissions",
-  },
-});
+const createRolePermissionModel = (): Model =>
+  new Model({
+    name: "RolePermission",
+    table: "role_permissions",
+    uses: [UuidPrimaryKey, Timestamps],
+    fields: {
+      roleId: field.uuid().required().sortable(),
+      permissionId: field.uuid().required().sortable(),
+    },
+    relations: {
+      role: relation.belongsTo("Role").foreignKey("roleId"),
+      permission: relation.belongsTo("Permission").foreignKey("permissionId"),
+    },
+    defaultOrder: [{ createdAt: "desc" }],
+    labels: {
+      singular: "Role permission",
+      plural: "Role permissions",
+    },
+  });
 
 /** Role-permission join model used by Curio admin RBAC. */
 export const RolePermissionModel: ReturnType<typeof createRolePermissionModel> =
@@ -204,27 +209,28 @@ export const RolePermission: BoundEntityClass<
  * Raw session tokens are never stored directly. The admin auth layer stores a
  * hash in `tokenHash` and keeps the opaque token only in the browser cookie.
  */
-const createSessionModel = (): Model => new Model({
-  name: "Session",
-  table: "sessions",
-  uses: [UuidPrimaryKey, Timestamps],
-  fields: {
-    userId: field.uuid().required().sortable(),
-    tokenHash: field.string().required().unique().hidden().searchable(false),
-    ipAddress: field.string().nullable().default(null).searchable(false),
-    userAgent: field.text().nullable().default(null).searchable(false),
-    expiresAt: field.datetime().required().sortable(),
-    lastSeenAt: field.datetime().required().sortable(),
-  },
-  relations: {
-    user: relation.belongsTo("User").foreignKey("userId"),
-  },
-  defaultOrder: [{ createdAt: "desc" }],
-  labels: {
-    singular: "Session",
-    plural: "Sessions",
-  },
-});
+const createSessionModel = (): Model =>
+  new Model({
+    name: "Session",
+    table: "sessions",
+    uses: [UuidPrimaryKey, Timestamps],
+    fields: {
+      userId: field.uuid().required().sortable(),
+      tokenHash: field.string().required().unique().hidden().searchable(false),
+      ipAddress: field.string().nullable().default(null).searchable(false),
+      userAgent: field.text().nullable().default(null).searchable(false),
+      expiresAt: field.datetime().required().sortable(),
+      lastSeenAt: field.datetime().required().sortable(),
+    },
+    relations: {
+      user: relation.belongsTo("User").foreignKey("userId"),
+    },
+    defaultOrder: [{ createdAt: "desc" }],
+    labels: {
+      singular: "Session",
+      plural: "Sessions",
+    },
+  });
 
 /** Session persistence model used by Curio admin auth. */
 export const SessionModel: ReturnType<typeof createSessionModel> =
@@ -257,29 +263,30 @@ export const Session: BoundEntityClass<typeof SessionModel, SessionEntity> =
  * The first audit slice captures auth and CRUD/admin action history. Records
  * are immutable and exposed read-only in the admin UI.
  */
-const createAuditEventModel = (): Model => new Model({
-  name: "AuditEvent",
-  table: "audit_events",
-  uses: [UuidPrimaryKey, Timestamps],
-  fields: {
-    actorUserId: field.uuid().nullable().default(null).sortable(),
-    eventType: field.string().required().searchable().sortable(),
-    resource: field.string().nullable().default(null).searchable().sortable(),
-    recordId: field.string().nullable().default(null).sortable(),
-    summary: field.text().required().searchable(),
-    payload: field.json<Record<string, unknown>>().nullable().default(null),
-    ipAddress: field.string().nullable().default(null).searchable(false),
-    userAgent: field.text().nullable().default(null).searchable(false),
-  },
-  relations: {
-    actor: relation.belongsTo("User").foreignKey("actorUserId"),
-  },
-  defaultOrder: [{ createdAt: "desc" }],
-  labels: {
-    singular: "Audit event",
-    plural: "Audit events",
-  },
-});
+const createAuditEventModel = (): Model =>
+  new Model({
+    name: "AuditEvent",
+    table: "audit_events",
+    uses: [UuidPrimaryKey, Timestamps],
+    fields: {
+      actorUserId: field.uuid().nullable().default(null).sortable(),
+      eventType: field.string().required().searchable().sortable(),
+      resource: field.string().nullable().default(null).searchable().sortable(),
+      recordId: field.string().nullable().default(null).sortable(),
+      summary: field.text().required().searchable(),
+      payload: field.json<Record<string, unknown>>().nullable().default(null),
+      ipAddress: field.string().nullable().default(null).searchable(false),
+      userAgent: field.text().nullable().default(null).searchable(false),
+    },
+    relations: {
+      actor: relation.belongsTo("User").foreignKey("actorUserId"),
+    },
+    defaultOrder: [{ createdAt: "desc" }],
+    labels: {
+      singular: "Audit event",
+      plural: "Audit events",
+    },
+  });
 
 /** Append-only audit event model used by Curio admin. */
 export const AuditEventModel: ReturnType<typeof createAuditEventModel> =

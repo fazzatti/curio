@@ -219,7 +219,9 @@ export const DefaultAdminLoginPage: FunctionComponent<AdminLoginPageProps> = (
               </div>
 
               <div data-curio-admin-field data-curio-password-toggle>
-                <label data-curio-admin-label htmlFor="password">Password</label>
+                <label data-curio-admin-label htmlFor="password">
+                  Password
+                </label>
                 <div data-curio-admin-inline-input>
                   <input
                     id="password"

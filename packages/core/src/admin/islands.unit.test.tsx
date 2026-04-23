@@ -160,7 +160,10 @@ Deno.test("island prefers an explicit displayName and falls back to AdminIsland 
   const namedHtml = renderToString(<NamedIsland label="Secret key" />);
 
   assertStringIncludes(namedHtml, 'data-curio-admin-island="InputField"');
-  assertEquals(decodePayload(extractEncodedPayload(namedHtml)).name, "InputField");
+  assertEquals(
+    decodePayload(extractEncodedPayload(namedHtml)).name,
+    "InputField",
+  );
 
   const Anonymous = (() => {
     return (props: { label: string }) => <div>{props.label}</div>;

@@ -1,5 +1,8 @@
 import type { Application } from "@oak/oak";
-import type { AdminFlashMessage, AdminNavigation } from "@/admin/components/types.ts";
+import type {
+  AdminFlashMessage,
+  AdminNavigation,
+} from "@/admin/components/types.ts";
 import {
   getAdminActorOrRedirect,
   prepareAdminData,
@@ -39,10 +42,7 @@ import {
   renderMissingAdminView,
 } from "@/admin/core/responses.tsx";
 import { mountAdminRoutes } from "@/admin/http/routing.ts";
-import {
-  createAdminState,
-  type AdminState,
-} from "@/admin/core/state.ts";
+import { type AdminState, createAdminState } from "@/admin/core/state.ts";
 import type { BoundEntityClass } from "@/db/entity.ts";
 import type { FieldDefinition } from "@/db/field.ts";
 import type { DatabaseInstance, RawRecord, TableRegistry } from "@/db/types.ts";
@@ -64,12 +64,12 @@ import type {
   AdminPresetConfig,
   AdminResourceConfig,
   AdminResourceRegistration,
-  ResolvedAdminComponents,
   AdminRuntimeLike,
   AdminSessionSettings,
   AdminViewConfig,
   AdminViewRegistration,
   OakRouterContext,
+  ResolvedAdminComponents,
 } from "@/admin/core/types.ts";
 
 /**
@@ -277,7 +277,8 @@ export class Admin<TTables extends TableRegistry = TableRegistry>
     resource: AdminNormalizedResource,
   ): AdminRuntimeLike<TTables>["getRepository"] extends (
     resource: AdminNormalizedResource,
-  ) => infer TResult ? TResult : never {
+  ) => infer TResult ? TResult
+    : never {
     return getAdminRepository(this, resource);
   }
 

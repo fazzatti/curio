@@ -1,7 +1,5 @@
 // deno-coverage-ignore-start
-import {
-  UniqueConstraintViolationError,
-} from "@/db/errors.ts";
+import { UniqueConstraintViolationError } from "@/db/errors.ts";
 import type {
   AdapterFindByIdOptions,
   AdapterFindManyOptions,
@@ -149,7 +147,9 @@ const matchesWhereClause = (
     }
   }
 
-  if (AND?.length && !AND.every((clause) => matchesWhereClause(record, clause))) {
+  if (
+    AND?.length && !AND.every((clause) => matchesWhereClause(record, clause))
+  ) {
     return false;
   }
 
@@ -258,9 +258,7 @@ const createScope = (
   findOne(table: string, options?: AdapterFindOneOptions) {
     findTableDefinition(schema, table);
     const rows = applyOrderBy(
-      store[table].filter((entry) =>
-        matchesWhereClause(entry, options?.where)
-      ),
+      store[table].filter((entry) => matchesWhereClause(entry, options?.where)),
       options?.orderBy,
     );
 
@@ -271,9 +269,7 @@ const createScope = (
   findMany(table: string, options?: AdapterFindManyOptions) {
     findTableDefinition(schema, table);
     const orderedRows = applyOrderBy(
-      store[table].filter((entry) =>
-        matchesWhereClause(entry, options?.where)
-      ),
+      store[table].filter((entry) => matchesWhereClause(entry, options?.where)),
       options?.orderBy,
     );
 
@@ -296,7 +292,9 @@ const createScope = (
   updateById(table: string, id: unknown, input: RawRecord) {
     const definition = findTableDefinition(schema, table);
     const rows = store[table];
-    const index = rows.findIndex((entry) => entry[definition.primaryKey] === id);
+    const index = rows.findIndex((entry) =>
+      entry[definition.primaryKey] === id
+    );
 
     if (index === -1) {
       return Promise.resolve(null);
@@ -319,7 +317,9 @@ const createScope = (
   deleteById(table: string, id: unknown) {
     const definition = findTableDefinition(schema, table);
     const rows = store[table];
-    const index = rows.findIndex((entry) => entry[definition.primaryKey] === id);
+    const index = rows.findIndex((entry) =>
+      entry[definition.primaryKey] === id
+    );
 
     if (index === -1) {
       return Promise.resolve(null);
