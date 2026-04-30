@@ -35,12 +35,15 @@ the pieces they need.
   - DB primitives
 - `@curio/core/http/oak`
   - Oak-bound route helpers and API factory
+- `@curio/core/http/oak/telemetry`
+  - route-aware OpenTelemetry middleware for Oak runtimes
 - `@curio/core/testing`
   - deterministic, model-aware fixture builders
 - `@curio/core/value-object`
   - Valibot-backed, class-based value object base
 - `@curio/core/admin`
   - server-rendered admin runtime
+  - small client-hydrated admin islands
   - built-in RBAC/session/audit models
 - `@curio/core/admin/modules/rbac`
   - built-in admin roles, permissions, and role-assignment helpers
@@ -88,6 +91,20 @@ const runtime = API.build([healthRoute]);
 runtime.router;
 runtime.routes;
 ```
+
+Oak runtimes built through `API.build(routes)` also expose a telemetry
+convenience for route-aware OpenTelemetry middleware:
+
+```ts
+const runtime = API.build([healthRoute]);
+
+app.use(runtime.telemetry());
+app.use(runtime.router.routes());
+app.use(runtime.router.allowedMethods());
+```
+
+Import `@curio/core/http/oak/telemetry` directly when you want the same
+middleware as an explicit advanced entrypoint with options.
 
 ## HTTP Authoring Model
 
@@ -259,6 +276,49 @@ const meRoute = Route("me", {
 });
 ```
 
+### Route-Aware Telemetry
+
+Curio keeps OpenTelemetry explicit and Oak-specific. Deno still owns provider,
+exporter, and environment-driven runtime setup. Curio only adds the route-aware
+metadata the runtime cannot infer by itself.
+
+```ts
+import { API, GET, Route } from "@curio/core/http/oak";
+
+const runtime = API.build([
+  Route("users", {
+    children: [
+      Route(":id", {
+        GET: GET({
+          docs: {
+            operationId: "getUser",
+          },
+          handler: () => ({
+            payload: { ok: true },
+          }),
+        }),
+      }),
+    ],
+  }),
+]);
+
+app.use(runtime.telemetry());
+app.use(runtime.router.routes());
+app.use(runtime.router.allowedMethods());
+```
+
+The middleware:
+
+- reuses an already-active request span when one exists
+- creates a fallback server span when no active span exists
+- sets `http.route` from Curio's normalized route metadata
+- renames the span to `METHOD /route/:params`
+- adds `curio.route.operation_id` when `docs.operationId` is present
+
+For Deno runtime setup, keep using the platform OpenTelemetry support described
+in the
+[Deno OpenTelemetry docs](https://docs.deno.com/runtime/fundamentals/open_telemetry/).
+
 ## HTTP Context
 
 Built-in Curio helpers run against a Curio-owned HTTP context:
@@ -310,8 +370,8 @@ class Email extends ValueObject.define({
 }) {}
 ```
 
-This is the intended place for schema-backed domain primitives that need
-runtime behavior without expanding the root core happy path.
+This is the intended place for schema-backed domain primitives that need runtime
+behavior without expanding the root core happy path.
 
 ## DB Layer
 
@@ -468,6 +528,34 @@ const admin = Admin.create({
 admin.mount(app);
 ```
 
+### Admin Branding
+
+Use `branding` when you want to customize the built-in admin shell without
+replacing Curio's shipped renderer.
+
+- `branding.name`: product name shown in the shell
+- `branding.tagline`: short supporting copy
+- `branding.colors.primary`: primary hex accent color
+- `branding.colors.secondary`: secondary hex accent color
+
+Curio expects hexadecimal colors so it can derive the stronger and softer accent
+tones used by the bundled stylesheet.
+
+```ts
+const admin = Admin.create({
+  db,
+  presets: ["default"],
+  branding: {
+    name: "My App Admin",
+    tagline: "Control room.",
+    colors: {
+      primary: "#2563eb",
+      secondary: "#1d4ed8",
+    },
+  },
+});
+```
+
 ### Default Preset
 
 The default preset:
@@ -566,6 +654,59 @@ const admin = Admin.create({
   },
 });
 ```
+
+### Admin Islands
+
+Use `island(...)` when you want a small reusable admin component to stay
+server-rendered by default and hydrate only its own interaction on the client.
+
+```tsx
+/** @jsxImportSource preact */
+
+import { island, useState } from "@curio/core/admin";
+
+export const InputField = island(function InputField(props: {
+  id: string;
+  name: string;
+  label: string;
+  sensitive?: boolean;
+}) {
+  const [visible, setVisible] = useState(false);
+
+  return (
+    <div data-curio-admin-field>
+      <label htmlFor={props.id}>{props.label}</label>
+      <div>
+        <input
+          id={props.id}
+          name={props.name}
+          type={props.sensitive && !visible ? "password" : "text"}
+        />
+        {props.sensitive
+          ? (
+            <button
+              type="button"
+              onClick={() => setVisible((current) => !current)}
+            >
+              {visible ? "Hide" : "Show"}
+            </button>
+          )
+          : null}
+      </div>
+    </div>
+  );
+});
+```
+
+Current island constraints:
+
+- props must be plain JSON-compatible values
+- keep island logic self-contained inside the island component
+- use islands for focused widgets and fields, not full-page admin shells
+- avoid JSX children unless they are themselves JSON-serializable
+
+This keeps the DX close to a component-driven model without forcing every admin
+surface through a separate SPA runtime.
 
 ### Live Views
 

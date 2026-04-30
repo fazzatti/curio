@@ -15,20 +15,16 @@ type UnionToIntersection<TUnion> =
 type MiddlewareDataEntry<
   TContext extends CurioHttpContext,
   TMiddleware,
-> =
-  TMiddleware extends
-    KeyedRouteMiddleware<TContext, infer TKey, infer TData>
-    ? { [K in TKey]: Awaited<TData> }
-    : Record<never, never>;
+> = TMiddleware extends KeyedRouteMiddleware<TContext, infer TKey, infer TData>
+  ? { [K in TKey]: Awaited<TData> }
+  : Record<never, never>;
 
 type MiddlewareKeyOf<
   TContext extends CurioHttpContext,
   TMiddleware,
-> =
-  TMiddleware extends
-    KeyedRouteMiddleware<TContext, infer TKey, unknown>
-    ? TKey
-    : never;
+> = TMiddleware extends KeyedRouteMiddleware<TContext, infer TKey, unknown>
+  ? TKey
+  : never;
 
 type DuplicateMiddlewareKeys<
   TContext extends CurioHttpContext,
@@ -37,14 +33,14 @@ type DuplicateMiddlewareKeys<
 > = TMiddlewares extends readonly [infer THead, ...infer TTail]
   ? MiddlewareKeyOf<TContext, THead> extends never
     ? DuplicateMiddlewareKeys<TContext, TTail, TSeen>
-    : MiddlewareKeyOf<TContext, THead> extends TSeen
-      ? MiddlewareKeyOf<TContext, THead> |
-        DuplicateMiddlewareKeys<TContext, TTail, TSeen>
-      : DuplicateMiddlewareKeys<
-        TContext,
-        TTail,
-        TSeen | MiddlewareKeyOf<TContext, THead>
-      >
+  : MiddlewareKeyOf<TContext, THead> extends TSeen ?
+      | MiddlewareKeyOf<TContext, THead>
+      | DuplicateMiddlewareKeys<TContext, TTail, TSeen>
+  : DuplicateMiddlewareKeys<
+    TContext,
+    TTail,
+    TSeen | MiddlewareKeyOf<TContext, THead>
+  >
   : never;
 
 /** Output passed to `halt(...)` from keyed route middleware. */
@@ -131,7 +127,9 @@ export type RouteHandler<TContext = unknown> = (
  *
  * @typeParam TContext The context type passed to the middleware.
  */
-export type RouteMiddleware<TContext extends CurioHttpContext = CurioHttpContext> =
+export type RouteMiddleware<
+  TContext extends CurioHttpContext = CurioHttpContext,
+> =
   | PassThroughRouteMiddleware<TContext>
   | KeyedRouteMiddleware<TContext, string, unknown>;
 
@@ -148,7 +146,7 @@ export type EnsureUniqueMiddlewareKeys<
 > = TMiddlewares extends readonly RouteMiddleware<TContext>[]
   ? [DuplicateMiddlewareKeys<TContext, TMiddlewares>] extends [never]
     ? TMiddlewares
-    : never
+  : never
   : TMiddlewares;
 
 /**
@@ -182,9 +180,9 @@ export type WithMiddlewareData<
   TMiddlewareData extends Record<string, unknown>,
 > = TContext extends CurioHttpContext<infer TRaw, infer TExistingMiddlewareData>
   ? CurioHttpContext<
-      TRaw,
-      Simplify<TExistingMiddlewareData & TMiddlewareData>
-    >
+    TRaw,
+    Simplify<TExistingMiddlewareData & TMiddlewareData>
+  >
   : never;
 
 /** Optional response documentation metadata for a documented route method. */

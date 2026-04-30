@@ -27,8 +27,7 @@ export type {
 
 type BuiltInResponsePayload<
   TResponseSchema extends ValibotSchema | undefined = undefined,
-> = TResponseSchema extends ValibotSchema
-  ? InferValibotSchema<TResponseSchema>
+> = TResponseSchema extends ValibotSchema ? InferValibotSchema<TResponseSchema>
   : unknown;
 
 type BuiltInPipeState<
@@ -125,9 +124,9 @@ const createSendResponseStep = <
 
       const payload = responseSchema
         ? schemaAdapter.parse<BuiltInResponsePayload<TResponseSchema>>(
-            responseSchema,
-            output.payload,
-          )
+          responseSchema,
+          output.payload,
+        )
         : output.payload;
 
       await ctx.response.send({
@@ -216,78 +215,77 @@ export const createRequestPipe = <
   >,
 ): BuiltInPipe<TContext> => {
   const { handler, requestSchema, responseSchema, schemaAdapter } = options;
-  const pipelineState =
-    createSeedHttpContextStep<
-      BuiltInPipeState<TPathParamsSchema, TQuerySchema, TBodySchema, TContext>
-    >();
+  const pipelineState = createSeedHttpContextStep<
+    BuiltInPipeState<TPathParamsSchema, TQuerySchema, TBodySchema, TContext>
+  >();
   const parsePathParamsStep = requestSchema?.pathParams
     ? createParsePathParamsStep<
-        Extract<TPathParamsSchema, ValibotSchema>,
-        InferValibotSchema<Extract<TPathParamsSchema, ValibotSchema>>,
-        BuiltInPipeState<
-          TPathParamsSchema,
-          TQuerySchema,
-          TBodySchema,
-          TContext
-        >
-      >(
-        schemaAdapter as SchemaAdapter<
-          Extract<TPathParamsSchema, ValibotSchema>
-        >,
-        requestSchema.pathParams as Extract<TPathParamsSchema, ValibotSchema>,
-      )
+      Extract<TPathParamsSchema, ValibotSchema>,
+      InferValibotSchema<Extract<TPathParamsSchema, ValibotSchema>>,
+      BuiltInPipeState<
+        TPathParamsSchema,
+        TQuerySchema,
+        TBodySchema,
+        TContext
+      >
+    >(
+      schemaAdapter as SchemaAdapter<
+        Extract<TPathParamsSchema, ValibotSchema>
+      >,
+      requestSchema.pathParams as Extract<TPathParamsSchema, ValibotSchema>,
+    )
     : createPassThroughHttpContextStep<
-        BuiltInPipeState<
-          TPathParamsSchema,
-          TQuerySchema,
-          TBodySchema,
-          TContext
-        >
-      >("skip-path-params");
+      BuiltInPipeState<
+        TPathParamsSchema,
+        TQuerySchema,
+        TBodySchema,
+        TContext
+      >
+    >("skip-path-params");
   const parseQueryStep = requestSchema?.query
     ? createParseQueryStep<
-        Extract<TQuerySchema, ValibotSchema>,
-        InferValibotSchema<Extract<TQuerySchema, ValibotSchema>>,
-        BuiltInPipeState<
-          TPathParamsSchema,
-          TQuerySchema,
-          TBodySchema,
-          TContext
-        >
-      >(
-        schemaAdapter as SchemaAdapter<Extract<TQuerySchema, ValibotSchema>>,
-        requestSchema.query as Extract<TQuerySchema, ValibotSchema>,
-      )
+      Extract<TQuerySchema, ValibotSchema>,
+      InferValibotSchema<Extract<TQuerySchema, ValibotSchema>>,
+      BuiltInPipeState<
+        TPathParamsSchema,
+        TQuerySchema,
+        TBodySchema,
+        TContext
+      >
+    >(
+      schemaAdapter as SchemaAdapter<Extract<TQuerySchema, ValibotSchema>>,
+      requestSchema.query as Extract<TQuerySchema, ValibotSchema>,
+    )
     : createPassThroughHttpContextStep<
-        BuiltInPipeState<
-          TPathParamsSchema,
-          TQuerySchema,
-          TBodySchema,
-          TContext
-        >
-      >("skip-query");
+      BuiltInPipeState<
+        TPathParamsSchema,
+        TQuerySchema,
+        TBodySchema,
+        TContext
+      >
+    >("skip-query");
   const parseBodyStep = requestSchema?.body
     ? createParseBodyStep<
-        Extract<TBodySchema, ValibotSchema>,
-        InferValibotSchema<Extract<TBodySchema, ValibotSchema>>,
-        BuiltInPipeState<
-          TPathParamsSchema,
-          TQuerySchema,
-          TBodySchema,
-          TContext
-        >
-      >(
-        schemaAdapter as SchemaAdapter<Extract<TBodySchema, ValibotSchema>>,
-        requestSchema.body as Extract<TBodySchema, ValibotSchema>,
-      )
+      Extract<TBodySchema, ValibotSchema>,
+      InferValibotSchema<Extract<TBodySchema, ValibotSchema>>,
+      BuiltInPipeState<
+        TPathParamsSchema,
+        TQuerySchema,
+        TBodySchema,
+        TContext
+      >
+    >(
+      schemaAdapter as SchemaAdapter<Extract<TBodySchema, ValibotSchema>>,
+      requestSchema.body as Extract<TBodySchema, ValibotSchema>,
+    )
     : createPassThroughHttpContextStep<
-        BuiltInPipeState<
-          TPathParamsSchema,
-          TQuerySchema,
-          TBodySchema,
-          TContext
-        >
-      >("skip-body");
+      BuiltInPipeState<
+        TPathParamsSchema,
+        TQuerySchema,
+        TBodySchema,
+        TContext
+      >
+    >("skip-body");
   const buildHandlerInputStep = createBuildHandlerInputStep<
     TPathParamsSchema,
     TQuerySchema,
@@ -296,12 +294,12 @@ export const createRequestPipe = <
   >();
   const invokeHandlerStep = handler.length >= 2
     ? createInvokeHandlerWithContextStep<
-        TPathParamsSchema,
-        TQuerySchema,
-        TBodySchema,
-        TResponseSchema,
-        TContext
-      >(handler)
+      TPathParamsSchema,
+      TQuerySchema,
+      TBodySchema,
+      TResponseSchema,
+      TContext
+    >(handler)
     : handler;
 
   const sendResponseStep = createSendResponseStep<

@@ -55,9 +55,10 @@ class EventWindow extends ValueObject.define({
 
 class DeferredSchemaValue extends ValueObject.define({
   name: "DeferredSchemaValue",
-  schema: () => v.object({
-    enabled: v.boolean(),
-  }),
+  schema: () =>
+    v.object({
+      enabled: v.boolean(),
+    }),
 }) {}
 
 Deno.test("ValueObject.define creates class-based value objects with parsing helpers", () => {

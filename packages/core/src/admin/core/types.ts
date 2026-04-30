@@ -105,10 +105,23 @@ export type AdminLiveConfig = {
   intervalMs: number;
 };
 
+/**
+ * Minimal admin theme colors accepted by Curio's built-in renderer.
+ *
+ * @remarks
+ * Curio expects hexadecimal colors here so it can derive stronger and softer
+ * accent tones for the shipped stylesheet.
+ */
+export type AdminBrandColors = {
+  primary: string;
+  secondary: string;
+};
+
 /** Branding metadata shown in the admin shell. */
 export type AdminBranding = {
   name: string;
   tagline: string;
+  colors?: AdminBrandColors;
 };
 
 /** Navigation metadata for admin resources, views, and flows. */

@@ -67,8 +67,8 @@ Curio should hide complexity behind:
 
 ### Domain-Oriented Organization
 
-The repository and the core package should be organized by responsibility, not by
-implementation accident.
+The repository and the core package should be organized by responsibility, not
+by implementation accident.
 
 ### Opinionated Defaults Without Lock-In
 

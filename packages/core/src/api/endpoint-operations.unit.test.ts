@@ -1,12 +1,6 @@
 import { assertEquals, assertRejects } from "@std/assert";
 import * as v from "@valibot/valibot";
-import {
-  DELETE,
-  GET,
-  PATCH,
-  POST,
-  PUT,
-} from "@/api/endpoint-operations.ts";
+import { DELETE, GET, PATCH, POST, PUT } from "@/api/endpoint-operations.ts";
 import { middleware } from "@/api/middleware.ts";
 import { getHandlerSchemas } from "@/api/with-schemas.ts";
 import type { CurioHttpContext, HttpResponseOutput } from "@/http/types.ts";
@@ -355,11 +349,12 @@ Deno.test("DELETE parses request inputs without accepting a request body", async
 });
 
 Deno.test("POST passes middleware data into two-argument handlers", async () => {
-  const auth = middleware("auth", () => Promise.resolve({
-    account: {
-      id: "acc_123",
-    },
-  }));
+  const auth = middleware("auth", () =>
+    Promise.resolve({
+      account: {
+        id: "acc_123",
+      },
+    }));
   const operation = POST({
     middlewares: [auth] as const,
     requestSchema: {

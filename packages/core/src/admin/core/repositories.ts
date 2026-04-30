@@ -63,7 +63,8 @@ export function getAdminRepository<TTables extends TableRegistry>(
   resource: AdminNormalizedResource,
 ): AdminRuntimeLike<TTables>["getRepository"] extends (
   resource: AdminNormalizedResource,
-) => infer TResult ? TResult : never {
+) => infer TResult ? TResult
+  : never {
   return (
     admin.db as unknown as DatabaseInstance<TableRegistry>
   ).repo(

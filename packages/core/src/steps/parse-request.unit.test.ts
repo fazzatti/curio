@@ -7,8 +7,8 @@ import {
   createParsePathParamsStep,
   createParseQueryStep,
   createSeedHttpContextStep,
-  searchParamsToObject,
   type HttpPipelineState,
+  searchParamsToObject,
 } from "@/steps/parse-request.ts";
 import type { CurioHttpContext } from "@/http/types.ts";
 

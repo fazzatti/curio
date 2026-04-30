@@ -34,11 +34,28 @@ export const admin = Admin.create({
   branding: {
     name: "My App Admin",
     tagline: "Control room.",
+    colors: {
+      primary: "#2563eb",
+      secondary: "#1d4ed8",
+    },
   },
 });
 ```
 
 The generated project template mounts the admin at `/admin`.
+
+## Branding
+
+Use `branding` when you want to customize the built-in admin shell while still
+staying on Curio's shipped renderer.
+
+- `branding.name`: shell title
+- `branding.tagline`: short supporting copy
+- `branding.colors.primary`: primary hex accent color
+- `branding.colors.secondary`: secondary hex accent color
+
+Curio expects hexadecimal colors so it can derive the accent shades used by the
+bundled admin stylesheet.
 
 ## Runtime Model
 
@@ -109,11 +126,11 @@ types, not just convenience helpers.
 
 ## Presets
 
-Presets group together Curio-shipped admin configuration. The generated
-project template uses:
+Presets group together Curio-shipped admin configuration. The generated project
+template uses:
 
 ```ts
-presets: ["default"]
+presets: ["default"];
 ```
 
 The default preset wires the built-in admin resources and pages used by the

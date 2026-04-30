@@ -62,6 +62,8 @@ const renderFlowPage = async (
       />
     ),
     admin.basePath,
+    200,
+    admin.branding,
   );
 };
 

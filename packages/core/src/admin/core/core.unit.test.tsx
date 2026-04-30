@@ -5,6 +5,7 @@ import {
   assertEquals,
   assertExists,
   assertStringIncludes,
+  assertThrows,
 } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { Application } from "@oak/oak";
@@ -185,6 +186,39 @@ describe("admin runtime core helpers", () => {
     assertEquals(admin.getFlowPath("setup"), "/admin/flows/setup");
   });
 
+  it("normalizes branding colors and rejects invalid theme values", () => {
+    const { db } = createAdminRuntime();
+    const themedAdmin = Admin.create({
+      db,
+      branding: {
+        colors: {
+          primary: "#369",
+          secondary: "#aabbcc",
+        },
+      },
+    });
+
+    assertEquals(themedAdmin.branding.colors, {
+      primary: "#336699",
+      secondary: "#aabbcc",
+    });
+
+    assertThrows(
+      () =>
+        Admin.create({
+          db,
+          branding: {
+            colors: {
+              primary: "tomato",
+              secondary: "#aabbcc",
+            },
+          },
+        }),
+      Error,
+      'Admin branding color "primary" must be a hex color',
+    );
+  });
+
   it("serves bundled assets and counts records/widgets", async () => {
     const { db, admin } = createAdminRuntime();
     await db.User.create({
@@ -218,7 +252,9 @@ describe("admin runtime core helpers", () => {
     );
     assertExists(jsResponse);
     assertEquals(jsResponse.status, 200);
-    assertStringIncludes(await jsResponse.text(), "data-curio-password-toggle");
+    const script = await jsResponse.text();
+    assertStringIncludes(script, "data-curio-password-toggle");
+    assertStringIncludes(script, "data-curio-admin-island-payload");
   });
 
   it("redirects unauthenticated actor checks to the login page", async () => {

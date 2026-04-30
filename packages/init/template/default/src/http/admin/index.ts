@@ -8,5 +8,9 @@ export const admin = Admin.create({
   branding: {
     name: "__CURIO_PROJECT_NAME__ Admin",
     tagline: "Control room.",
+    // colors: {
+    //   primary: "#2563eb",
+    //   secondary: "#1d4ed8",
+    // },
   },
 });

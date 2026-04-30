@@ -6,14 +6,11 @@ import {
 } from "@/db/relation.ts";
 import type {
   ModelLabels,
-  ResolvedModelLabels,
   ModelValidationConfig,
   OrderByClause,
+  ResolvedModelLabels,
 } from "@/db/types.ts";
-import type {
-  AnyModelVariant,
-  ModelVariant,
-} from "@/db/variant.ts";
+import type { AnyModelVariant, ModelVariant } from "@/db/variant.ts";
 import type {
   ModelOptions,
   ResolvedModelFields,

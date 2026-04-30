@@ -415,6 +415,20 @@ describe("admin runtime listing helpers", () => {
     assert(!limitedTableHtml.includes("Reset password"));
     assert(!limitedTableHtml.includes("Delete"));
 
+    const hiddenViewTableHtml = renderToString(
+      <>
+        {await renderListTable(
+          runtime,
+          resource,
+          createActor(["users:update"]),
+          [adaRecord],
+          new URLSearchParams(),
+        )}
+      </>,
+    );
+    assert(!hiddenViewTableHtml.includes(">View<"));
+    assertStringIncludes(hiddenViewTableHtml, "Edit");
+
     const emptyTableHtml = renderToString(
       <>
         {await renderListTable(
@@ -559,7 +573,6 @@ describe("admin runtime listing helpers", () => {
   });
 });
 
-
 describe("admin runtime listing extra edge cases", () => {
   it("handles omitted filter types and invalid sorting gracefully", () => {
     const { admin } = createListingAdmin();
@@ -590,14 +603,26 @@ describe("admin runtime listing extra edge cases", () => {
     const { admin, runtime } = createListingAdmin();
     const resource = admin.findResource("users");
     assert(resource);
-    
-    const noIdRecord = { email: "noid@example.com", status: "pending", active: true } as unknown as RawRecord;
-    
+
+    const noIdRecord = {
+      email: "noid@example.com",
+      status: "pending",
+      active: true,
+    } as unknown as RawRecord;
+
     const actor = createActor(["users:view"], false);
     const tableHtml = renderToString(
-      <>{await renderListTable(runtime, resource, actor, [noIdRecord], new URLSearchParams({ sort: "email", direction: "desc" }))}</>
+      <>
+        {await renderListTable(
+          runtime,
+          resource,
+          actor,
+          [noIdRecord],
+          new URLSearchParams({ sort: "email", direction: "desc" }),
+        )}
+      </>,
     );
-    
+
     assert(!tableHtml.includes("Reset password"));
     assertStringIncludes(
       tableHtml,
@@ -627,7 +652,7 @@ describe("admin runtime listing extra edge cases", () => {
           [noIdRecord],
           new URLSearchParams({ sort: "email", direction: "asc" }),
         )}
-      </>
+      </>,
     );
 
     assertStringIncludes(
@@ -637,8 +662,6 @@ describe("admin runtime listing extra edge cases", () => {
     assertStringIncludes(tableHtmlAsc, 'data-active="true"');
   });
 });
-
-
 
 describe("admin runtime listing extra edge cases 2", () => {
   it("handles explicit undefined filter type and reset_password action block", async () => {
@@ -673,16 +696,12 @@ describe("admin runtime listing extra edge cases 2", () => {
           [noIdRecord],
           new URLSearchParams(),
         )}
-      </>
+      </>,
     );
 
     assert(!tableHtml.includes("Reset password"));
   });
 });
-
-
-
-
 
 Deno.test("loadUserRoleBadges edge cases", async () => {
   const { admin, db } = createListingAdmin();

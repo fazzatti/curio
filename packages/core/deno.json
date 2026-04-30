@@ -1,6 +1,6 @@
 {
   "name": "@curio/core",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "exports": {
     ".": "./src/mod.ts",
     "./admin": "./src/admin.ts",
@@ -10,6 +10,7 @@
     "./auth": "./src/auth.ts",
     "./drizzle": "./src/drizzle.ts",
     "./http/oak": "./src/http/oak-api.ts",
+    "./http/oak/telemetry": "./src/http/oak-telemetry.ts",
     "./openapi": "./src/openapi.ts",
     "./testing": "./src/testing.ts",
     "./value-object": "./src/value-object.ts"
@@ -34,6 +35,7 @@
     "@convee": "jsr:@fifo/convee@^1.0.0",
     "@drizzle-orm": "npm:drizzle-orm@^0.44.5",
     "@drizzle-orm/postgres-js": "npm:drizzle-orm@^0.44.5/postgres-js",
+    "@opentelemetry/api": "npm:@opentelemetry/api@1",
     "@oak/oak": "jsr:@oak/oak@^17.2.0",
     "@postgres": "npm:postgres@^3.4.7",
     "@valibot/to-json-schema": "jsr:@valibot/to-json-schema@^1.6.0",
@@ -45,7 +47,7 @@
   },
   "tasks": {
     "lint": "deno lint src",
-    "check": "deno check src/mod.ts src/admin.ts src/admin/modules.ts src/admin/modules/audit.ts src/admin/modules/rbac.ts src/admin/modules/sessions.ts src/auth.ts src/drizzle.ts src/http/oak-api.ts src/openapi.ts src/testing.ts src/value-object.ts",
+    "check": "deno check src/mod.ts src/admin.ts src/admin/modules.ts src/admin/modules/audit.ts src/admin/modules/rbac.ts src/admin/modules/sessions.ts src/auth.ts src/drizzle.ts src/http/oak-api.ts src/http/oak-telemetry.ts src/openapi.ts src/testing.ts src/value-object.ts",
     "test": "deno test -A --parallel --clean --ignore='_*/' --ignore='src/OLD-reference/' src",
     "test:unit": "deno test -A --parallel --clean --ignore='_*/' --ignore='src/OLD-reference/' --ignore='**/*.integration.test.ts' --ignore='**/*.integration.test.tsx' src",
     "test:integration": "sh -c 'files=$(find src -type f \\( -name \"*.integration.test.ts\" -o -name \"*.integration.test.tsx\" \\)); if [ -z \"$files\" ]; then echo \"No integration tests found\"; else deno test -A --parallel --clean --ignore=\"_*/\" --ignore=\"src/OLD-reference/\" $files; fi'",

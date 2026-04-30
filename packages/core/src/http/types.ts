@@ -74,7 +74,9 @@ export type CurioHttpContext<
 export type HttpAdapter<
   TRouter,
   TRawContext = unknown,
-  TContext extends CurioHttpContext<TRawContext> = CurioHttpContext<TRawContext>,
+  TContext extends CurioHttpContext<TRawContext> = CurioHttpContext<
+    TRawContext
+  >,
 > = {
   /** Creates an empty router/runtime container. */
   createRouter(): TRouter;

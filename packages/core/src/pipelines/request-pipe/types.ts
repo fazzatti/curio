@@ -76,6 +76,7 @@ export type BuiltInPipeOptions<
     >);
 };
 
-export type BuiltInPipe<TContext extends CurioHttpContext = CurioHttpContext> = (
-  ctx: TContext,
-) => Promise<TContext>;
+export type BuiltInPipe<TContext extends CurioHttpContext = CurioHttpContext> =
+  (
+    ctx: TContext,
+  ) => Promise<TContext>;

@@ -148,13 +148,14 @@ const createRuntimeAdmin = () => {
           load: () => ({
             configured: false,
           }),
-          submit: () => Promise.resolve({
-            redirectTo: "/admin/flows/configure-channels",
-            flash: {
-              tone: "success",
-              message: "Channels configured.",
-            },
-          }),
+          submit: () =>
+            Promise.resolve({
+              redirectTo: "/admin/flows/configure-channels",
+              flash: {
+                tone: "success",
+                message: "Channels configured.",
+              },
+            }),
         }),
       },
       widgets: {
@@ -459,9 +460,12 @@ Deno.test("admin runtime builds grouped navigation and namespaced paths", async 
   assertEquals(admin.getDocumentTitle("Queue"), "Queue • Runtime Admin");
   assertEquals(adminNavigation.homeItem.label, "Dashboard");
   assertEquals(adminNavigation.homeItem.kind, "home");
-  assertEquals(adminNavigation.groups.map((group: AdminNavGroup) => group.label), [
-    "Resources",
-  ]);
+  assertEquals(
+    adminNavigation.groups.map((group: AdminNavGroup) => group.label),
+    [
+      "Resources",
+    ],
+  );
   assertEquals(
     adminNavigation.groups[0]?.items.map((item: AdminNavItem) => item.label),
     ["Permissions", "Roles", "Users"],
@@ -490,11 +494,14 @@ Deno.test("admin runtime builds grouped navigation and namespaced paths", async 
     slug: "configure-channels",
   });
 
-  assertEquals(superadminNavigation.groups.map((group: AdminNavGroup) => group.label), [
-    "Transactions",
-    "Operations",
-    "Resources",
-  ]);
+  assertEquals(
+    superadminNavigation.groups.map((group: AdminNavGroup) => group.label),
+    [
+      "Transactions",
+      "Operations",
+      "Resources",
+    ],
+  );
   assertEquals(superadminNavigation.groups[0]?.items, [{
     href: "/admin/views/transactions",
     label: "Transaction Queue",
@@ -508,7 +515,9 @@ Deno.test("admin runtime builds grouped navigation and namespaced paths", async 
     kind: "flow",
   }]);
   assertEquals(
-    superadminNavigation.groups[2]?.items.map((item: AdminNavItem) => item.label),
+    superadminNavigation.groups[2]?.items.map((item: AdminNavItem) =>
+      item.label
+    ),
     ["Audit", "Permissions", "Roles", "Sessions", "Users"],
   );
 });
@@ -557,7 +566,9 @@ Deno.test("admin runtime renders forbidden, missing flow, and missing record pag
     "Admin flow not found.",
   );
 
-  const missingRecordContext = createOakContext("/admin/resources/users/missing");
+  const missingRecordContext = createOakContext(
+    "/admin/resources/users/missing",
+  );
   admin.renderMissingRecord(
     missingRecordContext as never,
     login.actor,
@@ -569,9 +580,10 @@ Deno.test("admin runtime renders forbidden, missing flow, and missing record pag
     "This record could not be found.",
   );
 
-  admin.components.Shell = ((props: { children?: ComponentChildren }) => (
-    <div data-shell="custom">{props.children}</div>
-  )) as never;
+  admin.components.Shell =
+    ((props: { children?: ComponentChildren }) => (
+      <div data-shell="custom">{props.children}</div>
+    )) as never;
 
   const customForbiddenContext = createOakContext("/admin/custom-forbidden");
   admin.renderForbidden(customForbiddenContext as never, login.actor);

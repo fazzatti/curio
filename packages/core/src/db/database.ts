@@ -428,7 +428,9 @@ const createDatabaseInstance = <TTables extends TableRegistry>(
         if (foreignKeyValue == null) {
           loadedRelations[relationName] = null;
         } else {
-          loadedRelations[relationName] = await targetRepo.findById(foreignKeyValue);
+          loadedRelations[relationName] = await targetRepo.findById(
+            foreignKeyValue,
+          );
         }
         continue;
       }

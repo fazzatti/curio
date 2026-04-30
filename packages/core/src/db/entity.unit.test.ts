@@ -1,9 +1,9 @@
+import { assert, assertEquals, assertInstanceOf } from "@std/assert";
 import {
-  assert,
-  assertEquals,
-  assertInstanceOf,
-} from "@std/assert";
-import { createDefaultEntityClass, Entity, hydrateEntityInstance } from "@/db/entity.ts";
+  createDefaultEntityClass,
+  Entity,
+  hydrateEntityInstance,
+} from "@/db/entity.ts";
 import { field } from "@/db/field.ts";
 import { Model } from "@/db/model.ts";
 import { UuidPrimaryKey } from "@/db/variant.ts";

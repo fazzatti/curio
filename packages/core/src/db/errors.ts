@@ -229,7 +229,9 @@ export class UniqueConstraintViolationError extends Error {
    */
   constructor(modelName: string, fieldName: string, value: unknown) {
     super(
-      `Field "${modelName}.${fieldName}" already contains the value ${JSON.stringify(value)}.`,
+      `Field "${modelName}.${fieldName}" already contains the value ${
+        JSON.stringify(value)
+      }.`,
     );
     this.name = "UniqueConstraintViolationError";
   }

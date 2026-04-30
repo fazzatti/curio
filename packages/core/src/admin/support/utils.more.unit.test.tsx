@@ -1,9 +1,6 @@
 /** @jsxImportSource preact */
 
-import {
-  assertEquals,
-  assertRejects,
-} from "@std/assert";
+import { assertEquals, assertRejects } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { renderToString } from "preact-render-to-string";
 import {
@@ -36,15 +33,17 @@ describe("admin runtime utils extra coverage", () => {
 
     await assertRejects(
       () =>
-        readForm({
-          request: {
-            body: {
-              type: () => "json",
-              form: () => Promise.resolve(new URLSearchParams()),
-              formData: () => Promise.resolve(new FormData()),
+        readForm(
+          {
+            request: {
+              body: {
+                type: () => "json",
+                form: () => Promise.resolve(new URLSearchParams()),
+                formData: () => Promise.resolve(new FormData()),
+              },
             },
-          },
-        } as Parameters<typeof readForm>[0]),
+          } as Parameters<typeof readForm>[0],
+        ),
       Error,
       "Expected a form submission.",
     );

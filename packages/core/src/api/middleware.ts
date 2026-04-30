@@ -40,7 +40,9 @@ export type MiddlewareFactory<
  * @typeParam TKey The middleware data key for keyed middleware.
  * @typeParam TData The resolved middleware data type for keyed middleware.
  */
-export function middleware<TContext extends CurioHttpContext = CurioHttpContext>(
+export function middleware<
+  TContext extends CurioHttpContext = CurioHttpContext,
+>(
   run: PassThroughRouteMiddlewareHandler<TContext>,
 ): PassThroughRouteMiddleware<TContext>;
 export function middleware<

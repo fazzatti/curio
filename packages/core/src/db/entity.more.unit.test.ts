@@ -1,7 +1,4 @@
-import {
-  assertEquals,
-  assertInstanceOf,
-} from "@std/assert";
+import { assertEquals, assertInstanceOf } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import {
   createDefaultEntityClass,
@@ -57,7 +54,10 @@ describe("db entities", () => {
     );
 
     assertInstanceOf(user, BoundUserEntity);
-    assertEquals((user as unknown as { profile: { bio: string } }).profile.bio, "Hello");
+    assertEquals(
+      (user as unknown as { profile: { bio: string } }).profile.bio,
+      "Hello",
+    );
 
     class PlainEntity extends Entity {
       declare custom: string;

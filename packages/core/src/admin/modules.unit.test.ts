@@ -10,6 +10,7 @@ import {
 } from "@/admin/models.ts";
 import {
   authenticateAdminUser,
+  DEFAULT_ROLE_KEYS,
   findExistingSuperadmin,
   hasAdminPermission,
   loadRecentAuditEventsForRecord,
@@ -18,7 +19,6 @@ import {
   resolveAdminActor,
   resolveAdminSessionSettings,
   seedDefaultAdminData,
-  DEFAULT_ROLE_KEYS,
   syncUserRoles,
 } from "@/admin/modules.ts";
 import { Database } from "@/db/database.ts";

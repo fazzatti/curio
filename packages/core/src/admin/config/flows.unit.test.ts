@@ -51,7 +51,12 @@ describe("admin runtime flows", () => {
           permission: "flows:ops",
           permissionLabel: "Run Ops",
           permissionDescription: "Access operations flow.",
-          nav: { visible: false, group: "Operations", order: 10, groupOrder: 30 },
+          nav: {
+            visible: false,
+            group: "Operations",
+            order: 10,
+            groupOrder: 30,
+          },
           load,
           render,
           submit,

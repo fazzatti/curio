@@ -1,25 +1,25 @@
 import type {
-  EnsureUniqueMiddlewareKeys,
   EndpointMethod,
+  EnsureUniqueMiddlewareKeys,
   MiddlewareDataFromDefinitions,
   RouteMethodDocs,
-  RouteMiddleware,
   RouteMethodOperation,
+  RouteMiddleware,
   WithMiddlewareData,
 } from "@/api/types.ts";
 import type { CurioHttpContext } from "@/http/types.ts";
 import {
-  createRequestPipe,
   type BuiltInPipeHandlerInput,
   type BuiltInPipeHandlerOutput,
   type BuiltInPipeOptions,
   type BuiltInPipeRequestSchema,
+  createRequestPipe,
 } from "@/pipelines/request-pipe.ts";
 import { withSchemas } from "@/api/with-schemas.ts";
 import {
   type InferValibotSchema,
-  valibotSchemaAdapter,
   type ValibotSchema,
+  valibotSchemaAdapter,
 } from "@/schema/valibot.ts";
 
 type ReadRequestSchema<
@@ -50,8 +50,7 @@ type WriteHandlerInput<
 
 type OperationPayload<
   TResponseSchema extends ValibotSchema | undefined = undefined,
-> = TResponseSchema extends ValibotSchema
-  ? InferValibotSchema<TResponseSchema>
+> = TResponseSchema extends ValibotSchema ? InferValibotSchema<TResponseSchema>
   : unknown;
 
 type OperationOutput<
@@ -76,7 +75,9 @@ type ReadOperationOptions<
       TContext,
       MiddlewareDataFromDefinitions<TContext, TMiddlewares>
     >,
-  ): OperationOutput<TResponseSchema> | Promise<OperationOutput<TResponseSchema>>;
+  ):
+    | OperationOutput<TResponseSchema>
+    | Promise<OperationOutput<TResponseSchema>>;
 };
 
 type WriteOperationOptions<
@@ -102,7 +103,9 @@ type WriteOperationOptions<
       TContext,
       MiddlewareDataFromDefinitions<TContext, TMiddlewares>
     >,
-  ): OperationOutput<TResponseSchema> | Promise<OperationOutput<TResponseSchema>>;
+  ):
+    | OperationOutput<TResponseSchema>
+    | Promise<OperationOutput<TResponseSchema>>;
 };
 
 type ReadOperationBuilder<
@@ -187,22 +190,24 @@ const createMethodOperation = <
     undefined,
 >(
   method: M,
-  options: Omit<
-    BuiltInPipeOptions<
-      TPathParamsSchema,
-      TQuerySchema,
-      TBodySchema,
-      TResponseSchema,
-      WithMiddlewareData<
-        TContext,
-        MiddlewareDataFromDefinitions<TContext, TMiddlewares>
-      >
-  >,
-  "schemaAdapter"
-  > & {
-    docs?: RouteMethodDocs;
-    middlewares?: EnsureUniqueMiddlewareKeys<TContext, TMiddlewares>;
-  },
+  options:
+    & Omit<
+      BuiltInPipeOptions<
+        TPathParamsSchema,
+        TQuerySchema,
+        TBodySchema,
+        TResponseSchema,
+        WithMiddlewareData<
+          TContext,
+          MiddlewareDataFromDefinitions<TContext, TMiddlewares>
+        >
+      >,
+      "schemaAdapter"
+    >
+    & {
+      docs?: RouteMethodDocs;
+      middlewares?: EnsureUniqueMiddlewareKeys<TContext, TMiddlewares>;
+    },
 ): RouteMethodOperation<
   M,
   WithMiddlewareData<

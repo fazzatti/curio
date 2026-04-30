@@ -351,7 +351,6 @@ Deno.test("OpenAPI.from wraps Valibot conversion failures in OpenApiGenerationEr
   );
 });
 
-
 Deno.test("OpenAPI.from forces path parameters to be required regardless of schema", () => {
   const document = OpenAPI.from([
     Route(":optId", {
@@ -365,18 +364,16 @@ Deno.test("OpenAPI.from forces path parameters to be required regardless of sche
       }),
     }),
   ]);
-  
+
   assertEquals(document.paths["/{optId}"]?.get?.parameters, [
     {
       name: "optId",
       in: "path",
       required: true,
-      schema: { type: "string" }
-    }
+      schema: { type: "string" },
+    },
   ]);
 });
-
-
 
 Deno.test("OpenAPI.from flags required query parameters correctly", () => {
   const document = OpenAPI.from([
@@ -391,4 +388,3 @@ Deno.test("OpenAPI.from flags required query parameters correctly", () => {
   ]);
   assertEquals(document.paths["/search"]?.get?.parameters?.[0]?.required, true);
 });
-

@@ -15,7 +15,7 @@ primitives instead of hiding persistence behind runtime magic.
 
 ```ts
 import * as v from "@valibot/valibot";
-import { Model, UuidPrimaryKey, field } from "@curio/core";
+import { field, Model, UuidPrimaryKey } from "@curio/core";
 
 export const UserModel = new Model({
   name: "users",
@@ -101,8 +101,8 @@ Current built-ins:
 - `memoryDatabaseAdapter` from `@curio/core`
 - `drizzleAdapter` from `@curio/core/drizzle`
 
-Use memory for fast tests and in-process development scenarios. Use Drizzle
-when you want a SQL-backed runtime.
+Use memory for fast tests and in-process development scenarios. Use Drizzle when
+you want a SQL-backed runtime.
 
 ## Validation
 

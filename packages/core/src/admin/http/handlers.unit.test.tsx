@@ -470,7 +470,7 @@ describe("admin runtime handlers", () => {
     );
     assertEquals(detailResponse.status, 200);
     const detailHtml = await detailResponse.text();
-    assertStringIncludes(detailHtml, '>User</h1>');
+    assertStringIncludes(detailHtml, ">User</h1>");
     assertStringIncludes(detailHtml, "ada@example.com");
 
     const missingEditResponse = await requestAdmin(

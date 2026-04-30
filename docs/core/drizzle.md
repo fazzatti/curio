@@ -1,7 +1,7 @@
 # Drizzle
 
-`@curio/core/drizzle` exposes the SQL-backed adapter used when Curio repositories
-should persist through Drizzle and Postgres.
+`@curio/core/drizzle` exposes the SQL-backed adapter used when Curio
+repositories should persist through Drizzle and Postgres.
 
 ## Public API
 

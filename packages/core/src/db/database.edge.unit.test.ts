@@ -1,8 +1,4 @@
-import {
-  assertEquals,
-  assertRejects,
-  assertThrows,
-} from "@std/assert";
+import { assertEquals, assertRejects, assertThrows } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { Database } from "@/db/database.ts";
 import {
@@ -66,7 +62,11 @@ describe("Database edge cases", () => {
     const record = await db.Plain.create({ name: "Ada", note: null });
 
     await assertRejects(
-      () => db.Plain.updateById(record.id, { note: undefined, name: null } as never),
+      () =>
+        db.Plain.updateById(
+          record.id,
+          { note: undefined, name: null } as never,
+        ),
       NonNullableFieldError,
     );
     await assertRejects(
@@ -198,7 +198,9 @@ describe("Database edge cases", () => {
         userId: field.uuid().required(),
       },
       relations: {
-        user: relation.belongsTo("User").foreignKey("userId").references("slug"),
+        user: relation.belongsTo("User").foreignKey("userId").references(
+          "slug",
+        ),
       },
     });
 

@@ -1,9 +1,6 @@
 /** @jsxImportSource preact */
 
-import {
-  assertEquals,
-  assertStringIncludes,
-} from "@std/assert";
+import { assertEquals, assertStringIncludes } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import { DefaultAdminFormPage } from "@/admin/components.tsx";
 import { handleFlow, handleFlowSubmit } from "@/admin/http/flow-handlers.tsx";
@@ -181,7 +178,8 @@ const createAdmin = (
   getResourceDetailPath: () => "/admin/resources/unused/id",
   getResourceEditPath: () => "/admin/resources/unused/id/edit",
   getResourceDeletePath: () => "/admin/resources/unused/id/delete",
-  getResourceResetPasswordPath: () => "/admin/resources/unused/id/reset-password",
+  getResourceResetPasswordPath: () =>
+    "/admin/resources/unused/id/reset-password",
   getViewPath: () => "/admin/views/unused",
   getFlowPath: () => "/admin/flows/setup",
 } as unknown as AdminRuntimeLike);
@@ -235,7 +233,10 @@ describe("admin runtime flow handlers", () => {
     await handleFlowSubmit(admin, failureContext);
 
     assertEquals(failureContext.response.status, 200);
-    assertStringIncludes(String(failureContext.response.body), "Confirm setup.");
+    assertStringIncludes(
+      String(failureContext.response.body),
+      "Confirm setup.",
+    );
     assertStringIncludes(String(failureContext.response.body), 'value="no"');
   });
 
@@ -249,13 +250,14 @@ describe("admin runtime flow handlers", () => {
     assertEquals(missingContext.response.body, "missing flow");
 
     const neutralAdmin = createAdmin(createFlow({
-      submit: () => Promise.resolve({
-        redirectTo: "/admin/flows/setup?tab=advanced",
-        flash: {
-          tone: "neutral",
-          message: "Saved.",
-        },
-      }),
+      submit: () =>
+        Promise.resolve({
+          redirectTo: "/admin/flows/setup?tab=advanced",
+          flash: {
+            tone: "neutral",
+            message: "Saved.",
+          },
+        }),
     }));
     const neutralContext = createContext({ flow: "setup" }, { confirm: "yes" });
 
@@ -267,9 +269,10 @@ describe("admin runtime flow handlers", () => {
     );
 
     const plainRedirectAdmin = createAdmin(createFlow({
-      submit: () => Promise.resolve({
-        redirectTo: "/admin/flows/setup?tab=advanced",
-      }),
+      submit: () =>
+        Promise.resolve({
+          redirectTo: "/admin/flows/setup?tab=advanced",
+        }),
     }));
     const plainRedirectContext = createContext(
       { flow: "setup" },
@@ -286,7 +289,9 @@ describe("admin runtime flow handlers", () => {
     const stringErrorAdmin = createAdmin(createFlow({
       submit: () => Promise.reject("plain failure"),
     }));
-    const stringErrorContext = createContext({ flow: "setup" }, { confirm: "yes" });
+    const stringErrorContext = createContext({ flow: "setup" }, {
+      confirm: "yes",
+    });
 
     await handleFlowSubmit(stringErrorAdmin, stringErrorContext);
 

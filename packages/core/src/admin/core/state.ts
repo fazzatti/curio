@@ -7,6 +7,7 @@ import {
   DefaultAdminLoginPage,
   DefaultAdminTableCell,
 } from "@/admin/components.tsx";
+import { resolveAdminBrandingColors } from "@/admin/assets.ts";
 import { resolveAdminConfiguration } from "@/admin/config/presets.ts";
 import type {
   AdminBranding,
@@ -16,8 +17,8 @@ import type {
   AdminNormalizedFlow,
   AdminNormalizedResource,
   AdminNormalizedView,
-  ResolvedAdminComponents,
   AdminSessionSettings,
+  ResolvedAdminComponents,
 } from "@/admin/core/types.ts";
 import { resolveAdminSessionSettings } from "@/admin/modules.ts";
 import type { DatabaseInstance, TableRegistry } from "@/db/types.ts";
@@ -53,8 +54,9 @@ export function createAdminState<const TTables extends TableRegistry>(
     db: input.db,
     basePath: input.basePath ?? "/admin",
     branding: {
-      ...DEFAULT_ADMIN_BRANDING,
-      ...input.branding,
+      name: input.branding?.name ?? DEFAULT_ADMIN_BRANDING.name,
+      tagline: input.branding?.tagline ?? DEFAULT_ADMIN_BRANDING.tagline,
+      colors: resolveAdminBrandingColors(input.branding?.colors),
     },
     session: resolveAdminSessionSettings(input.session),
     components: {

@@ -32,8 +32,8 @@ Curio middleware is composable and typed:
 - pass-through middleware for request flow control
 - keyed middleware for typed per-request data
 
-This is the intended way to inject authentication, request context, tracing,
-and similar cross-cutting concerns into the route layer.
+This is the intended way to inject authentication, request context, tracing, and
+similar cross-cutting concerns into the route layer.
 
 ## Custom Handlers With Schema Metadata
 
@@ -56,8 +56,7 @@ alternative schema integrations are impossible forever.
 
 ## Value Objects
 
-Curio's value-object support is intentionally separate from the root happy
-path.
+Curio's value-object support is intentionally separate from the root happy path.
 
 `@curio/core/value-object` is the place for domain primitives that need:
 
@@ -66,8 +65,8 @@ path.
 - domain-specific methods
 - custom equality or serialization rules
 
-That keeps value objects available without forcing every core-package consumer into a
-DDD-heavy style.
+That keeps value objects available without forcing every core-package consumer
+into a DDD-heavy style.
 
 ## Admin Overrides
 

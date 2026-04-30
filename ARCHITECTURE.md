@@ -12,7 +12,9 @@ packages/
   init/
 ```
 
-The current project evolved from a prototype called `beck`. That prototype validated the main abstractions and the admin/product direction, but the new Curio repo should present those ideas as a cleaner and more intentional system.
+The current project evolved from a prototype called `beck`. That prototype
+validated the main abstractions and the admin/product direction, but the new
+Curio repo should present those ideas as a cleaner and more intentional system.
 
 ## Product Split
 
@@ -182,7 +184,8 @@ Contains route-facing handler logic and route mounting.
 
 #### `admin/rendering`
 
-Contains server-rendered page assembly and page-oriented rendering helpers, such as:
+Contains server-rendered page assembly and page-oriented rendering helpers, such
+as:
 
 - listing
 - details
@@ -206,8 +209,8 @@ Contains the more opinionated admin support modules:
 - RBAC
 - audit
 
-This is conceptually distinct from the admin core and should be treated that
-way in package design and docs.
+This is conceptually distinct from the admin core and should be treated that way
+in package design and docs.
 
 ## Admin Public API Strategy
 
@@ -241,9 +244,11 @@ This preserves:
 - lower flicker
 - better navigation behavior
 
-SSE was discussed for very hot dashboards, but deferred because it introduced more framework and mental overhead than the project wanted at this stage.
+SSE was discussed for very hot dashboards, but deferred because it introduced
+more framework and mental overhead than the project wanted at this stage.
 
-If revisited later, it should still preserve the server-rendered model rather than forcing a client-state-heavy design.
+If revisited later, it should still preserve the server-rendered model rather
+than forcing a client-state-heavy design.
 
 ## UI Direction
 
@@ -272,7 +277,8 @@ Before publishing the core package:
 - README should explain the product and the main authoring model
 - package boundaries should be obvious from the repo structure
 
-Internal code may be read by users, but internal documentation should be selective and purposeful.
+Internal code may be read by users, but internal documentation should be
+selective and purposeful.
 
 ## Testing Requirements
 
@@ -311,7 +317,8 @@ Likely package names:
 - `@curio/core`
 - `@curio/init`
 
-If a styled brand appears in docs or design later, it can use `Curió`, but source/package naming should stay ASCII.
+If a styled brand appears in docs or design later, it can use `Curió`, but
+source/package naming should stay ASCII.
 
 ## Migration Guidance from Beck
 
@@ -322,4 +329,5 @@ When porting from the old `beck` repo:
 - keep the useful abstractions
 - drop historical accidental complexity
 
-The old repo proved the concepts. The new Curio repo should present them as a product.
+The old repo proved the concepts. The new Curio repo should present them as a
+product.

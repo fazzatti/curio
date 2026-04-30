@@ -1,9 +1,6 @@
 /** @jsxImportSource preact */
 
-import {
-  assertEquals,
-  assertStringIncludes,
-} from "@std/assert";
+import { assertEquals, assertStringIncludes } from "@std/assert";
 import type { FunctionComponent } from "preact";
 import type { AdminShellProps } from "@/admin/components/types.ts";
 import {

@@ -12,7 +12,7 @@ type MaybePromise<T> = T | Promise<T>;
  */
 export const once = <T>(
   factory: () => MaybePromise<T>,
-): (() => Promise<T>) => {
+): () => Promise<T> => {
   let cachedValue: Promise<T> | undefined;
 
   return (): Promise<T> => {

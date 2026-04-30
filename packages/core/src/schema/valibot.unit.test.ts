@@ -1,8 +1,4 @@
-import {
-  assertEquals,
-  assertInstanceOf,
-  assertThrows,
-} from "@std/assert";
+import { assertEquals, assertInstanceOf, assertThrows } from "@std/assert";
 import { describe, it } from "@std/testing/bdd";
 import * as v from "@valibot/valibot";
 import { valibotSchemaAdapter } from "@/schema/valibot.ts";

@@ -18,9 +18,10 @@ const createAppResponse = async (
 
 describe("Oak HTTP surface", () => {
   it("binds built-in operations, routes, and middleware to Oak", async () => {
-    const auth = middleware("auth", ({ ctx }) => Promise.resolve({
-      method: ctx.raw.request.method,
-    }));
+    const auth = middleware("auth", ({ ctx }) =>
+      Promise.resolve({
+        method: ctx.raw.request.method,
+      }));
 
     const router = API.from([
       Route("account", {
@@ -98,5 +99,30 @@ describe("Oak HTTP surface", () => {
     assertEquals(result.routes.map(({ method, path }) => ({ method, path })), [
       { method: "GET", path: "/health" },
     ]);
+  });
+
+  it("exposes runtime.telemetry() as an Oak middleware convenience", async () => {
+    const runtime = API.build([
+      Route("health", {
+        GET: GET({
+          handler: () => ({
+            payload: {
+              ok: true,
+            },
+          }),
+        }),
+      }),
+    ]);
+
+    const app = new Application();
+    app.use(runtime.telemetry());
+    app.use(runtime.router.routes());
+    app.use(runtime.router.allowedMethods());
+
+    const response = await app.handle(new Request("http://localhost/health"));
+    assertExists(response);
+    assertEquals(await response.json(), {
+      ok: true,
+    });
   });
 });

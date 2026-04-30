@@ -1,7 +1,4 @@
-import {
-  Router,
-  type RouterContext as OakRouterContext,
-} from "@oak/oak";
+import { Router, type RouterContext as OakRouterContext } from "@oak/oak";
 import type { RouteHandler } from "@/api/types.ts";
 import type {
   CurioHttpContext,

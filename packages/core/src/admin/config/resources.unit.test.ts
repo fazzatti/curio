@@ -112,7 +112,10 @@ describe("admin runtime resources", () => {
     ]);
 
     assertEquals(resolveActions("users", false).reset_password, true);
-    assertEquals(resolveActions("users", false, { reset_password: false }).reset_password, false);
+    assertEquals(
+      resolveActions("users", false, { reset_password: false }).reset_password,
+      false,
+    );
     assertEquals(resolveActions("sessions", true).create, false);
     assertEquals(resolveActions("sessions", true).delete, false);
 
