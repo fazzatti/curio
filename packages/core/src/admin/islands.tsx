@@ -102,6 +102,12 @@ const findNonSerializablePath = (
     return path;
   }
 
+  if (seen.has(value)) {
+    return path;
+  }
+
+  seen.add(value);
+
   if (Array.isArray(value)) {
     for (let index = 0; index < value.length; index += 1) {
       const failurePath = findNonSerializablePath(
@@ -117,12 +123,6 @@ const findNonSerializablePath = (
 
     return undefined;
   }
-
-  if (seen.has(value)) {
-    return path;
-  }
-
-  seen.add(value);
 
   const prototype = Object.getPrototypeOf(value);
 

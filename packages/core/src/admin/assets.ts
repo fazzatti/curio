@@ -2399,7 +2399,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const getActiveIslandRuntime = (hookName) => {
     if (!activeIslandRuntime) {
       throw new Error(
-        "Curio admin island hook \"" + hookName + "\" must run while an island is rendering.",
+        'Curio admin island hook "' + hookName + '" must run while an island is rendering.',
       );
     }
 
@@ -2429,7 +2429,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (typeof component !== "function") {
       throw new Error(
-        "Curio admin island \"" + (payload.name || "AnonymousIsland") + "\" did not compile to a function.",
+        'Curio admin island "' + (payload.name || "AnonymousIsland") + '" did not compile to a function.',
       );
     }
 
@@ -2778,7 +2778,7 @@ document.addEventListener("DOMContentLoaded", () => {
             previous?.cleanup?.();
           } catch (error) {
             console.error(
-              "Curio admin island \"" + name + "\" cleanup failed.",
+              'Curio admin island "' + name + '" cleanup failed.',
               error,
             );
           }
@@ -2854,22 +2854,22 @@ document.addEventListener("DOMContentLoaded", () => {
       hookIndex = 0;
       pendingEffects = [];
 
-      let output;
+      const previousIslandRuntime = activeIslandRuntime;
 
       activeIslandRuntime = runtime;
 
       try {
-        output = component(props || {});
+        const output = component(props || {});
+        const nextContent = renderIslandNode(output);
+        const nextNodes = nextContent instanceof DocumentFragment
+          ? [...nextContent.childNodes]
+          : [nextContent];
+
+        root.replaceChildren(...nextNodes);
       } finally {
-        activeIslandRuntime = null;
+        activeIslandRuntime = previousIslandRuntime;
       }
 
-      const nextContent = renderIslandNode(output);
-      const nextNodes = nextContent instanceof DocumentFragment
-        ? [...nextContent.childNodes]
-        : [nextContent];
-
-      root.replaceChildren(...nextNodes);
       restoreIslandFormState(root, snapshot);
 
       for (const effect of pendingEffects) {
@@ -2904,9 +2904,9 @@ document.addEventListener("DOMContentLoaded", () => {
         );
       } catch (error) {
         console.error(
-          "Failed to initialize Curio admin island \"" +
+          'Failed to initialize Curio admin island "' +
             (islandRoot.getAttribute("data-curio-admin-island") || "AdminIsland") +
-            "\".",
+            '".',
           error,
         );
       }

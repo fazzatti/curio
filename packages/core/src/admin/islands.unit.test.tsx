@@ -53,6 +53,34 @@ Deno.test("serializeAdminIslandPayload encodes JSON-safe payloads for client hyd
   });
 });
 
+Deno.test("serializeAdminIslandPayload preserves serializable nested arrays", () => {
+  const encoded = serializeAdminIslandPayload(
+    "SensitiveField",
+    "function SensitiveField() { return null; }",
+    {
+      sections: [
+        {
+          fields: [
+            ["secretKey", "apiToken"],
+            ["enabled"],
+          ],
+        },
+      ],
+    },
+  );
+
+  assertEquals(decodePayload(encoded).props, {
+    sections: [
+      {
+        fields: [
+          ["secretKey", "apiToken"],
+          ["enabled"],
+        ],
+      },
+    ],
+  });
+});
+
 Deno.test("serializeAdminIslandPayload rejects unsupported prop values with the failing path", () => {
   assertThrows(
     () =>
@@ -110,6 +138,22 @@ Deno.test("serializeAdminIslandPayload rejects unsupported prop values with the 
       ),
     Error,
     'non-serializable prop at "props.self"',
+  );
+
+  const circularArray: unknown[] = [];
+  circularArray.push(circularArray);
+
+  assertThrows(
+    () =>
+      serializeAdminIslandPayload(
+        "SensitiveField",
+        "function SensitiveField() { return null; }",
+        {
+          items: circularArray,
+        },
+      ),
+    Error,
+    'non-serializable prop at "props.items[0]"',
   );
 });
 
